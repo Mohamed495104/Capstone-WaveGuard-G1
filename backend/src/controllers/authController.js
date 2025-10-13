@@ -47,7 +47,7 @@ export const syncUser = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error("❌ Firebase auth error:", error);
+        console.error("Firebase auth error:", error);
         res.status(401).json({ success: false, message: "Invalid or expired Firebase token" });
     }
 };

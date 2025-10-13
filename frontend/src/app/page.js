@@ -15,7 +15,7 @@ export default function HomePage() {
             sx={{
                 height: "100vh",
                 width: "100vw",
-                backgroundImage: "url('/images/image1.png')",
+                backgroundImage: "url('/images/login.jpg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 display: "flex",

@@ -2,8 +2,6 @@
 import React, { useState, useRef } from "react";
 import {
     Box,
-    Card,
-    TextField,
     Typography,
     Button,
     InputAdornment,
@@ -21,49 +19,23 @@ import {
     Lock,
     Person,
     CheckCircle,
+    Google as GoogleIcon,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { styled } from "@mui/material/styles";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import axios from "axios";
-
-// Glass card with responsive padding
-const GlassCard = styled(Card)(({ theme }) => ({
-    backdropFilter: "blur(20px)",
-    backgroundColor: "rgba(255,255,255,0.12)",
-    border: "1px solid rgba(255,255,255,0.25)",
-    borderRadius: "20px",
-    padding: theme.spacing(4),
-    [theme.breakpoints.down('sm')]: {
-        padding: theme.spacing(3),
-        borderRadius: "16px",
-    },
-    [theme.breakpoints.down('xs')]: {
-        padding: theme.spacing(2.5),
-    },
-}));
-
-const StyledTextField = styled(TextField)(({ theme }) => ({
-    "& .MuiOutlinedInput-root": {
-        backgroundColor: "rgba(255,255,255,0.08)",
-        borderRadius: "10px",
-        "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
-        "&:hover fieldset": { borderColor: "rgba(255,255,255,0.35)" },
-        "&.Mui-focused fieldset": { borderColor: "rgba(255,255,255,0.5)" },
-    },
-    "& .MuiInputBase-input": {
-        color: "#fff",
-        fontSize: "15px",
-        [theme.breakpoints.down('sm')]: {
-            fontSize: "14px",
-            padding: "14px",
-        },
-    },
-    "& .MuiInputLabel-root": {
-        color: "rgba(255,255,255,0.7)",
-    },
-}));
+import {
+    GlassCard,
+    StyledTextField,
+    BackgroundStyle,
+    PrimaryButtonStyle,
+    FeatureBoxStyle,
+} from "./signup.styles";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -79,125 +51,35 @@ export default function SignupPage() {
         password: false,
         confirmPassword: false,
     });
-    const [emailStatus, setEmailStatus] = useState({
-        checking: false,
-        exists: false,
-        message: "",
-    });
     const [formErrors, setFormErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [agree, setAgree] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const [emailStatus, setEmailStatus] = useState({
+        checking: false,
+        exists: false,
+        message: "",
+    });
 
     const debounceRef = useRef(null);
 
-    // Enhanced email validation - blocks common typos
-    const isValidEmail = (email) => {
-        if (!email) return false;
+    // ✅ Validation Helpers
+    const isValidEmail = (email) =>
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    const isValidPassword = (password) =>
+        password && password.length >= 6 && /[a-zA-Z]/.test(password);
 
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(email)) return false;
+    const toggleShowPassword = () => setShowPassword((p) => !p);
 
-        // Block common typos
-        const commonTypos = ['.con', '.cmo', '.ocm', '.comme', '.gamil', '.gmai', '.yahooo', '.yaho', '.gmial', '.gmil'];
-        const lowerEmail = email.toLowerCase();
-        return !commonTypos.some(typo => lowerEmail.endsWith(typo));
-    };
-
-    // Enhanced password validation - must have at least 6 letters + numbers/special chars
-    const isValidPassword = (password) => {
-        if (!password || password.length < 6) return false;
-
-        const letterCount = (password.match(/[a-zA-Z]/g) || []).length;
-        const hasNumber = /\d/.test(password);
-        const hasSpecialChar = /[@$!%*?&#]/.test(password);
-
-        // Must have at least 6 letters AND at least one number or special character
-        return letterCount >= 4 && (hasNumber || hasSpecialChar);
-    };
-
-    // Real-time field validation
-    const validateField = (name, value) => {
-        switch (name) {
-            case 'name':
-                if (!value.trim()) {
-                    return "Full name is required";
-                } else if (value.trim().length < 2) {
-                    return "Name must be at least 2 characters";
-                }
-                return "";
-
-            case 'email':
-                if (!value.trim()) {
-                    return "Email address is required";
-                }
-                if (!isValidEmail(value)) {
-                    const email = value.toLowerCase();
-                    const hasCommonTypo = ['.con', '.cmo', '.ocm', '.comme', '.gamil', '.gmai', '.yahooo', '.yaho', '.gmial', '.gmil']
-                        .some(typo => email.endsWith(typo));
-
-                    if (hasCommonTypo) {
-                        return "Please check your email - did you mean .com?";
-                    } else if (!/@/.test(value)) {
-                        return "Email must contain an @ symbol";
-                    } else if (!/\.[a-zA-Z]{2,}$/.test(value)) {
-                        return "Email must end with a valid domain (e.g., .com, .org)";
-                    } else {
-                        return "Please enter a valid email address";
-                    }
-                }
-                if (emailStatus.exists) {
-                    return "This email is already registered. Please use another or sign in.";
-                }
-                return "";
-
-            case 'password':
-                if (!value) {
-                    return "Password is required";
-                }
-                if (value.length < 8) {
-                    return "Password must be at least 6 characters long";
-                }
-                if (!isValidPassword(value)) {
-                    const letterCount = (value.match(/[a-zA-Z]/g) || []).length;
-                    const hasNumber = /\d/.test(value);
-                    const hasSpecialChar = /[@$!%*?&#]/.test(value);
-
-                    if (letterCount < 6) {
-                        return "Password must contain at least 4 letters";
-                    } else if (!hasNumber && !hasSpecialChar) {
-                        return "Password must include at least one number or special character (@$!%*?&#)";
-                    } else {
-                        return "Password must have 6+ letters and include numbers or special characters";
-                    }
-                }
-                return "";
-
-            case 'confirmPassword':
-                if (!value) {
-                    return "Please confirm your password";
-                }
-                if (value !== form.password) {
-                    return "Passwords do not match";
-                }
-                return "";
-
-            default:
-                return "";
-        }
-    };
-
-    const handleEmailCheck = (email) => {
+    // ✅ Debounced Email Availability Check
+    const checkEmailAvailability = (email) => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
-
-        // Reset status if email is empty or invalid
         if (!email || !isValidEmail(email)) {
             setEmailStatus({ checking: false, exists: false, message: "" });
             return;
         }
-
-        // Only check availability if email format is valid
         debounceRef.current = setTimeout(async () => {
             try {
                 setEmailStatus({ checking: true, exists: false, message: "" });
@@ -205,101 +87,83 @@ export default function SignupPage() {
                     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/check-email`,
                     { params: { email } }
                 );
-
                 const exists = res.data.exists;
                 setEmailStatus({
                     checking: false,
                     exists,
                     message: exists
-                        ? "This email is already registered"
-                        : "This email is available",
+                        ? "❌ This email is already registered."
+                        : "✅ Email available for registration.",
                 });
-
-                // Update email error if exists
-                if (exists && touched.email) {
-                    setFormErrors(prev => ({
-                        ...prev,
-                        email: "This email is already registered. Please use another or sign in."
-                    }));
-                }
             } catch {
-                setEmailStatus({
-                    checking: false,
-                    exists: false,
-                    message: "",
-                });
+                setEmailStatus({ checking: false, exists: false, message: "" });
             }
-        }, 500);
+        }, 600);
     };
 
+    // ✅ Field Validation
+    const validateField = (name, value) => {
+        switch (name) {
+            case "name":
+                if (!value.trim()) return "Full name is required";
+                if (value.trim().length < 2) return "Name must be at least 2 characters";
+                return "";
+            case "email":
+                if (!value.trim()) return "Email is required";
+                if (!isValidEmail(value)) return "Enter a valid email address";
+                if (emailStatus.exists) return "This email is already registered.";
+                return "";
+            case "password":
+                if (!value) return "Password is required";
+                if (!isValidPassword(value))
+                    return "Password must be at least 6 characters long";
+                return "";
+            case "confirmPassword":
+                if (!value) return "Please confirm your password";
+                if (value !== form.password) return "Passwords do not match";
+                return "";
+            default:
+                return "";
+        }
+    };
+
+    // ✅ Input Change
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
-
-        // Validate on change if field has been touched
+        if (name === "email") checkEmailAvailability(value);
         if (touched[name]) {
             const error = validateField(name, value);
-            setFormErrors(prev => {
-                const newErrors = { ...prev };
-                if (error) {
-                    newErrors[name] = error;
-                } else {
-                    delete newErrors[name];
-                }
-                return newErrors;
-            });
+            setFormErrors((prev) => ({ ...prev, [name]: error || undefined }));
         }
     };
 
-    const handleBlur = (fieldName) => {
-        setTouched(prev => ({ ...prev, [fieldName]: true }));
-
-        // Validate on blur
-        const error = validateField(fieldName, form[fieldName]);
-        if (error) {
-            setFormErrors(prev => ({ ...prev, [fieldName]: error }));
-        }
+    // ✅ On Blur
+    const handleBlur = (name) => {
+        setTouched((prev) => ({ ...prev, [name]: true }));
+        const error = validateField(name, form[name]);
+        if (error) setFormErrors((prev) => ({ ...prev, [name]: error }));
     };
 
-    const toggleShowPassword = () => setShowPassword((p) => !p);
-
-    // Full form validation
+    // ✅ Full Form Validation
     const validateForm = () => {
         const errors = {};
-
-        // Validate all fields
-        Object.keys(form).forEach(field => {
+        Object.keys(form).forEach((field) => {
             const error = validateField(field, form[field]);
-            if (error) {
-                errors[field] = error;
-            }
+            if (error) errors[field] = error;
         });
-
-        // Check terms agreement
-        if (!agree) {
-            errors.agree = "You must agree to the Terms of Service and Privacy Policy to continue";
-        }
-
+        if (!agree)
+            errors.agree =
+                "You must agree to the Terms of Service and Privacy Policy to continue";
         return errors;
     };
 
+    // ✅ Signup Handler
     const handleSignup = async (e) => {
         e.preventDefault();
-
-        // Mark all fields as touched on submit attempt
-        setTouched({
-            name: true,
-            email: true,
-            password: true,
-            confirmPassword: true,
-        });
-
         const errors = validateForm();
         setFormErrors(errors);
-
-        if (Object.keys(errors).length > 0) {
-            return;
-        }
+        if (Object.keys(errors).length > 0) return;
 
         try {
             setLoading(true);
@@ -309,63 +173,52 @@ export default function SignupPage() {
                 form.password
             );
             const token = await userCred.user.getIdToken();
-
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`,
-                { idToken: token }
-            );
-
-            // Full UI cleanup after success
-            setForm({ name: "", email: "", password: "", confirmPassword: "" });
-            setEmailStatus({ checking: false, exists: false, message: "" });
-            setFormErrors({});
-            setTouched({ name: false, email: false, password: false, confirmPassword: false });
-            setAgree(false);
-
-            // Show success banner and redirect
-            setSuccessMessage("🎉 Registered successfully! You can log in now.");
-            setTimeout(() => router.push("/login"), 3000);
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
+                idToken: token,
+            });
+            setSuccessMessage("🎉 Registered successfully! Redirecting...");
+            setTimeout(() => router.push("/login"), 2000);
         } catch (err) {
-            let errorMessage = "Registration failed. Please try again.";
-
-            if (err.code === 'auth/email-already-in-use') {
-                errorMessage = "This email is already registered. Please sign in instead.";
-                setFormErrors(prev => ({ ...prev, email: errorMessage }));
-            } else if (err.code === 'auth/weak-password') {
-                errorMessage = "Password is too weak. Please use a stronger password.";
-                setFormErrors(prev => ({ ...prev, password: errorMessage }));
-            } else if (err.code === 'auth/invalid-email') {
-                errorMessage = "Invalid email address format.";
-                setFormErrors(prev => ({ ...prev, email: errorMessage }));
-            } else {
-                setFormErrors({ global: err.message || errorMessage });
-            }
+            setFormErrors({
+                global: err.message || "Registration failed. Please try again later.",
+            });
         } finally {
             setLoading(false);
         }
     };
 
+    // ✅ Google Sign-Up
+    const handleGoogleSignup = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            setGoogleLoading(true);
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            const token = await user.getIdToken();
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
+                idToken: token,
+            });
+            setSuccessMessage("Signed up successfully with Google!");
+            setTimeout(() => router.push("/dashboard"), 2000);
+        } catch (err) {
+            setFormErrors({
+                global: err.message || "Google sign-in failed. Please try again later.",
+            });
+        } finally {
+            setGoogleLoading(false);
+        }
+    };
+
     return (
-        <Box
-            sx={{
-                minHeight: "100vh",
-                width: "100%",
-                backgroundImage: {
-                    xs: `linear-gradient(rgba(0,60,110,0.75), rgba(0,120,180,0.75)), url('/images/image1.png')`,
-                    md: `linear-gradient(rgba(0,60,110,0.55), rgba(0,120,180,0.55)), url('/images/image1.png')`
-                },
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                backgroundAttachment: { xs: "scroll", md: "fixed" },
-                overflowY: "auto",
-                display: "flex",
-                alignItems: "center",
-            }}
-        >
+        <Box sx={BackgroundStyle}>
             <Container maxWidth="xl" sx={{ py: { xs: 3, sm: 4, md: 6 } }}>
-                <Grid container spacing={{ xs: 3, sm: 4, md: 6 }} alignItems="center" justifyContent="center">
-                    {/* LEFT PANEL - Brand & Features */}
+                <Grid
+                    container
+                    spacing={{ xs: 3, sm: 4, md: 6 }}
+                    alignItems="center"
+                    justifyContent="center"
+                >
+                    {/* LEFT PANEL – Branding */}
                     <Grid
                         item
                         xs={12}
@@ -378,10 +231,9 @@ export default function SignupPage() {
                             alignItems: { xs: "center", md: "flex-end" },
                             textAlign: { xs: "center", md: "right" },
                             color: "#fff",
-                            order: { xs: 1, md: 1 },
                         }}
                     >
-                        {/* Logo & Brand */}
+                        {/* Logo + Title */}
                         <Box
                             sx={{
                                 display: "flex",
@@ -438,19 +290,8 @@ export default function SignupPage() {
                             eco-volunteers creating cleaner coasts and a sustainable future.
                         </Typography>
 
-                        {/* Features Box */}
-                        <Box
-                            sx={{
-                                backdropFilter: "blur(20px)",
-                                backgroundColor: "rgba(255,255,255,0.08)",
-                                border: "1px solid rgba(255,255,255,0.15)",
-                                borderRadius: { xs: "12px", md: "16px" },
-                                p: { xs: 2, sm: 2.5, md: 3 },
-                                width: "100%",
-                                maxWidth: { xs: "100%", sm: 500, md: 420 },
-                                display: { xs: "none", sm: "block" },
-                            }}
-                        >
+                        {/* Features */}
+                        <Box sx={FeatureBoxStyle}>
                             {[
                                 "AI-powered waste classification",
                                 "Track your environmental impact",
@@ -488,20 +329,11 @@ export default function SignupPage() {
                         </Box>
                     </Grid>
 
-                    {/* RIGHT PANEL - Signup Form */}
-                    <Grid
-                        item
-                        xs={12}
-                        md={6}
-                        lg={5}
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            order: { xs: 2, md: 2 },
-                        }}
-                    >
-                        <GlassCard sx={{ width: "100%", maxWidth: { xs: "100%", sm: 480, md: 440 } }}>
+                    {/* RIGHT PANEL – Form */}
+                    <Grid item xs={12} md={6} lg={5}>
+                        <GlassCard
+                            sx={{ width: "100%", maxWidth: { xs: "100%", sm: 480, md: 440 } }}
+                        >
                             {/* Header */}
                             <Typography
                                 variant="h5"
@@ -509,7 +341,6 @@ export default function SignupPage() {
                                 fontWeight={700}
                                 color="#fff"
                                 mb={0.5}
-                                sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
                             >
                                 Create Your Account
                             </Typography>
@@ -518,262 +349,271 @@ export default function SignupPage() {
                                 align="center"
                                 color="rgba(255,255,255,0.7)"
                                 mb={3}
-                                sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
                             >
                                 Join 2,800+ volunteers making a real difference
                             </Typography>
 
-                            {/* Success Message */}
+                            {/* Messages */}
                             {successMessage && (
                                 <Typography
                                     align="center"
                                     sx={{
                                         color: "#10b981",
                                         backgroundColor: "rgba(16,185,129,0.1)",
-                                        p: { xs: 1, sm: 1.2 },
+                                        p: 1,
                                         borderRadius: "8px",
                                         mb: 2,
                                         fontWeight: 500,
-                                        fontSize: { xs: "0.8rem", sm: "0.875rem" },
                                     }}
                                 >
                                     {successMessage}
                                 </Typography>
                             )}
 
-                            {/* Global Error */}
                             {formErrors.global && (
                                 <Typography
                                     align="center"
                                     sx={{
                                         color: "#ef4444",
                                         backgroundColor: "rgba(239,68,68,0.1)",
-                                        p: { xs: 1, sm: 1.2 },
+                                        p: 1,
                                         borderRadius: "8px",
                                         mb: 2,
                                         fontWeight: 500,
-                                        fontSize: { xs: "0.8rem", sm: "0.875rem" },
                                     }}
                                 >
                                     {formErrors.global}
                                 </Typography>
                             )}
 
-                            <form onSubmit={handleSignup}>
-                                {/* Name Field */}
-                                <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                    <StyledTextField
-                                        name="name"
-                                        placeholder="Full Name"
-                                        fullWidth
-                                        value={form.name}
-                                        onChange={handleChange}
-                                        onBlur={() => handleBlur('name')}
-                                        error={touched.name && !!formErrors.name}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Person sx={{ color: "rgba(255,255,255,0.6)", fontSize: { xs: 20, sm: 24 } }} />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    {touched.name && formErrors.name && (
-                                        <Typography sx={{ color: "#ef4444", fontSize: { xs: "0.75rem", sm: "0.8125rem" }, mt: 0.5, ml: 0.5 }}>
-                                            {formErrors.name}
-                                        </Typography>
-                                    )}
-                                </Box>
+                            {/* Google Button */}
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                onClick={handleGoogleSignup}
+                                disabled={googleLoading}
+                                startIcon={<GoogleIcon />}
+                                sx={{
+                                    mb: 2,
+                                    py: 1.2,
+                                    borderColor: "rgba(255,255,255,0.2)",
+                                    color: "#fff",
+                                    textTransform: "none",
+                                    fontWeight: 600,
+                                    "&:hover": { background: "rgba(255,255,255,0.1)" },
+                                }}
+                            >
+                                {googleLoading
+                                    ? "Signing in with Google..."
+                                    : "Continue with Google"}
+                            </Button>
 
-                                {/* Email Field */}
-                                <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                    <StyledTextField
-                                        name="email"
-                                        placeholder="Email"
-                                        fullWidth
-                                        value={form.email}
-                                        onChange={(e) => {
-                                            handleChange(e);
-                                            handleEmailCheck(e.target.value);
+                            <Divider
+                                sx={{
+                                    my: { xs: 1.5, sm: 2 },
+                                    borderColor: "rgba(255,255,255,0.1)",
+                                }}
+                            />
+
+                            {/* SIGNUP FORM */}
+                            <form onSubmit={handleSignup}>
+                                {/* Name */}
+                                <StyledTextField
+                                    name="name"
+                                    placeholder="Full Name"
+                                    fullWidth
+                                    value={form.name}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("name")}
+                                    error={touched.name && !!formErrors.name}
+                                    sx={{ mb: 2 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Person sx={{ color: "rgba(255,255,255,0.6)" }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                                {touched.name && formErrors.name && (
+                                    <Typography sx={{ color: "#ef4444", fontSize: "0.8rem", mt: 0.5 }}>
+                                        {formErrors.name}
+                                    </Typography>
+                                )}
+
+                                {/* Email */}
+                                <StyledTextField
+                                    name="email"
+                                    placeholder="Email"
+                                    fullWidth
+                                    value={form.email}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("email")}
+                                    error={touched.email && !!formErrors.email}
+                                    sx={{ mb: 1 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Email sx={{ color: "rgba(255,255,255,0.6)" }} />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                                {emailStatus.checking ? (
+                                    <Typography sx={{ color: "#facc15", fontSize: "0.8rem", mt: 0.5 }}>
+                                        Checking email...
+                                    </Typography>
+                                ) : emailStatus.message ? (
+                                    <Typography
+                                        sx={{
+                                            color: emailStatus.exists ? "#ef4444" : "#10b981",
+                                            fontSize: "0.8rem",
+                                            mt: 0.5,
                                         }}
-                                        onBlur={() => handleBlur('email')}
-                                        error={touched.email && !!formErrors.email}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Email sx={{ color: "rgba(255,255,255,0.6)", fontSize: { xs: 20, sm: 24 } }} />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    {isValidEmail(form.email) && !formErrors.email && emailStatus.message && (
+                                    >
+                                        {emailStatus.message}
+                                    </Typography>
+                                ) : touched.email && formErrors.email ? (
+                                    <Typography sx={{ color: "#ef4444", fontSize: "0.8rem", mt: 0.5 }}>
+                                        {formErrors.email}
+                                    </Typography>
+                                ) : null}
+
+                                {/* Password */}
+                                <StyledTextField
+                                    name="password"
+                                    placeholder="Password"
+                                    type={showPassword ? "text" : "password"}
+                                    fullWidth
+                                    value={form.password}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("password")}
+                                    error={touched.password && !!formErrors.password}
+                                    sx={{ mb: 2 }}
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <Lock sx={{ color: "rgba(255,255,255,0.6)" }} />
+                                            </InputAdornment>
+                                        ),
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton
+                                                    onClick={toggleShowPassword}
+                                                    sx={{ color: "rgba(255,255,255,0.6)" }}
+                                                >
+                                                    {showPassword ? (
+                                                        <VisibilityOff fontSize="small" />
+                                                    ) : (
+                                                        <Visibility fontSize="small" />
+                                                    )}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                />
+                                {touched.password && formErrors.password && (
+                                    <Typography sx={{ color: "#ef4444", fontSize: "0.8rem", mt: 0.5 }}>
+                                        {formErrors.password}
+                                    </Typography>
+                                )}
+
+                                {/* Confirm Password */}
+                                <StyledTextField
+                                    name="confirmPassword"
+                                    placeholder="Confirm Password"
+                                    type={showPassword ? "text" : "password"}
+                                    fullWidth
+                                    value={form.confirmPassword}
+                                    onChange={handleChange}
+                                    onBlur={() => handleBlur("confirmPassword")}
+                                    error={touched.confirmPassword && !!formErrors.confirmPassword}
+                                    sx={{ mb: 2 }}
+                                />
+                                {touched.confirmPassword && formErrors.confirmPassword && (
+                                    <Typography sx={{ color: "#ef4444", fontSize: "0.8rem", mt: 0.5 }}>
+                                        {formErrors.confirmPassword}
+                                    </Typography>
+                                )}
+
+                                {/* Terms */}
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={agree}
+                                            onChange={(e) => setAgree(e.target.checked)}
+                                            sx={{
+                                                color: "rgba(255,255,255,0.6)",
+                                                "&.Mui-checked": { color: "#0891b2" },
+                                            }}
+                                        />
+                                    }
+                                    label={
                                         <Typography
                                             variant="body2"
-                                            sx={{
-                                                mt: 0.5,
-                                                ml: 0.5,
-                                                color: emailStatus.exists ? "#ef4444" : "#10b981",
-                                                fontSize: { xs: "0.75rem", sm: "0.8125rem" },
-                                            }}
+                                            color="rgba(255,255,255,0.8)"
                                         >
-                                            {emailStatus.checking ? "Checking availability..." : emailStatus.message}
-                                        </Typography>
-                                    )}
-                                    {touched.email && formErrors.email && (
-                                        <Typography sx={{ color: "#ef4444", fontSize: { xs: "0.75rem", sm: "0.8125rem" }, mt: 0.5, ml: 0.5 }}>
-                                            {formErrors.email}
-                                        </Typography>
-                                    )}
-                                </Box>
-
-                                {/* Password Field */}
-                                <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                    <StyledTextField
-                                        name="password"
-                                        placeholder="Password"
-                                        type={showPassword ? "text" : "password"}
-                                        fullWidth
-                                        value={form.password}
-                                        onChange={handleChange}
-                                        onBlur={() => handleBlur('password')}
-                                        error={touched.password && !!formErrors.password}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Lock sx={{ color: "rgba(255,255,255,0.6)", fontSize: { xs: 20, sm: 24 } }} />
-                                                </InputAdornment>
-                                            ),
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        onClick={toggleShowPassword}
-                                                        sx={{ color: "rgba(255,255,255,0.6)", p: { xs: 0.5, sm: 1 } }}
-                                                        size="small"
-                                                    >
-                                                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    {touched.password && formErrors.password && (
-                                        <Typography sx={{ color: "#ef4444", fontSize: { xs: "0.75rem", sm: "0.8125rem" }, mt: 0.5, ml: 0.5 }}>
-                                            {formErrors.password}
-                                        </Typography>
-                                    )}
-                                </Box>
-
-                                {/* Confirm Password Field */}
-                                <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                    <StyledTextField
-                                        name="confirmPassword"
-                                        placeholder="Confirm Password"
-                                        type={showPassword ? "text" : "password"}
-                                        fullWidth
-                                        value={form.confirmPassword}
-                                        onChange={handleChange}
-                                        onBlur={() => handleBlur('confirmPassword')}
-                                        error={touched.confirmPassword && !!formErrors.confirmPassword}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <Lock sx={{ color: "rgba(255,255,255,0.6)", fontSize: { xs: 20, sm: 24 } }} />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    />
-                                    {touched.confirmPassword && formErrors.confirmPassword && (
-                                        <Typography sx={{ color: "#ef4444", fontSize: { xs: "0.75rem", sm: "0.8125rem" }, mt: 0.5, ml: 0.5 }}>
-                                            {formErrors.confirmPassword}
-                                        </Typography>
-                                    )}
-                                </Box>
-
-                                {/* Terms Checkbox */}
-                                <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox
-                                                checked={agree}
-                                                onChange={(e) => {
-                                                    setAgree(e.target.checked);
-                                                    if (e.target.checked && formErrors.agree) {
-                                                        const newErrors = { ...formErrors };
-                                                        delete newErrors.agree;
-                                                        setFormErrors(newErrors);
-                                                    }
+                                            I agree to the{" "}
+                                            <span
+                                                style={{
+                                                    color: "#0891b2",
+                                                    textDecoration: "underline",
+                                                    cursor: "pointer",
                                                 }}
-                                                sx={{
-                                                    color: "rgba(255,255,255,0.6)",
-                                                    "&.Mui-checked": { color: "#0891b2" },
-                                                    padding: { xs: "6px", sm: "9px" },
+                                            >
+                        Terms of Service
+                      </span>{" "}
+                                            and{" "}
+                                            <span
+                                                style={{
+                                                    color: "#0891b2",
+                                                    textDecoration: "underline",
+                                                    cursor: "pointer",
                                                 }}
-                                                size="small"
-                                            />
-                                        }
-                                        label={
-                                            <Typography variant="body2" color="rgba(255,255,255,0.8)" sx={{ fontSize: { xs: "0.75rem", sm: "0.8125rem" } }}>
-                                                I agree to the{" "}
-                                                <span
-                                                    style={{
-                                                        color: "#0891b2",
-                                                        textDecoration: "underline",
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Terms of Service
-                                                </span>{" "}
-                                                and{" "}
-                                                <span
-                                                    style={{
-                                                        color: "#0891b2",
-                                                        textDecoration: "underline",
-                                                        cursor: "pointer",
-                                                    }}
-                                                >
-                                                    Privacy Policy
-                                                </span>
-                                            </Typography>
-                                        }
-                                    />
-                                    {formErrors.agree && (
-                                        <Typography sx={{ color: "#ef4444", fontSize: { xs: "0.75rem", sm: "0.8125rem" }, mt: 0.5, ml: 0.5 }}>
-                                            {formErrors.agree}
+                                            >
+                        Privacy Policy
+                      </span>
                                         </Typography>
-                                    )}
-                                </Box>
+                                    }
+                                    sx={{ mb: 2 }}
+                                />
+                                {formErrors.agree && (
+                                    <Typography
+                                        sx={{
+                                            color: "#ef4444",
+                                            fontSize: "0.8rem",
+                                            mt: 0.5,
+                                        }}
+                                    >
+                                        {formErrors.agree}
+                                    </Typography>
+                                )}
 
-                                {/* Submit Button */}
+                                {/* Submit */}
                                 <Button
                                     type="submit"
                                     fullWidth
                                     variant="contained"
                                     disabled={loading}
-                                    sx={{
-                                        mt: { xs: 1.5, sm: 2 },
-                                        mb: { xs: 1.5, sm: 2 },
-                                        background: "#fff",
-                                        color: "#0891b2",
-                                        py: { xs: 1.1, sm: 1.3 },
-                                        fontWeight: 700,
-                                        fontSize: { xs: "0.9rem", sm: "0.9375rem" },
-                                        borderRadius: "10px",
-                                        textTransform: "none",
-                                        boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
-                                        "&:hover": { background: "rgba(255,255,255,0.95)" },
-                                        "&:disabled": {
-                                            background: "rgba(255,255,255,0.5)",
-                                            color: "rgba(8,145,178,0.5)"
-                                        },
-                                    }}
+                                    sx={PrimaryButtonStyle}
                                 >
                                     {loading ? "Creating Account..." : "Create Account"}
                                 </Button>
 
-                                <Divider sx={{ my: { xs: 1.5, sm: 2 }, borderColor: "rgba(255,255,255,0.1)" }} />
+                                <Divider
+                                    sx={{
+                                        my: { xs: 1.5, sm: 2 },
+                                        borderColor: "rgba(255,255,255,0.1)",
+                                    }}
+                                />
 
-                                {/* Sign In Link */}
-                                <Typography variant="body2" align="center" color="rgba(255,255,255,0.8)" sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" }, mb: 1 }}>
+                                {/* Redirects */}
+                                <Typography
+                                    variant="body2"
+                                    align="center"
+                                    color="rgba(255,255,255,0.8)"
+                                    sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" }, mb: 1 }}
+                                >
                                     Already have an account?{" "}
                                     <span
                                         style={{
@@ -783,22 +623,26 @@ export default function SignupPage() {
                                         }}
                                         onClick={() => router.push("/login")}
                                     >
-                                        Sign in
-                                    </span>
+                    Sign in
+                  </span>
                                 </Typography>
 
-                                {/* Forgot Password Link */}
-                                <Typography variant="body2" align="center" color="rgba(255,255,255,0.7)" sx={{ fontSize: { xs: "0.75rem", sm: "0.8125rem" } }}>
-                                    <span
-                                        style={{
-                                            color: "#0891b2",
-                                            textDecoration: "underline",
-                                            cursor: "pointer",
-                                        }}
-                                        onClick={() => router.push("/forgot-password")}
-                                    >
-                                        Forgot your password?
-                                    </span>
+                                <Typography
+                                    variant="body2"
+                                    align="center"
+                                    color="rgba(255,255,255,0.7)"
+                                    sx={{ fontSize: { xs: "0.75rem", sm: "0.8125rem" } }}
+                                >
+                  <span
+                      style={{
+                          color: "#0891b2",
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                      }}
+                      onClick={() => router.push("/forgot-password")}
+                  >
+                    Forgot your password?
+                  </span>
                                 </Typography>
                             </form>
                         </GlassCard>
