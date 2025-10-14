@@ -275,14 +275,20 @@ export default function SignupPage() {
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
+                                    overflow: "hidden",
                                 }}
                             >
-                                <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-                                    <path
-                                        d="M16 2L4 8v12c0 7.5 5.2 14.5 12 16 6.8-1.5 12-8.5 12-16V8L16 2z"
-                                        fill="#0891b2"
-                                    />
-                                </svg>
+                                {/* LOGO PATH */}
+                                <img 
+                                    src="/images/logoblue.png"
+                                    alt="WaveGuard Logo"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "contain",
+                                        padding: "8px"
+                                    }}
+                                />
                             </Box>
                             <Typography
                                 variant="h4"
