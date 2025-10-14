@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     Box,
     Typography,
@@ -39,6 +39,7 @@ import {
 
 export default function SignupPage() {
     const router = useRouter();
+    const [isLoaded, setIsLoaded] = useState(false);
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -64,6 +65,11 @@ export default function SignupPage() {
     });
 
     const debounceRef = useRef(null);
+
+    // Add fade-in animation on mount
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
 
     // Validation Helpers
     const isValidEmail = (email) =>
@@ -210,7 +216,13 @@ export default function SignupPage() {
     };
 
     return (
-        <Box sx={BackgroundStyle}>
+        <Box
+            sx={{
+                ...BackgroundStyle,
+                opacity: isLoaded ? 1 : 0,
+                transition: "opacity 0.8s ease-in-out",
+            }}
+        >
             <Container maxWidth="xl" sx={{ py: { xs: 3, sm: 4, md: 6 } }}>
                 <Grid
                     container
@@ -231,6 +243,17 @@ export default function SignupPage() {
                             alignItems: { xs: "center", md: "flex-end" },
                             textAlign: { xs: "center", md: "right" },
                             color: "#fff",
+                            animation: isLoaded ? "slideInLeft 0.8s ease-out" : "none",
+                            "@keyframes slideInLeft": {
+                                "0%": {
+                                    opacity: 0,
+                                    transform: "translateX(-50px)",
+                                },
+                                "100%": {
+                                    opacity: 1,
+                                    transform: "translateX(0)",
+                                },
+                            },
                         }}
                     >
                         {/* Logo + Title */}
@@ -330,7 +353,25 @@ export default function SignupPage() {
                     </Grid>
 
                     {/* RIGHT PANEL – Form */}
-                    <Grid item xs={12} md={6} lg={5}>
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        lg={5}
+                        sx={{
+                            animation: isLoaded ? "slideInRight 0.8s ease-out" : "none",
+                            "@keyframes slideInRight": {
+                                "0%": {
+                                    opacity: 0,
+                                    transform: "translateX(50px)",
+                                },
+                                "100%": {
+                                    opacity: 1,
+                                    transform: "translateX(0)",
+                                },
+                            },
+                        }}
+                    >
                         <GlassCard
                             sx={{ width: "100%", maxWidth: { xs: "100%", sm: 480, md: 440 } }}
                         >

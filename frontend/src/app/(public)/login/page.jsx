@@ -200,9 +200,9 @@ export default function LoginPage() {
     return (
         <Box sx={BackgroundStyle}>
             <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 4 }, py: { xs: 4, md: 6 } }}>
-                <Grid container spacing={{ xs: 3, md: 6 }} alignItems="center" justifyContent="center">
+                <Grid container spacing={{ xs: 3, md: 6 }} alignItems="stretch" justifyContent="center">
                     {/* LEFT - Login Form */}
-                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 2, md: 1 }, display: "flex", justifyContent: "center" }}>
+                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 2, md: 1 }, display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <GlassCard sx={{ width: "100%", maxWidth: 420 }}>
                             <Box textAlign="center" mb={3}>
                                 <Typography variant="h5" fontWeight={700} color="#fff">WaveGuard</Typography>
@@ -360,14 +360,14 @@ export default function LoginPage() {
                     </Grid>
 
                     {/* Analytics */}
-                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 1, md: 2 }, textAlign: { xs: "center", md: "left" } }}>
-                        <Typography variant="h4" fontWeight={700} color="#fff" mb={1}>
+                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 1, md: 2 }, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: { xs: "center", md: "flex-start" } }}>
+                        <Typography variant="h4" fontWeight={700} color="#fff" mb={1} sx={{ textAlign: { xs: "center", md: "left" } }}>
                             Our Global Impact
                         </Typography>
-                        <Typography color="rgba(255,255,255,0.8)" mb={3}>
+                        <Typography color="rgba(255,255,255,0.8)" mb={3} sx={{ maxWidth: 480, textAlign: { xs: "center", md: "left" } }}>
                             Real-time insights from our community of eco-warriors making a difference worldwide.
                         </Typography>
-                        <Grid container spacing={2} sx={{ maxWidth: 480, justifyContent: "center" }}>
+                        <Grid container spacing={2} sx={{ maxWidth: 480 }}>
                             {analyticsData.map(({ IconComponent, value, label, change, color }, i) => (
                                 <Grid item xs={6} key={i}>
                                     <Box
