@@ -1,0 +1,31 @@
+{
+  "name": "backend-waveguard",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "Capstone"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "Capstone-WaveGuard-G1"
+  },
+  "license": "ISC",
+  "author": "Group1",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase": "^12.3.0",
+    "firebase-admin": "^13.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
+    "mongoose-schema-jsonschema": "^3.0.2"
+  }
+}
