@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
+import useAuth from "@/hooks/useAuth";
 import {
     Box,
     Typography,
@@ -50,6 +51,7 @@ export default function LoginPage() {
         exists: false,
         message: "",
     });
+    const { login, googleLogin } = useAuth();
     const debounceRef = useRef(null);
 
     const isValidEmail = (email) =>
@@ -132,27 +134,18 @@ export default function LoginPage() {
         });
         return errors;
     };
-
+    // Handle Login
     const handleLogin = async (e) => {
         e.preventDefault();
         setTouched({ email: true, password: true });
         const errors = validateForm();
         setFormErrors(errors);
         if (Object.keys(errors).length) return;
-
         try {
             setLoading(true);
-            const userCred = await signInWithEmailAndPassword(
-                auth,
-                form.email,
-                form.password
-            );
-            const token = await userCred.user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
+            await login(form.email, form.password);
             setLoginMessage("Login successful! Redirecting...");
-            setTimeout(() => router.push("/dashboard"), 1500);
+            setTimeout(() => router.push("/landing"), 1500);
         } catch (err) {
             const msgMap = {
                 "auth/user-not-found": "No account found with this email.",
@@ -162,29 +155,22 @@ export default function LoginPage() {
                 "auth/user-disabled": "Account disabled.",
             };
             setFormErrors({
-                global: msgMap[err.code] || "Login failed. Please try again.",
+                global: msgMap[err.code] || "Invalid Credentials",
             });
         } finally {
             setLoading(false);
         }
     };
 
+    // Handle Google Login
     const handleGoogleLogin = async () => {
-        const provider = new GoogleAuthProvider();
         try {
             setGoogleLoading(true);
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const token = await user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
+            await googleLogin();
             setLoginMessage("Signed in successfully with Google!");
-            setTimeout(() => router.push("/dashboard"), 1500);
+            setTimeout(() => router.push("/landing"), 1500);
         } catch (err) {
-            setFormErrors({
-                global: err.message || "Google login failed. Please try again later.",
-            });
+            setFormErrors({ global: err.message || "Google login failed. Please try again later." });
         } finally {
             setGoogleLoading(false);
         }

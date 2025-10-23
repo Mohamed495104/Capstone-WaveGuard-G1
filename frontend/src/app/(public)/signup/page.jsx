@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
+import useAuth from "@/hooks/useAuth";
 import {
     Box,
     Typography,
@@ -38,6 +39,7 @@ import {
 } from "./signup.styles";
 
 export default function SignupPage() {
+    const { signup, googleLogin } = useAuth();
     const router = useRouter();
     const [isLoaded, setIsLoaded] = useState(false);
     const [form, setForm] = useState({
@@ -173,21 +175,11 @@ export default function SignupPage() {
 
         try {
             setLoading(true);
-            const userCred = await createUserWithEmailAndPassword(
-                auth,
-                form.email,
-                form.password
-            );
-            const token = await userCred.user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
-            setSuccessMessage("🎉 Registered successfully! Redirecting...");
-            setTimeout(() => router.push("/login"), 2000);
+            await signup(form.email, form.password);
+            setSuccessMessage("Signup successful! Redirecting...");
+            setTimeout(() => router.push("/landing"), 1500);
         } catch (err) {
-            setFormErrors({
-                global: err.message || "Registration failed. Please try again later.",
-            });
+            setFormErrors({ global: err.message || "Signup failed. Please try again." });
         } finally {
             setLoading(false);
         }
