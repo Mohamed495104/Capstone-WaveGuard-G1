@@ -1,8 +1,6 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import Navbar from "@/components/common/Navbar";
-import Footer from "@/components/common/Footer";
 import { Box, Typography } from "@mui/material";
 import {
     HeroSection,
@@ -29,7 +27,6 @@ import {
 export default function LandingPage() {
     return (
         <>
-            <Navbar />
 
             {/* HERO SECTION */}
             <HeroSection>
@@ -163,8 +160,6 @@ export default function LandingPage() {
                     <MissionButton>Get Started Today</MissionButton>
                 </MissionContent>
             </MissionSection>
-
-            <Footer />
         </>
     );
 }
