@@ -1,5 +1,4 @@
 "use client";
-
 import {
     CssBaseline,
     ThemeProvider,
@@ -7,12 +6,12 @@ import {
     Box,
 } from "@mui/material";
 import MobileHeader from "@/components/common/MobileHeader";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import SmoothPageTransition from "@/components/PageTransition";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import { useAuthContext } from "@/context/AuthContext"; // Import the custom hook
 
 const MobileBottomNav = dynamic(
     () => import("@/components/common/MobileBottomNav"),
@@ -32,38 +31,28 @@ const theme = createTheme({
 
 export default function AppLayoutWrapper({ children }) {
     const pathname = usePathname();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    // Get the reliable authentication state from the central context
+    const { isAuthenticated } = useAuthContext();
 
-    useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-        const refreshToken = localStorage.getItem("refreshToken");
-        setIsAuthenticated(!!(token && refreshToken));
-    }, [pathname]);
+    // Define which pages are considered "public" or "auth" pages
+    const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
 
-    const hideLayout =
-        pathname === "/" ||
-        pathname.startsWith("/auth") ||
-        pathname === "/login" ||
-        pathname === "/signup";
-
-    const showLayout = !hideLayout && (isAuthenticated || pathname === "/landing","/upload");
+    // **THE FIX**: Show the layout ONLY if the user is authenticated AND not on a public page.
+    const showLayout = isAuthenticated && !isPublicPage;
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            {/* Mobile Header - only show when layout is visible */}
+            {/* These components will now only render when showLayout is true */}
             {showLayout && <MobileHeader />}
-
-            {/* Desktop Navbar */}
             {showLayout && <Navbar />}
 
-            {/* Main content */}
             <Box
                 component="main"
                 sx={{
                     minHeight: "100dvh",
-                    backgroundColor: "#fff",
+                    // Adjust padding to make space for nav/footer only when they are visible
                     pb: showLayout ? { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 } : 0,
                     pt: showLayout ? { xs: "56px", md: 0 } : 0,
                 }}

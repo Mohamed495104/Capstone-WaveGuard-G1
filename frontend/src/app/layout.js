@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import AppLayoutWrapper from "@/components/AppLayoutWrapper";
+import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,9 +12,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
     return (
-        <html lang="en">
+        // SuppressHydrationWarning to prevent errors from browser extensions
+        <html lang="en" suppressHydrationWarning={true}>
         <body className={inter.className}>
-        <AppLayoutWrapper>{children}</AppLayoutWrapper>
+        {/* Wrap the entire application with the AuthProvider */}
+        <AuthProvider>
+            <AppLayoutWrapper>{children}</AppLayoutWrapper>
+        </AuthProvider>
         </body>
         </html>
     );

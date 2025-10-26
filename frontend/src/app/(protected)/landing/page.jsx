@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import withAuth from '@/components/auth/withAuth';
 import { Box, Typography } from "@mui/material";
 import {
     HeroSection,
@@ -24,7 +25,7 @@ import {
     MissionButton,
 } from "./landing.styles";
 
-export default function LandingPage() {
+function LandingPage() {
     return (
         <>
 
@@ -163,3 +164,4 @@ export default function LandingPage() {
         </>
     );
 }
+export default withAuth(LandingPage);
