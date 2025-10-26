@@ -15,8 +15,9 @@ import {
     Close,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import withAuth from "@/components/auth/withAuth";
 
-export default function UploadPage() {
+function UploadPage() {
     const router = useRouter();
     const fileInputRef = useRef(null);
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -461,3 +462,4 @@ export default function UploadPage() {
         </Box>
     );
 }
+export default withAuth(UploadPage);
