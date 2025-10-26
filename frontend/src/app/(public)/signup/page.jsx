@@ -72,6 +72,21 @@ export default function SignupPage() {
     useEffect(() => {
         setIsLoaded(true);
     }, []);
+    useEffect(() => {
+        import("firebase/auth").then(async ({ getRedirectResult }) => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result?.user) {
+                    const token = await result.user.getIdToken();
+                    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken: token });
+                    setSuccessMessage("Signed up successfully with Google!");
+                    setTimeout(() => router.push("/landing"), 1500);
+                }
+            } catch (err) {
+                console.error("Redirect Sign-Up Error:", err);
+            }
+        });
+    }, []);
 
     // Validation Helpers
     const isValidEmail = (email) =>
@@ -115,6 +130,8 @@ export default function SignupPage() {
             case "name":
                 if (!value.trim()) return "Full name is required";
                 if (value.trim().length < 2) return "Name must be at least 2 characters";
+                if (!/^[A-Za-z\s]+$/.test(value))
+                    return "Please enter a valid name";
                 return "";
             case "email":
                 if (!value.trim()) return "Email is required";
@@ -187,25 +204,23 @@ export default function SignupPage() {
 
     // Google Sign-Up
     const handleGoogleSignup = async () => {
-        const provider = new GoogleAuthProvider();
         try {
             setGoogleLoading(true);
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const token = await user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
+            await googleLogin();
             setSuccessMessage("Signed up successfully with Google!");
-            setTimeout(() => router.push("/dashboard"), 2000);
+            setTimeout(() => router.push("/landing"), 2000);
         } catch (err) {
             setFormErrors({
-                global: err.message || "Google sign-in failed. Please try again later.",
+                global:
+                    err.code === "auth/popup-blocked"
+                        ? "Popup blocked — please allow popups or try again."
+                        : err.message || "Google sign-in failed. Please try again later.",
             });
         } finally {
             setGoogleLoading(false);
         }
     };
+
 
     return (
         <Box
@@ -271,7 +286,7 @@ export default function SignupPage() {
                                 }}
                             >
                                 {/* LOGO PATH */}
-                                <img 
+                                <img
                                     src="/images/logoblue.png"
                                     alt="WaveGuard Logo"
                                     style={{

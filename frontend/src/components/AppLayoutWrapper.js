@@ -6,6 +6,7 @@ import {
     createTheme,
     Box,
 } from "@mui/material";
+import MobileHeader from "@/components/common/MobileHeader";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -45,19 +46,26 @@ export default function AppLayoutWrapper({ children }) {
         pathname === "/login" ||
         pathname === "/signup";
 
-    const showLayout = !hideLayout && (isAuthenticated || pathname === "/landing");
+    const showLayout = !hideLayout && (isAuthenticated || pathname === "/landing","/upload");
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
+
+            {/* Mobile Header - only show when layout is visible */}
+            {showLayout && <MobileHeader />}
+
+            {/* Desktop Navbar */}
             {showLayout && <Navbar />}
 
+            {/* Main content */}
             <Box
                 component="main"
                 sx={{
                     minHeight: "100dvh",
                     backgroundColor: "#fff",
-                    pb: { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 },
+                    pb: showLayout ? { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 } : 0,
+                    pt: showLayout ? { xs: "56px", md: 0 } : 0,
                 }}
             >
                 <SmoothPageTransition>{children}</SmoothPageTransition>
