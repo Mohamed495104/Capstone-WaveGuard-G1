@@ -37,14 +37,14 @@ export default function AppLayoutWrapper({ children }) {
     // Define which pages are considered "public" or "auth" pages
     const isPublicPage = pathname === "/" || pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password";
 
-    // **THE FIX**: Show the layout ONLY if the user is authenticated AND not on a public page.
+    // Show the layout ONLY if the user is authenticated .
     const showLayout = isAuthenticated && !isPublicPage;
 
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            {/* These components will now only render when showLayout is true */}
+            {/* Mobile header and Navbar only render when showLayout is true */}
             {showLayout && <MobileHeader />}
             {showLayout && <Navbar />}
 
@@ -52,7 +52,6 @@ export default function AppLayoutWrapper({ children }) {
                 component="main"
                 sx={{
                     minHeight: "100dvh",
-                    // Adjust padding to make space for nav/footer only when they are visible
                     pb: showLayout ? { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 } : 0,
                     pt: showLayout ? { xs: "56px", md: 0 } : 0,
                 }}

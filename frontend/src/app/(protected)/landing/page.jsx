@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import withAuth from '@/components/auth/withAuth';
 import { Box, Typography } from "@mui/material";
+
 import {
     HeroSection,
     HeroOverlay,

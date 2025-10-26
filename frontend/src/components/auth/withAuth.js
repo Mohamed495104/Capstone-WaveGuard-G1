@@ -13,7 +13,7 @@ const withAuth = (WrappedComponent) => {
         useEffect(() => {
             // If Firebase is done checking and the user is NOT authenticated...
             if (!loading && !isAuthenticated) {
-                // ...redirect them to the login page.
+                //redirect them to the login page.
                 router.push('/login');
             }
         }, [isAuthenticated, loading, router]);
