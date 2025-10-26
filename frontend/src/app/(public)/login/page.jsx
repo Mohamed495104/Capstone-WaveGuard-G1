@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
+import useAuth from "@/hooks/useAuth";
 import {
     Box,
     Typography,
@@ -50,6 +51,7 @@ export default function LoginPage() {
         exists: false,
         message: "",
     });
+    const { login, googleLogin } = useAuth();
     const debounceRef = useRef(null);
 
     const isValidEmail = (email) =>
@@ -132,27 +134,18 @@ export default function LoginPage() {
         });
         return errors;
     };
-
+    // Handle Login
     const handleLogin = async (e) => {
         e.preventDefault();
         setTouched({ email: true, password: true });
         const errors = validateForm();
         setFormErrors(errors);
         if (Object.keys(errors).length) return;
-
         try {
             setLoading(true);
-            const userCred = await signInWithEmailAndPassword(
-                auth,
-                form.email,
-                form.password
-            );
-            const token = await userCred.user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
+            await login(form.email, form.password);
             setLoginMessage("Login successful! Redirecting...");
-            setTimeout(() => router.push("/dashboard"), 1500);
+            setTimeout(() => router.push("/landing"), 1500);
         } catch (err) {
             const msgMap = {
                 "auth/user-not-found": "No account found with this email.",
@@ -162,29 +155,22 @@ export default function LoginPage() {
                 "auth/user-disabled": "Account disabled.",
             };
             setFormErrors({
-                global: msgMap[err.code] || "Login failed. Please try again.",
+                global: msgMap[err.code] || "Invalid Credentials",
             });
         } finally {
             setLoading(false);
         }
     };
 
+    // Handle Google Login
     const handleGoogleLogin = async () => {
-        const provider = new GoogleAuthProvider();
         try {
             setGoogleLoading(true);
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const token = await user.getIdToken();
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, {
-                idToken: token,
-            });
+            await googleLogin();
             setLoginMessage("Signed in successfully with Google!");
-            setTimeout(() => router.push("/dashboard"), 1500);
+            setTimeout(() => router.push("/landing"), 1500);
         } catch (err) {
-            setFormErrors({
-                global: err.message || "Google login failed. Please try again later.",
-            });
+            setFormErrors({ global: err.message || "Google login failed. Please try again later." });
         } finally {
             setGoogleLoading(false);
         }
@@ -359,17 +345,58 @@ export default function LoginPage() {
                         </GlassCard>
                     </Grid>
 
-                    {/* Analytics */}
-                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 1, md: 2 }, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: { xs: "center", md: "flex-start" } }}>
-                        <Typography variant="h4" fontWeight={700} color="#fff" mb={1} sx={{ textAlign: { xs: "center", md: "left" } }}>
+                    {/* Analytics Section */}
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        lg={5}
+                        sx={{
+                            order: { xs: 1, md: 2 },
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center", // ✅ always center on mobile
+                        }}
+                    >
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            color="#fff"
+                            mb={1}
+                            sx={{ textAlign: "center" }}
+                        >
                             Our Global Impact
                         </Typography>
-                        <Typography color="rgba(255,255,255,0.8)" mb={3} sx={{ maxWidth: 480, textAlign: { xs: "center", md: "left" } }}>
+
+                        <Typography
+                            color="rgba(255,255,255,0.8)"
+                            mb={3}
+                            sx={{ maxWidth: 480, textAlign: "center" }}
+                        >
                             Real-time insights from our community of eco-warriors making a difference worldwide.
                         </Typography>
-                        <Grid container spacing={2} sx={{ maxWidth: 480 }}>
+
+                        {/* ✅ Centered 2×2 Grid */}
+                        <Grid
+                            container
+                            spacing={2}
+                            justifyContent="center"
+                            sx={{
+                                maxWidth: 480,
+                                mx: "auto",
+                            }}
+                        >
                             {analyticsData.map(({ IconComponent, value, label, change, color }, i) => (
-                                <Grid item xs={6} key={i}>
+                                <Grid
+                                    item
+                                    xs={6}
+                                    key={i}
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                    }}
+                                >
                                     <Box
                                         sx={{
                                             backdropFilter: "blur(16px)",
@@ -377,32 +404,47 @@ export default function LoginPage() {
                                             border: "1px solid rgba(255,255,255,0.15)",
                                             borderRadius: 3,
                                             p: { xs: 2, sm: 3 },
-                                            minHeight: { xs: 140, sm: 160 },
+                                            height: { xs: 140, sm: 160 },
+                                            width: "100%",
+                                            maxWidth: 180, // ✅ keeps cards uniform width
                                             display: "flex",
                                             flexDirection: "column",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            transition: "transform 0.2s ease, background 0.2s ease",
-                                            "&:hover": { transform: "translateY(-4px)", backgroundColor: "rgba(255,255,255,0.18)" },
+                                            textAlign: "center",
+                                            gap: { xs: 0.5, sm: 1 },
+                                            transition: "transform 0.25s ease, background 0.25s ease",
+                                            "&:hover": {
+                                                transform: { sm: "translateY(-4px)" },
+                                                backgroundColor: "rgba(255,255,255,0.18)",
+                                            },
                                         }}
                                     >
-                                        <IconComponent sx={{ color, fontSize: { xs: 28, sm: 34 }, mb: 1 }} />
-                                        <Typography color="#fff" fontWeight={700} fontSize={{ xs: "1.2rem", sm: "1.4rem" }}>
+                                        <IconComponent sx={{ color, fontSize: { xs: 28, sm: 34 } }} />
+                                        <Typography
+                                            color="#fff"
+                                            fontWeight={700}
+                                            fontSize={{ xs: "1.1rem", sm: "1.3rem" }}
+                                            lineHeight={1.2}
+                                        >
                                             {value}
                                         </Typography>
-                                        <Typography color="rgba(255,255,255,0.8)" fontSize={{ xs: "0.75rem", sm: "0.85rem" }}>
+                                        <Typography
+                                            color="rgba(255,255,255,0.85)"
+                                            fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
+                                        >
                                             {label}
                                         </Typography>
                                         <Typography
                                             sx={{
-                                                mt: 1,
+                                                mt: 0.5,
                                                 px: 1.5,
-                                                py: 0.3,
-                                                fontSize: "0.7rem",
+                                                py: 0.2,
+                                                fontSize: { xs: "0.7rem", sm: "0.75rem" },
                                                 borderRadius: 2,
                                                 fontWeight: 600,
                                                 color,
-                                                backgroundColor: `${color}20`,
+                                                backgroundColor: `${color}25`,
                                             }}
                                         >
                                             {change} this week
