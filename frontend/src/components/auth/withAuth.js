@@ -11,6 +11,8 @@ const withAuth = (WrappedComponent) => {
         const { isAuthenticated, loading } = useAuthContext();
 
         useEffect(() => {
+            // This effect runs whenever the loading or authentication state changes.
+
             // If Firebase is done checking and the user is NOT authenticated...
             if (!loading && !isAuthenticated) {
                 // ...redirect them to the login page.
@@ -18,8 +20,11 @@ const withAuth = (WrappedComponent) => {
             }
         }, [isAuthenticated, loading, router]);
 
-        // While Firebase is checking, show a full-page loading spinner.
-        if (loading) {
+        // --- THE FIX ---
+        // While Firebase is checking for a user, or if the user is not authenticated
+        // and we are waiting for the redirect effect to fire, render a full-page loader.
+        // This prevents the wrapped component from ever rendering for an unauthorized user.
+        if (loading || !isAuthenticated) {
             return (
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                     <CircularProgress />
@@ -27,13 +32,9 @@ const withAuth = (WrappedComponent) => {
             );
         }
 
-        // If the user IS authenticated, show them the page they requested.
-        if (isAuthenticated) {
-            return <WrappedComponent {...props} />;
-        }
-
-        // Otherwise, render nothing while the redirect happens.
-        return null;
+        // If we get past the check above, it means loading is false AND isAuthenticated is true.
+        // Only then do we render the actual page component.
+        return <WrappedComponent {...props} />;
     };
 
     return AuthHOC;
