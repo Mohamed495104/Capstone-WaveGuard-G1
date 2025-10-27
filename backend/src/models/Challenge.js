@@ -9,6 +9,13 @@ const challengeSchema = new mongoose.Schema(
         endDate: Date,
         status: { type: String, enum: ["active", "completed", "upcoming"], default: "active" },
 
+        // --- NEW & UPDATED FIELDS ---
+        locationName: { type: String, required: true },
+        province: { type: String, required: true },
+        goal: { type: Number, required: true },
+        goalUnit: { type: String, default: "items" },
+        // --- END ---
+
         // Geo location
         location: {
             type: { type: String, enum: ["Point"], default: "Point" },
