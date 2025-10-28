@@ -7,6 +7,10 @@ const userSchema = new mongoose.Schema(
         email: { type: String, required: true, unique: true },
         profileImage: String,
 
+        // New fields
+        location: { type: String, default: "" },
+        bio: { type: String, default: "" },
+
         // Stats
         totalItemsCollected: { type: Number, default: 0 },
         totalChallenges: { type: Number, default: 0 },

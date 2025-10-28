@@ -58,7 +58,7 @@ const ChallengeCard = ({ challenge }) => {
     return (
         <Card
             sx={{
-                height: 520,
+                height: "100%",
                 display: "flex",
                 flexDirection: "column",
                 borderRadius: "12px",
@@ -128,10 +128,10 @@ const ChallengeCard = ({ challenge }) => {
                     </Typography>
                 </Box>
 
-                <Box sx={{ mt: "auto" }}>
+                <Box sx={{ mt: "auto", mb: 2 }}>
                     <Typography
                         variant="body2"
-                        sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#1e293b" }}
+                        sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#1e293b", mb: 0.5 }}
                     >
                         {totalTrashCollected.toLocaleString()} / {goal.toLocaleString()} items collected
                     </Typography>
@@ -154,7 +154,6 @@ const ChallengeCard = ({ challenge }) => {
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        mt: 2,
                         pt: 2,
                         borderTop: "1px solid #e5e7eb",
                     }}
@@ -166,25 +165,27 @@ const ChallengeCard = ({ challenge }) => {
                         </Typography>
                     </Box>
 
-                    <Button
-                        variant="contained"
-                        size="small"
-                        onClick={handleJoinClick}
-                        sx={{
-                            backgroundColor: "#0ea5e9",
-                            color: "white",
-                            textTransform: "none",
-                            fontWeight: 600,
-                            px: 2.5,
-                            py: 0.5,
-                            borderRadius: "6px",
-                            "&:hover": {
-                                backgroundColor: "#0284c7",
-                            },
-                        }}
-                    >
-                        Join
-                    </Button>
+                    {status === "active" && (
+                        <Button
+                            variant="contained"
+                            size="small"
+                            onClick={handleJoinClick}
+                            sx={{
+                                backgroundColor: "#0ea5e9",
+                                color: "white",
+                                textTransform: "none",
+                                fontWeight: 600,
+                                px: 2.5,
+                                py: 0.5,
+                                borderRadius: "6px",
+                                "&:hover": {
+                                    backgroundColor: "#0284c7",
+                                },
+                            }}
+                        >
+                            Join
+                        </Button>
+                    )}
                 </Box>
             </CardContent>
         </Card>

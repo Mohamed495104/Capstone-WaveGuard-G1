@@ -16,7 +16,7 @@ export const navItems = [
 
 export const mobileOrder = [
     "/landing",
-    "/challenges",
+    "/challenge",
     "/upload",
     "/dashboard",
     "/achievements",
