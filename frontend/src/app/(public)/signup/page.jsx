@@ -1,5 +1,11 @@
 "use client";
+<<<<<<< HEAD
 import React, { useState, useRef } from "react";
+=======
+import React, { useState, useRef, useEffect } from "react";
+import useAuth from "@/hooks/useAuth";
+import { useAuthContext } from "@/context/AuthContext"; // Import context hook
+>>>>>>> main
 import {
     Box,
     Typography,
@@ -22,12 +28,15 @@ import {
     Google as GoogleIcon,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import {
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+=======
+>>>>>>> main
 import axios from "axios";
 import {
     GlassCard,
@@ -38,6 +47,7 @@ import {
 } from "./signup.styles";
 
 export default function SignupPage() {
+<<<<<<< HEAD
     const router = useRouter();
     const [form, setForm] = useState({
         name: "",
@@ -51,12 +61,22 @@ export default function SignupPage() {
         password: false,
         confirmPassword: false,
     });
+=======
+    const { signup, googleLogin } = useAuth();
+    const { isAuthenticated } = useAuthContext(); // Get auth state from context
+    const router = useRouter();
+
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+    const [touched, setTouched] = useState({ name: false, email: false, password: false, confirmPassword: false });
+>>>>>>> main
     const [formErrors, setFormErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [agree, setAgree] = useState(false);
     const [loading, setLoading] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
+<<<<<<< HEAD
     const [emailStatus, setEmailStatus] = useState({
         checking: false,
         exists: false,
@@ -74,6 +94,29 @@ export default function SignupPage() {
     const toggleShowPassword = () => setShowPassword((p) => !p);
 
     // Debounced Email Availability Check
+=======
+    const [emailStatus, setEmailStatus] = useState({ checking: false, exists: false, message: "" });
+    const debounceRef = useRef(null);
+
+    // This effect redirects the user away from the signup page if they are already logged in.
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push("/landing"); // Or your desired authenticated page
+        }
+    }, [isAuthenticated, router]);
+
+    // This useEffect is for the initial fade-in animation.
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
+
+    // All complex redirect-handling useEffect logic has been removed from this file.
+
+    // All your form validation and handler functions remain the same.
+    const isValidEmail = (email) => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+    const isValidPassword = (password) => password && password.length >= 6 && /[a-zA-Z]/.test(password);
+    const toggleShowPassword = () => setShowPassword((p) => !p);
+>>>>>>> main
     const checkEmailAvailability = (email) => {
         if (debounceRef.current) clearTimeout(debounceRef.current);
         if (!email || !isValidEmail(email)) {
@@ -83,6 +126,7 @@ export default function SignupPage() {
         debounceRef.current = setTimeout(async () => {
             try {
                 setEmailStatus({ checking: true, exists: false, message: "" });
+<<<<<<< HEAD
                 const res = await axios.get(
                     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/check-email`,
                     { params: { email } }
@@ -95,18 +139,30 @@ export default function SignupPage() {
                         ? " This email is already registered."
                         : " Email available for registration.",
                 });
+=======
+                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/check-email`, { params: { email } });
+                const exists = res.data.exists;
+                setEmailStatus({ checking: false, exists, message: exists ? " This email is already registered." : " Email available for registration." });
+>>>>>>> main
             } catch {
                 setEmailStatus({ checking: false, exists: false, message: "" });
             }
         }, 600);
     };
+<<<<<<< HEAD
 
     // Field Validation
+=======
+>>>>>>> main
     const validateField = (name, value) => {
         switch (name) {
             case "name":
                 if (!value.trim()) return "Full name is required";
                 if (value.trim().length < 2) return "Name must be at least 2 characters";
+<<<<<<< HEAD
+=======
+                if (!/^[A-Za-z\s]+$/.test(value)) return "Please enter a valid name";
+>>>>>>> main
                 return "";
             case "email":
                 if (!value.trim()) return "Email is required";
@@ -115,19 +171,29 @@ export default function SignupPage() {
                 return "";
             case "password":
                 if (!value) return "Password is required";
+<<<<<<< HEAD
                 if (!isValidPassword(value))
                     return "Password must be at least 6 characters long";
+=======
+                if (!isValidPassword(value)) return "Password must be at least 6 characters long";
+>>>>>>> main
                 return "";
             case "confirmPassword":
                 if (!value) return "Please confirm your password";
                 if (value !== form.password) return "Passwords do not match";
                 return "";
+<<<<<<< HEAD
             default:
                 return "";
         }
     };
 
     // Input Change
+=======
+            default: return "";
+        }
+    };
+>>>>>>> main
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
@@ -137,21 +203,28 @@ export default function SignupPage() {
             setFormErrors((prev) => ({ ...prev, [name]: error || undefined }));
         }
     };
+<<<<<<< HEAD
 
     // On Blur
+=======
+>>>>>>> main
     const handleBlur = (name) => {
         setTouched((prev) => ({ ...prev, [name]: true }));
         const error = validateField(name, form[name]);
         if (error) setFormErrors((prev) => ({ ...prev, [name]: error }));
     };
+<<<<<<< HEAD
 
     // Full Form Validation
+=======
+>>>>>>> main
     const validateForm = () => {
         const errors = {};
         Object.keys(form).forEach((field) => {
             const error = validateField(field, form[field]);
             if (error) errors[field] = error;
         });
+<<<<<<< HEAD
         if (!agree)
             errors.agree =
                 "You must agree to the Terms of Service and Privacy Policy to continue";
@@ -159,6 +232,13 @@ export default function SignupPage() {
     };
 
     // Signup Handler
+=======
+        if (!agree) errors.agree = "You must agree to the Terms of Service and Privacy Policy to continue";
+        return errors;
+    };
+
+    // Signup Handlers
+>>>>>>> main
     const handleSignup = async (e) => {
         e.preventDefault();
         const errors = validateForm();
@@ -167,6 +247,7 @@ export default function SignupPage() {
 
         try {
             setLoading(true);
+<<<<<<< HEAD
             const userCred = await createUserWithEmailAndPassword(
                 auth,
                 form.email,
@@ -182,11 +263,18 @@ export default function SignupPage() {
             setFormErrors({
                 global: err.message || "Registration failed. Please try again later.",
             });
+=======
+            await signup(form.email, form.password);
+            // On success, the AuthProvider will detect the new user and the useEffect will redirect.
+        } catch (err) {
+            setFormErrors({ global: err.message || "Signup failed. Please try again." });
+>>>>>>> main
         } finally {
             setLoading(false);
         }
     };
 
+<<<<<<< HEAD
     // Google Sign-Up
     const handleGoogleSignup = async () => {
         const provider = new GoogleAuthProvider();
@@ -211,6 +299,32 @@ export default function SignupPage() {
 
     return (
         <Box sx={BackgroundStyle}>
+=======
+    const handleGoogleSignup = async () => {
+        setGoogleLoading(true);
+        try {
+            // This just starts the redirect. The AuthProvider handles the result.
+            await googleLogin();
+        } catch (err) {
+            setGoogleLoading(false);
+            setFormErrors({ global: err.message || "Could not start Google sign-in." });
+        }
+    };
+
+    // If the user is authenticated, render nothing to prevent a flash of the form
+    // before the redirect effect runs.
+    if (isAuthenticated) {
+        return null;
+    }
+    return (
+        <Box
+            sx={{
+                ...BackgroundStyle,
+                opacity: isLoaded ? 1 : 0,
+                transition: "opacity 0.8s ease-in-out",
+            }}
+        >
+>>>>>>> main
             <Container maxWidth="xl" sx={{ py: { xs: 3, sm: 4, md: 6 } }}>
                 <Grid
                     container
@@ -231,6 +345,20 @@ export default function SignupPage() {
                             alignItems: { xs: "center", md: "flex-end" },
                             textAlign: { xs: "center", md: "right" },
                             color: "#fff",
+<<<<<<< HEAD
+=======
+                            animation: isLoaded ? "slideInLeft 0.8s ease-out" : "none",
+                            "@keyframes slideInLeft": {
+                                "0%": {
+                                    opacity: 0,
+                                    transform: "translateX(-50px)",
+                                },
+                                "100%": {
+                                    opacity: 1,
+                                    transform: "translateX(0)",
+                                },
+                            },
+>>>>>>> main
                         }}
                     >
                         {/* Logo + Title */}
@@ -252,6 +380,7 @@ export default function SignupPage() {
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
+<<<<<<< HEAD
                                 }}
                             >
                                 <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
@@ -260,6 +389,22 @@ export default function SignupPage() {
                                         fill="#0891b2"
                                     />
                                 </svg>
+=======
+                                    overflow: "hidden",
+                                }}
+                            >
+                                {/* LOGO PATH */}
+                                <img
+                                    src="/images/logoblue.png"
+                                    alt="WaveGuard Logo"
+                                    style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "contain",
+                                        padding: "8px"
+                                    }}
+                                />
+>>>>>>> main
                             </Box>
                             <Typography
                                 variant="h4"
@@ -330,7 +475,29 @@ export default function SignupPage() {
                     </Grid>
 
                     {/* RIGHT PANEL – Form */}
+<<<<<<< HEAD
                     <Grid item xs={12} md={6} lg={5}>
+=======
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        lg={5}
+                        sx={{
+                            animation: isLoaded ? "slideInRight 0.8s ease-out" : "none",
+                            "@keyframes slideInRight": {
+                                "0%": {
+                                    opacity: 0,
+                                    transform: "translateX(50px)",
+                                },
+                                "100%": {
+                                    opacity: 1,
+                                    transform: "translateX(0)",
+                                },
+                            },
+                        }}
+                    >
+>>>>>>> main
                         <GlassCard
                             sx={{ width: "100%", maxWidth: { xs: "100%", sm: 480, md: 440 } }}
                         >

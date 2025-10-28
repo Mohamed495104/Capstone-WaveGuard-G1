@@ -1,5 +1,9 @@
 "use client";
 import React, { useState, useRef } from "react";
+<<<<<<< HEAD
+=======
+import useAuth from "@/hooks/useAuth";
+>>>>>>> main
 import {
     Box,
     Typography,
@@ -50,6 +54,10 @@ export default function LoginPage() {
         exists: false,
         message: "",
     });
+<<<<<<< HEAD
+=======
+    const { login, googleLogin } = useAuth();
+>>>>>>> main
     const debounceRef = useRef(null);
 
     const isValidEmail = (email) =>
@@ -132,13 +140,18 @@ export default function LoginPage() {
         });
         return errors;
     };
+<<<<<<< HEAD
 
+=======
+    // Handle Login
+>>>>>>> main
     const handleLogin = async (e) => {
         e.preventDefault();
         setTouched({ email: true, password: true });
         const errors = validateForm();
         setFormErrors(errors);
         if (Object.keys(errors).length) return;
+<<<<<<< HEAD
 
         try {
             setLoading(true);
@@ -153,6 +166,13 @@ export default function LoginPage() {
             });
             setLoginMessage("Login successful! Redirecting...");
             setTimeout(() => router.push("/dashboard"), 1500);
+=======
+        try {
+            setLoading(true);
+            await login(form.email, form.password);
+            setLoginMessage("Login successful! Redirecting...");
+            setTimeout(() => router.push("/landing"), 1500);
+>>>>>>> main
         } catch (err) {
             const msgMap = {
                 "auth/user-not-found": "No account found with this email.",
@@ -162,13 +182,18 @@ export default function LoginPage() {
                 "auth/user-disabled": "Account disabled.",
             };
             setFormErrors({
+<<<<<<< HEAD
                 global: msgMap[err.code] || "Login failed. Please try again.",
+=======
+                global: msgMap[err.code] || "Invalid Credentials",
+>>>>>>> main
             });
         } finally {
             setLoading(false);
         }
     };
 
+<<<<<<< HEAD
     const handleGoogleLogin = async () => {
         const provider = new GoogleAuthProvider();
         try {
@@ -185,6 +210,17 @@ export default function LoginPage() {
             setFormErrors({
                 global: err.message || "Google login failed. Please try again later.",
             });
+=======
+    // Handle Google Login
+    const handleGoogleLogin = async () => {
+        try {
+            setGoogleLoading(true);
+            await googleLogin();
+            setLoginMessage("Signed in successfully with Google!");
+            setTimeout(() => router.push("/landing"), 1500);
+        } catch (err) {
+            setFormErrors({ global: err.message || "Google login failed. Please try again later." });
+>>>>>>> main
         } finally {
             setGoogleLoading(false);
         }
@@ -200,9 +236,15 @@ export default function LoginPage() {
     return (
         <Box sx={BackgroundStyle}>
             <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 4 }, py: { xs: 4, md: 6 } }}>
+<<<<<<< HEAD
                 <Grid container spacing={{ xs: 3, md: 6 }} alignItems="center" justifyContent="center">
                     {/* LEFT - Login Form */}
                     <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 2, md: 1 }, display: "flex", justifyContent: "center" }}>
+=======
+                <Grid container spacing={{ xs: 3, md: 6 }} alignItems="stretch" justifyContent="center">
+                    {/* LEFT - Login Form */}
+                    <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 2, md: 1 }, display: "flex", justifyContent: "center", alignItems: "center" }}>
+>>>>>>> main
                         <GlassCard sx={{ width: "100%", maxWidth: 420 }}>
                             <Box textAlign="center" mb={3}>
                                 <Typography variant="h5" fontWeight={700} color="#fff">WaveGuard</Typography>
@@ -359,6 +401,7 @@ export default function LoginPage() {
                         </GlassCard>
                     </Grid>
 
+<<<<<<< HEAD
                     {/* Analytics */}
                     <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 1, md: 2 }, textAlign: { xs: "center", md: "left" } }}>
                         <Typography variant="h4" fontWeight={700} color="#fff" mb={1}>
@@ -370,6 +413,60 @@ export default function LoginPage() {
                         <Grid container spacing={2} sx={{ maxWidth: 480, justifyContent: "center" }}>
                             {analyticsData.map(({ IconComponent, value, label, change, color }, i) => (
                                 <Grid item xs={6} key={i}>
+=======
+                    {/* Analytics Section */}
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        lg={5}
+                        sx={{
+                            order: { xs: 1, md: 2 },
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center", // ✅ always center on mobile
+                        }}
+                    >
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            color="#fff"
+                            mb={1}
+                            sx={{ textAlign: "center" }}
+                        >
+                            Our Global Impact
+                        </Typography>
+
+                        <Typography
+                            color="rgba(255,255,255,0.8)"
+                            mb={3}
+                            sx={{ maxWidth: 480, textAlign: "center" }}
+                        >
+                            Real-time insights from our community of eco-warriors making a difference worldwide.
+                        </Typography>
+
+                        {/* ✅ Centered 2×2 Grid */}
+                        <Grid
+                            container
+                            spacing={2}
+                            justifyContent="center"
+                            sx={{
+                                maxWidth: 480,
+                                mx: "auto",
+                            }}
+                        >
+                            {analyticsData.map(({ IconComponent, value, label, change, color }, i) => (
+                                <Grid
+                                    item
+                                    xs={6}
+                                    key={i}
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                    }}
+                                >
+>>>>>>> main
                                     <Box
                                         sx={{
                                             backdropFilter: "blur(16px)",
@@ -377,11 +474,18 @@ export default function LoginPage() {
                                             border: "1px solid rgba(255,255,255,0.15)",
                                             borderRadius: 3,
                                             p: { xs: 2, sm: 3 },
+<<<<<<< HEAD
                                             minHeight: { xs: 140, sm: 160 },
+=======
+                                            height: { xs: 140, sm: 160 },
+                                            width: "100%",
+                                            maxWidth: 180, // ✅ keeps cards uniform width
+>>>>>>> main
                                             display: "flex",
                                             flexDirection: "column",
                                             alignItems: "center",
                                             justifyContent: "center",
+<<<<<<< HEAD
                                             transition: "transform 0.2s ease, background 0.2s ease",
                                             "&:hover": { transform: "translateY(-4px)", backgroundColor: "rgba(255,255,255,0.18)" },
                                         }}
@@ -391,10 +495,35 @@ export default function LoginPage() {
                                             {value}
                                         </Typography>
                                         <Typography color="rgba(255,255,255,0.8)" fontSize={{ xs: "0.75rem", sm: "0.85rem" }}>
+=======
+                                            textAlign: "center",
+                                            gap: { xs: 0.5, sm: 1 },
+                                            transition: "transform 0.25s ease, background 0.25s ease",
+                                            "&:hover": {
+                                                transform: { sm: "translateY(-4px)" },
+                                                backgroundColor: "rgba(255,255,255,0.18)",
+                                            },
+                                        }}
+                                    >
+                                        <IconComponent sx={{ color, fontSize: { xs: 28, sm: 34 } }} />
+                                        <Typography
+                                            color="#fff"
+                                            fontWeight={700}
+                                            fontSize={{ xs: "1.1rem", sm: "1.3rem" }}
+                                            lineHeight={1.2}
+                                        >
+                                            {value}
+                                        </Typography>
+                                        <Typography
+                                            color="rgba(255,255,255,0.85)"
+                                            fontSize={{ xs: "0.8rem", sm: "0.9rem" }}
+                                        >
+>>>>>>> main
                                             {label}
                                         </Typography>
                                         <Typography
                                             sx={{
+<<<<<<< HEAD
                                                 mt: 1,
                                                 px: 1.5,
                                                 py: 0.3,
@@ -403,6 +532,16 @@ export default function LoginPage() {
                                                 fontWeight: 600,
                                                 color,
                                                 backgroundColor: `${color}20`,
+=======
+                                                mt: 0.5,
+                                                px: 1.5,
+                                                py: 0.2,
+                                                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                                borderRadius: 2,
+                                                fontWeight: 600,
+                                                color,
+                                                backgroundColor: `${color}25`,
+>>>>>>> main
                                             }}
                                         >
                                             {change} this week
@@ -416,4 +555,8 @@ export default function LoginPage() {
             </Container>
         </Box>
     );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> main
