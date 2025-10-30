@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
+export default function useAuth() {
+    const login = async (email, password) => {
+        console.log('Logging in:', email);
+    };
+    const signup = async (email, password) => {
+        console.log('Signing up:', email);
+    };
+    const logout = async () => console.log('Logged out');
+
+    return { login, signup, logout };
+=======
+useAuth.js;
+=======
+>>>>>>> main
 import { auth } from "@/lib/firebase";
 import axios from "axios";
 import {
@@ -48,5 +64,15 @@ export default function useAuth() {
         await signOut(auth);
     };
 
+<<<<<<< HEAD
+  const logout = async () => {
+    await signOut(auth);
+  };
+
+  return { login, signup, googleLogin, logout };
+>>>>>>> main
+}
+=======
     return { login, signup, googleLogin, logout };
 }
+>>>>>>> main

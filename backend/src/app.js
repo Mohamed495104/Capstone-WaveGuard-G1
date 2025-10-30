@@ -8,11 +8,21 @@ dotenv.config();
 
 const app = express();
 
+<<<<<<< HEAD
+app.use(
+    cors({
+        origin: ["http://localhost:3000"],
+=======
 // Only allow trusted frontend origins for CORS
 app.use(
     cors({
         origin: ["http://localhost:3000", process.env.FRONTEND_URL].filter(Boolean),
+<<<<<<< HEAD
+>>>>>>> main
+        methods: ["GET", "POST", "PUT", "DELETE"],
+=======
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+>>>>>>> main
         credentials: true,
     })
 );
@@ -21,4 +31,8 @@ app.use(express.json());
 app.use('/api', routes);
 app.use(errorMiddleware);
 
+<<<<<<< HEAD
 export default app;
+=======
+export default app;
+>>>>>>> main

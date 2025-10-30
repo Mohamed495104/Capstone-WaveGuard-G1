@@ -5,26 +5,19 @@ import { Box, Button } from "@mui/material";
 /* HERO SECTION */
 export const HeroSection = styled(Box)(() => ({
   position: "relative",
-  height: "90vh",
+  height: "100vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
   textAlign: "center",
   overflow: "hidden",
-  "@media (max-width: 1200px)": { height: "85vh" },
-  "@media (max-width: 1024px)": { height: "78vh" },
-  "@media (max-width: 768px)": {
-    minHeight: "calc(100vh - 56px)",
-    padding: "40px 16px",
-    height: "auto",
-  },
   "&::before": {
     content: '""',
     position: "absolute",
     inset: 0,
     background: 'url("/images/hero1.jpg") center center / cover no-repeat',
-    filter: "brightness(1.05)",
-    transform: "scale(1.02)",
+    filter: "blur(1px) brightness(1.0)",
+    transform: "scale(1.05)",
     zIndex: 0,
   },
   "&::after": {
@@ -43,8 +36,6 @@ export const HeroOverlay = styled(Box)(() => ({
   maxWidth: 800,
   color: "#fff",
   padding: "0 20px",
-  "@media (max-width: 1024px)": { maxWidth: 700 },
-  "@media (max-width: 768px)": { padding: "0 16px", maxWidth: "100%" },
 }));
 
 export const HeroTag = styled("p")(() => ({
@@ -56,7 +47,6 @@ export const HeroTag = styled("p")(() => ({
   display: "inline-block",
   marginBottom: 18,
   color: "#e3f9ff",
-  "@media (max-width: 768px)": { fontSize: 12, padding: "5px 14px" },
 }));
 
 export const HeroTitle = styled("h1")(() => ({
@@ -64,10 +54,9 @@ export const HeroTitle = styled("h1")(() => ({
   fontWeight: 700,
   lineHeight: 1.2,
   marginBottom: 16,
-  "@media (max-width: 1200px)": { fontSize: 46 },
-  "@media (max-width: 1024px)": { fontSize: 40 },
-  "@media (max-width: 768px)": { fontSize: 32, marginBottom: 12 },
-  "@media (max-width: 480px)": { fontSize: 26 },
+  "@media (max-width: 768px)": {
+    fontSize: 36,
+  },
 }));
 
 export const HeroDesc = styled("p")(() => ({
@@ -75,8 +64,9 @@ export const HeroDesc = styled("p")(() => ({
   color: "#d9f3f8",
   marginBottom: 40,
   lineHeight: 1.6,
-  "@media (max-width: 1024px)": { fontSize: 16, marginBottom: 35 },
-  "@media (max-width: 768px)": { fontSize: 15, marginBottom: 30 },
+  "@media (max-width: 768px)": {
+    fontSize: 15,
+  },
 }));
 
 export const HeroButtons = styled(Box)(() => ({
@@ -84,13 +74,10 @@ export const HeroButtons = styled(Box)(() => ({
   justifyContent: "center",
   gap: 16,
   marginBottom: 60,
-  flexWrap: "wrap",
-  "@media (max-width: 1024px)": { marginBottom: 50 },
   "@media (max-width: 768px)": {
     flexDirection: "column",
     alignItems: "center",
     gap: 12,
-    marginBottom: 40,
   },
 }));
 
@@ -100,20 +87,17 @@ export const PrimaryButton = styled(Button)(() => ({
   padding: "12px 28px",
   borderRadius: 6,
   fontSize: 15,
-  fontWeight: 600,
   "&:hover": { background: "#067b96" },
-  "@media (max-width: 768px)": { width: "100%", maxWidth: 280, fontSize: 14 },
 }));
 
 export const OutlineButton = styled(Button)(() => ({
   border: "1.5px solid #fff",
+  background: "transparent",
   color: "#fff",
   padding: "12px 28px",
   borderRadius: 6,
   fontSize: 15,
-  fontWeight: 600,
   "&:hover": { background: "rgba(255,255,255,0.1)" },
-  "@media (max-width: 768px)": { width: "100%", maxWidth: 280, fontSize: 14 },
 }));
 
 export const StatsBox = styled(Box)(() => ({
@@ -122,21 +106,18 @@ export const StatsBox = styled(Box)(() => ({
   gap: 60,
   flexWrap: "wrap",
   marginTop: 40,
-  "@media (max-width: 1200px)": { gap: 50 },
-  "@media (max-width: 1024px)": { gap: 40 },
-  "@media (max-width: 768px)": { gap: 24, marginTop: 30 },
+  "@media (max-width: 768px)": {
+    gap: 30,
+  },
 }));
 
-/*  PLATFORM WORK SECTION */
+/* WORK SECTION */
 export const WorkSection = styled(Box)(() => ({
   background: "#f8fafb",
   padding: "96px 32px",
   textAlign: "center",
-  "@media (max-width: 1200px)": { padding: "80px 28px" },
-  "@media (max-width: 1024px)": { padding: "80px 24px" },
   "@media (max-width: 768px)": {
-    padding: "50px 16px",
-    "& .MuiTypography-h4": { fontSize: "1.5rem" },
+    padding: "60px 20px",
   },
 }));
 
@@ -153,12 +134,12 @@ export const WorkBadge = styled("span")(() => ({
 
 export const WorkGrid = styled("div")(() => ({
   display: "grid",
-  gridTemplateColumns: "repeat(4, 1fr)",
+  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
   gap: 32,
   justifyItems: "center",
-  alignItems: "stretch",
-  "@media (max-width: 1024px)": { gridTemplateColumns: "repeat(4, 1fr)"},
-  "@media (max-width: 768px)": { gridTemplateColumns: "1fr", gap: 24 },
+  "@media (max-width: 600px)": {
+    gap: 20,
+  },
 }));
 
 export const WorkCard = styled("div")(() => ({
@@ -166,19 +147,80 @@ export const WorkCard = styled("div")(() => ({
   borderRadius: 12,
   boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
   padding: "32px 24px",
-  width: "100%",
   maxWidth: 280,
-  textAlign: "center",
   transition: "all 0.3s ease",
-  "&:hover": { transform: "translateY(-6px)", boxShadow: "0 8px 18px rgba(0,0,0,0.08)" },
-  "@media (max-width: 1200px)": { maxWidth: "100%" },
-  "@media (max-width: 768px)": { maxWidth: "100%", padding: "24px 20px" },
+  textAlign: "center",
+  "&:hover": {
+    transform: "translateY(-6px)",
+    boxShadow: "0 8px 18px rgba(0,0,0,0.08)",
+  },
 }));
 
-/*  MISSION SECTION */
+/* CLEANUP SECTION */
+export const CleanSection = styled(Box)(() => ({
+  backgroundColor: "#e0f7fa",
+  padding: "96px 32px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+}));
+
+export const CleanBox = styled(Box)(() => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 50,
+  maxWidth: 1100,
+  flexWrap: "wrap",
+  justifyContent: "center",
+  "@media (max-width: 900px)": {
+    flexDirection: "column",
+    textAlign: "center",
+    gap: 30,
+  },
+}));
+
+export const CleanText = styled(Box)(() => ({
+  maxWidth: 500,
+  color: "#004b63",
+  "@media (max-width: 900px)": {
+    maxWidth: "90%",
+  },
+  "& h3": {
+    color: "#003554",
+    fontSize: 28,
+    fontWeight: 700,
+    marginBottom: 14,
+  },
+  "& p": {
+    fontSize: 15,
+    marginBottom: 18,
+    lineHeight: 1.6,
+  },
+  "& ul": {
+    listStyle: "none",
+    padding: 0,
+    fontSize: 15,
+    lineHeight: 1.8,
+  },
+  "& li": {
+    position: "relative",
+    paddingLeft: 28,
+    marginBottom: 10,
+  },
+  "& li::before": {
+    content: "'✔'",
+    position: "absolute",
+    left: 0,
+    top: 0,
+    color: "#00a6d6",
+    fontWeight: "bold",
+  },
+}));
+
+/* MISSION SECTION */
 export const MissionSection = styled(Box)(() => ({
   position: "relative",
-  height: "90vh",
+  height: "100vh",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
@@ -190,7 +232,7 @@ export const MissionSection = styled(Box)(() => ({
     inset: 0,
     background: 'url("/images/coast.jpg") center center / cover no-repeat',
     filter: "brightness(1.05)",
-    transform: "scale(1.02)",
+    transform: "scale(1.05)",
     zIndex: 0,
   },
   "&::after": {
@@ -201,9 +243,10 @@ export const MissionSection = styled(Box)(() => ({
       "linear-gradient(to right, rgba(8,145,178,0.85) 25%, rgba(103,232,195,0.6) 90%)",
     zIndex: 1,
   },
-  "@media (max-width: 1200px)": { height: "82vh" },
-  "@media (max-width: 1024px)": { height: "76vh" },
-  "@media (max-width: 768px)": { height: "auto", minHeight: "80vh", padding: "60px 16px" },
+  "@media (max-width: 768px)": {
+    height: "auto",
+    padding: "80px 20px",
+  },
 }));
 
 export const MissionContent = styled(Box)(() => ({
@@ -212,30 +255,23 @@ export const MissionContent = styled(Box)(() => ({
   maxWidth: 800,
   color: "#ffffff",
   padding: "0 20px",
-  "& .badge": {
-    display: "inline-block",
-    background: "rgba(255,255,255,0.15)",
-    color: "#e3f9ff",
-    fontSize: 13,
-    padding: "6px 14px",
-    borderRadius: 50,
-    marginBottom: 14,
-  },
   "& h3": {
     fontSize: 52,
     fontWeight: 700,
+    lineHeight: 1.2,
     marginBottom: 16,
-    "@media (max-width: 1200px)": { fontSize: 46 },
-    "@media (max-width: 1024px)": { fontSize: 38 },
-    "@media (max-width: 768px)": { fontSize: 28 },
+    "@media (max-width: 768px)": {
+      fontSize: 34,
+    },
   },
   "& p": {
     fontSize: 18,
     color: "#d9f3f8",
     marginBottom: 40,
     lineHeight: 1.6,
-    "@media (max-width: 1024px)": { fontSize: 16, marginBottom: 35 },
-    "@media (max-width: 768px)": { fontSize: 14, marginBottom: 30 },
+    "@media (max-width: 768px)": {
+      fontSize: 15,
+    },
   },
 }));
 
@@ -247,40 +283,4 @@ export const MissionButton = styled(Button)(() => ({
   color: "#0077b6",
   fontWeight: 600,
   "&:hover": { background: "#e0f7fa", color: "#005c85" },
-  "@media (max-width: 768px)": { width: "100%", maxWidth: 280, fontSize: 14 },
-}));
-
-/* TIPS SECTION */
-export const TipsSection = styled(Box)(() => ({
-  background: "#e0f7fa30",
-  padding: "90px 32px",
-  textAlign: "center",
-  "@media (max-width: 1200px)": { padding: "80px 28px" },
-  "@media (max-width: 1024px)": { padding: "70px 24px" },
-  "@media (max-width: 768px)": { padding: "50px 16px" },
-}));
-
-export const TipsGrid = styled("div")(() => ({
-  display: "grid",
-  gridTemplateColumns: "repeat(2, 1fr)",
-  gap: 32,
-  justifyItems: "center",
-  alignItems: "stretch",
-  maxWidth: "1100px",
-  margin: "0 auto",
-  "@media (max-width: 1200px)": { gridTemplateColumns: "repeat(2, 1fr)", gap: 28 },
-  "@media (max-width: 768px)": { gridTemplateColumns: "1fr", gap: 24 },
-}));
-
-export const TipCard = styled("div")(() => ({
-  background: "#fff",
-  borderRadius: 12,
-  boxShadow: "0 4px 10px rgba(0,0,0,0.05)",
-  padding: "14px",
-  width: "100%",
-  textAlign: "center",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  "&:hover": { transform: "translateY(-6px)", boxShadow: "0 8px 18px rgba(0,0,0,0.08)" },
-  "@media (max-width: 1200px)": { maxWidth: "90%" },
-  "@media (max-width: 768px)": { maxWidth: "100%", padding: "24px 20px" },
 }));

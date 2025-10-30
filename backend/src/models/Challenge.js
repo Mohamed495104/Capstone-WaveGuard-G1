@@ -9,6 +9,8 @@ const challengeSchema = new mongoose.Schema(
         endDate: Date,
         status: { type: String, enum: ["active", "completed", "upcoming"], default: "active" },
 
+<<<<<<< HEAD
+=======
         // --- NEW & UPDATED FIELDS ---
         locationName: { type: String, required: true },
         province: { type: String, required: true },
@@ -16,6 +18,7 @@ const challengeSchema = new mongoose.Schema(
         goalUnit: { type: String, default: "items" },
         // --- END ---
 
+>>>>>>> main
         // Geo location
         location: {
             type: { type: String, enum: ["Point"], default: "Point" },
@@ -32,4 +35,8 @@ const challengeSchema = new mongoose.Schema(
 
 challengeSchema.index({ location: "2dsphere" });
 
+<<<<<<< HEAD
 export default mongoose.model("Challenge", challengeSchema);
+=======
+export default mongoose.model("Challenge", challengeSchema);
+>>>>>>> main
