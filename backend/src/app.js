@@ -17,8 +17,12 @@ app.use(
 app.use(
     cors({
         origin: ["http://localhost:3000", process.env.FRONTEND_URL].filter(Boolean),
+<<<<<<< HEAD
 >>>>>>> main
         methods: ["GET", "POST", "PUT", "DELETE"],
+=======
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+>>>>>>> main
         credentials: true,
     })
 );

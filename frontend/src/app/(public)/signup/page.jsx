@@ -311,8 +311,6 @@ export default function SignupPage() {
         }
     };
 
-    // If the user is authenticated, render nothing to prevent a flash of the form
-    // before the redirect effect runs.
     if (isAuthenticated) {
         return null;
     }
