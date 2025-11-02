@@ -163,7 +163,11 @@ function LandingPage() {
               <Typography fontSize="36px" mb={1}>
                 {tip.icon}
               </Typography>
-              <Typography color="#004b63" fontSize="14px" sx={{ lineHeight: 1.6 }}>
+              <Typography
+                color="#004b63"
+                fontSize="14px"
+                sx={{ lineHeight: 1.6 }}
+              >
                 {tip.tip}
               </Typography>
             </TipCard>
@@ -226,11 +230,7 @@ function LandingPage() {
             {
               img: "/images/story3.jpg",
               name: "Mia – Halifax",
-<<<<<<< HEAD
               text: "I joined WaveGuard as a challenge, but it became a lifestyle. Every cleanup reminds me that small actions can create waves of change.",
-=======
-              text: "I joined WaveGuard as a challenge, but it became a lifestyle. Every cleanup on Wave Gaurd reminds me that every small action can create waves of change.",
->>>>>>> main
             },
           ].map((story, i) => (
             <Grid item xs={12} sm={6} md={4} key={i}>
