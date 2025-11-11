@@ -107,21 +107,27 @@ function ChallengesPage() {
         }
     }, [joinedChallenges]);
 
-    // Safer filter logic
-    const filterChallenges = (challengeList) => {
-        let filtered = [...challengeList];
+    // Apply user-selected filters first to all challenges
+    const filteredChallenges = React.useMemo(() => {
+        let filtered = [...challenges];
+        
+        // Filter by region if not "All"
         if (selectedRegion !== "All") {
             filtered = filtered.filter((c) => c.region?.toLowerCase() === selectedRegion.toLowerCase());
         }
+        
+        // Filter by status if not "All"
         if (selectedStatus !== "All") {
             filtered = filtered.filter((c) => c.status?.toLowerCase() === selectedStatus.toLowerCase());
         }
+        
         return filtered;
-    };
+    }, [challenges, selectedRegion, selectedStatus]);
 
-    const activeChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "active"));
-    const upcomingChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "upcoming"));
-    const completedChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "completed"));
+    // Separate filtered challenges by status for display sections
+    const activeChallenges = filteredChallenges.filter((c) => c.status?.toLowerCase() === "active");
+    const upcomingChallenges = filteredChallenges.filter((c) => c.status?.toLowerCase() === "upcoming");
+    const completedChallenges = filteredChallenges.filter((c) => c.status?.toLowerCase() === "completed");
 
     // Scroll handler
     const scroll = (ref, direction) => {
