@@ -154,12 +154,27 @@ export default function SignupPage() {
 
     const handleGoogleSignup = async () => {
         setGoogleLoading(true);
+        setFormErrors({}); // Clear previous errors
         try {
             // This just starts the redirect. The AuthProvider handles the result.
             await googleLogin();
         } catch (err) {
+            console.error("Google signup error:", err);
+            let errorMessage = "Could not start Google sign-in.";
+            
+            // Provide more specific error messages
+            if (err.code === 'auth/popup-blocked') {
+                errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+            } else if (err.code === 'auth/popup-closed-by-user') {
+                errorMessage = "Sign-in was cancelled. Please try again.";
+            } else if (err.code === 'auth/web-storage-unsupported' || err.message?.includes('sessionStorage')) {
+                errorMessage = "Your browser settings are blocking sign-in. Please enable cookies and storage, or try a different browser.";
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
             setGoogleLoading(false);
-            setFormErrors({ global: err.message || "Could not start Google sign-in." });
+            setFormErrors({ global: errorMessage });
         }
     };
 

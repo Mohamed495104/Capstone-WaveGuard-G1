@@ -81,14 +81,35 @@ export default function useAuth() {
     };
 
     const googleLogin = async () => {
-        await ensureSessionPersistence();
+        try {
+            await ensureSessionPersistence();
+        } catch (persistenceError) {
+            console.warn("Session persistence failed, continuing with default persistence:", persistenceError);
+        }
+        
         const provider = new GoogleAuthProvider();
         
         // Use redirect for mobile devices to avoid popup blocking
         if (isMobileDevice()) {
-            // For mobile, use redirect flow
-            await signInWithRedirect(auth, provider);
-            // Note: The redirect result will be handled by handleRedirectResult in AuthContext
+            try {
+                // For mobile, use redirect flow
+                await signInWithRedirect(auth, provider);
+                // Note: The redirect result will be handled by handleRedirectResult in AuthContext
+            } catch (redirectError) {
+                // If redirect fails (e.g., sessionStorage unavailable), try popup as fallback
+                console.warn("Redirect sign-in failed, trying popup:", redirectError);
+                if (redirectError.code === 'auth/web-storage-unsupported' || 
+                    redirectError.message?.includes('sessionStorage')) {
+                    // Fall back to popup if storage is unavailable
+                    const result = await signInWithPopup(auth, provider);
+                    if (result.user) {
+                        const idToken = await result.user.getIdToken(true);
+                        await syncUser(idToken);
+                    }
+                } else {
+                    throw redirectError;
+                }
+            }
         } else {
             // For desktop, use popup flow
             const result = await signInWithPopup(auth, provider);
