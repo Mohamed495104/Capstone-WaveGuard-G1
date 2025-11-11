@@ -233,11 +233,26 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         try {
             setGoogleLoading(true);
+            setFormErrors({}); // Clear previous errors
             await googleLogin();
             setLoginMessage("Signed in successfully with Google!");
             setTimeout(() => router.push("/home"), 1500);
         } catch (err) {
-            setFormErrors({ global: err.message || "Google login failed. Please try again later." });
+            console.error("Google login error:", err);
+            let errorMessage = "Google login failed. Please try again later.";
+            
+            // Provide more specific error messages
+            if (err.code === 'auth/popup-blocked') {
+                errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+            } else if (err.code === 'auth/popup-closed-by-user') {
+                errorMessage = "Sign-in was cancelled. Please try again.";
+            } else if (err.code === 'auth/web-storage-unsupported' || err.message?.includes('sessionStorage')) {
+                errorMessage = "Your browser settings are blocking sign-in. Please enable cookies and storage, or try a different browser.";
+            } else if (err.message) {
+                errorMessage = err.message;
+            }
+            
+            setFormErrors({ global: errorMessage });
         } finally {
             setGoogleLoading(false);
         }
