@@ -3,14 +3,22 @@ import User from "../models/User.js";
 import mongoose from "mongoose";
 
 // Helper function to determine challenge status based on dates
+// Compares dates only (ignoring time) to avoid timezone issues
 const getChallengeStatus = (startDate, endDate) => {
+    // Get current date at midnight local time
     const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    if (now < start) {
+    // Convert start and end dates to midnight local time for comparison
+    const start = new Date(startDate);
+    const startMidnight = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    
+    const end = new Date(endDate);
+    const endMidnight = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    
+    if (todayMidnight < startMidnight) {
         return 'upcoming';
-    } else if (now >= start && now <= end) {
+    } else if (todayMidnight >= startMidnight && todayMidnight <= endMidnight) {
         return 'active';
     } else {
         return 'completed';
