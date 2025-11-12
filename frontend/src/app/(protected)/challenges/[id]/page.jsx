@@ -497,7 +497,7 @@ function ChallengeDetailsPage({ params }) {
                     </Grid>
 
                     {/* Main Content Row */}
-                    <Grid item xs={12} md={8}>
+                    <Grid item xs={12} md={9}>
                         {/* Action Card - Now in Main Content */}
                         {!joined ? (
                             <Paper
@@ -718,7 +718,7 @@ function ChallengeDetailsPage({ params }) {
                     </Grid>
 
                     {/* Right Sidebar - Challenge Details */}
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={3}>
                         <Paper
                             sx={{
                                 p: { xs: 2.5, sm: 3.5 },
