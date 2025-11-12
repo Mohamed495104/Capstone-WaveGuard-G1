@@ -219,7 +219,7 @@ const ChallengeCard = ({ challenge }) => {
                                 {totalVolunteers.toLocaleString()} volunteers
                             </Typography>
                         </Box>
-                        {(status === "active" || status === "upcoming") && (
+                        {status === "active" && (
                             <Button
                                 variant="contained"
                                 size="small"

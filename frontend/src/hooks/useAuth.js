@@ -8,15 +8,7 @@ import {
     signOut,
     GoogleAuthProvider,
     signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
 } from "firebase/auth";
-
-// Helper: Detect if device is mobile
-function isMobileDevice() {
-    if (typeof window === 'undefined') return false;
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-}
 
 // Helper: Sync user with backend and retry if needed
 // This is now only used for LOGIN and GOOGLE SIGN-IN
@@ -81,43 +73,13 @@ export default function useAuth() {
     };
 
     const googleLogin = async () => {
-        try {
-            await ensureSessionPersistence();
-        } catch (persistenceError) {
-            console.warn("Session persistence failed, continuing with default persistence:", persistenceError);
-        }
-        
+        await ensureSessionPersistence();
         const provider = new GoogleAuthProvider();
-        
-        // Use redirect for mobile devices to avoid popup blocking
-        if (isMobileDevice()) {
-            try {
-                // For mobile, use redirect flow
-                await signInWithRedirect(auth, provider);
-                // Note: The redirect result will be handled by handleRedirectResult in AuthContext
-            } catch (redirectError) {
-                // If redirect fails (e.g., sessionStorage unavailable), try popup as fallback
-                console.warn("Redirect sign-in failed, trying popup:", redirectError);
-                if (redirectError.code === 'auth/web-storage-unsupported' || 
-                    redirectError.message?.includes('sessionStorage')) {
-                    // Fall back to popup if storage is unavailable
-                    const result = await signInWithPopup(auth, provider);
-                    if (result.user) {
-                        const idToken = await result.user.getIdToken(true);
-                        await syncUser(idToken);
-                    }
-                } else {
-                    throw redirectError;
-                }
-            }
-        } else {
-            // For desktop, use popup flow
-            const result = await signInWithPopup(auth, provider);
-            if (result.user) {
-                const idToken = await result.user.getIdToken(true);
-                // Sync on Google login (this is fine, it acts as an "get or create")
-                await syncUser(idToken);
-            }
+        const result = await signInWithPopup(auth, provider);
+        if (result.user) {
+            const idToken = await result.user.getIdToken(true);
+            // Sync on Google login (this is fine, it acts as an "get or create")
+            await syncUser(idToken);
         }
     };
 
@@ -125,24 +87,5 @@ export default function useAuth() {
         await signOut(auth);
     };
 
-    /**
-     * @desc Handle redirect result after Google sign-in on mobile
-     * This should be called when the app loads to check for redirect results
-     */
-    const handleRedirectResult = async () => {
-        try {
-            const result = await getRedirectResult(auth);
-            if (result && result.user) {
-                const idToken = await result.user.getIdToken(true);
-                await syncUser(idToken);
-                return result.user;
-            }
-            return null;
-        } catch (error) {
-            console.error("Error handling redirect result:", error);
-            throw error;
-        }
-    };
-
-    return { login, signup, googleLogin, logout, handleRedirectResult };
+    return { login, signup, googleLogin, logout };
 }
