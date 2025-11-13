@@ -1,12 +1,13 @@
 "use client";
 import Image from "next/image";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 
 /* Styled Components */
-const FooterContainer = styled("footer")(() => ({
-    background: "#F5F9FA",
+const FooterContainer = styled("footer")(({ theme }) => ({
+    background: theme.palette.mode === 'dark' ? '#1e293b' : '#F5F9FA',
     padding: "80px 100px 40px",
-    color: "#003554",
+    color: theme.palette.mode === 'dark' ? '#f1f5f9' : '#003554',
     fontFamily: "Inter, sans-serif",
     "@media (max-width: 1024px)": {
         padding: "60px 40px 30px",
@@ -62,8 +63,8 @@ const LogoText = styled("h4")(() => ({
     },
 }));
 
-const Description = styled("p")(() => ({
-    color: "#5A7B8A",
+const Description = styled("p")(({ theme }) => ({
+    color: theme.palette.mode === 'dark' ? '#cbd5e1' : '#5A7B8A',
     lineHeight: 1.7,
     fontSize: 15,
     marginBottom: 24,
@@ -77,10 +78,10 @@ const NewsletterSection = styled("div")(() => ({
     marginTop: 24,
 }));
 
-const NewsletterTitle = styled("h5")(() => ({
+const NewsletterTitle = styled("h5")(({ theme }) => ({
     fontSize: 15,
     fontWeight: 600,
-    color: "#003554",
+    color: theme.palette.mode === 'dark' ? '#f1f5f9' : '#003554',
     marginBottom: 12,
     "@media (max-width: 768px)": {
         fontSize: 14,
@@ -94,27 +95,29 @@ const NewsletterForm = styled("div")(() => ({
     marginBottom: 8,
 }));
 
-const EmailInput = styled("input")(() => ({
+const EmailInput = styled("input")(({ theme }) => ({
     flex: 1,
-    border: "1px solid #D1E5ED",
+    border: theme.palette.mode === 'dark' ? '1px solid #475569' : '1px solid #D1E5ED',
     borderRadius: 8,
     padding: "11px 14px",
     fontSize: 14,
-    color: "#003554",
-    background: "#ffffff",
+    color: theme.palette.mode === 'dark' ? '#f1f5f9' : '#003554',
+    background: theme.palette.mode === 'dark' ? '#334155' : '#ffffff',
     outline: "none",
     transition: "border-color 0.3s ease, box-shadow 0.3s ease",
     "&:focus": {
-        borderColor: "#0891B2",
-        boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.1)",
+        borderColor: theme.palette.primary.main,
+        boxShadow: theme.palette.mode === 'dark' 
+            ? '0 0 0 3px rgba(6, 182, 212, 0.2)' 
+            : '0 0 0 3px rgba(8, 145, 178, 0.1)',
     },
     "&::placeholder": {
-        color: "#9BB5C0",
+        color: theme.palette.mode === 'dark' ? '#94a3b8' : '#9BB5C0',
     },
 }));
 
-const SubmitButton = styled("button")(() => ({
-    background: "#0891B2",
+const SubmitButton = styled("button")(({ theme }) => ({
+    background: theme.palette.primary.main,
     color: "#fff",
     border: "none",
     borderRadius: 8,
@@ -127,7 +130,7 @@ const SubmitButton = styled("button")(() => ({
     alignItems: "center",
     justifyContent: "center",
     "&:hover": {
-        background: "#0077A3",
+        background: theme.palette.mode === 'dark' ? '#0891b2' : '#0077A3',
         transform: "translateY(-1px)",
     },
     "&:active": {
@@ -135,9 +138,9 @@ const SubmitButton = styled("button")(() => ({
     },
 }));
 
-const NewsletterHint = styled("span")(() => ({
+const NewsletterHint = styled("span")(({ theme }) => ({
     fontSize: 12,
-    color: "#6B8C98",
+    color: theme.palette.mode === 'dark' ? '#94a3b8' : '#6B8C98',
     lineHeight: 1.4,
 }));
 
@@ -164,8 +167,8 @@ const LinkColumn = styled("div")(() => ({
     },
 }));
 
-const ColumnTitle = styled("h5")(() => ({
-    color: "#003554",
+const ColumnTitle = styled("h5")(({ theme }) => ({
+    color: theme.palette.mode === 'dark' ? '#f1f5f9' : '#003554',
     fontWeight: 600,
     fontSize: 16,
     marginBottom: 16,
@@ -181,14 +184,14 @@ const LinkList = styled("ul")(() => ({
     margin: 0,
 }));
 
-const LinkItem = styled("li")(() => ({
-    color: "#6B8C98",
+const LinkItem = styled("li")(({ theme }) => ({
+    color: theme.palette.mode === 'dark' ? '#94a3b8' : '#6B8C98',
     fontSize: 14,
     marginBottom: 12,
     cursor: "pointer",
     transition: "color 0.2s ease, transform 0.2s ease",
     "&:hover": {
-        color: "#0891B2",
+        color: theme.palette.primary.main,
         transform: "translateX(2px)",
     },
     "@media (max-width: 768px)": {
@@ -197,14 +200,14 @@ const LinkItem = styled("li")(() => ({
     },
 }));
 
-const ContactArea = styled("div")(() => ({
+const ContactArea = styled("div")(({ theme }) => ({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     flexWrap: "wrap",
     gap: "30px",
     paddingTop: "32px",
-    borderTop: "1px solid #D1E5ED",
+    borderTop: theme.palette.mode === 'dark' ? '1px solid #334155' : '1px solid #D1E5ED',
     maxWidth: "1400px",
     margin: "0 auto",
     "@media (max-width: 1024px)": {
@@ -217,14 +220,16 @@ const ContactArea = styled("div")(() => ({
     },
 }));
 
-const ContactCard = styled("div")(() => ({
+const ContactCard = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     gap: 14,
-    background: "#FFFFFF",
+    background: theme.palette.mode === 'dark' ? '#334155' : '#FFFFFF',
     borderRadius: 12,
     padding: "18px 28px",
-    boxShadow: "0 2px 8px rgba(0, 83, 116, 0.06)",
+    boxShadow: theme.palette.mode === 'dark' 
+        ? '0 2px 8px rgba(0, 0, 0, 0.3)' 
+        : '0 2px 8px rgba(0, 83, 116, 0.06)',
     transition: "transform 0.3s ease, box-shadow 0.3s ease",
     minWidth: 280,
     "@media (max-width: 1024px)": {
@@ -239,15 +244,17 @@ const ContactCard = styled("div")(() => ({
     },
     "&:hover": {
         transform: "translateY(-2px)",
-        boxShadow: "0 4px 12px rgba(0, 83, 116, 0.12)",
+        boxShadow: theme.palette.mode === 'dark' 
+            ? '0 4px 12px rgba(0, 0, 0, 0.5)' 
+            : '0 4px 12px rgba(0, 83, 116, 0.12)',
     },
 }));
 
-const IconWrapper = styled("div")(() => ({
+const IconWrapper = styled("div")(({ theme }) => ({
     width: 44,
     height: 44,
     borderRadius: 10,
-    background: "#E6F7FA",
+    background: theme.palette.mode === 'dark' ? 'rgba(6, 182, 212, 0.2)' : '#E6F7FA',
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -274,8 +281,8 @@ const ContactLabel = styled("p")(() => ({
     },
 }));
 
-const ContactValue = styled("p")(() => ({
-    color: "#003554",
+const ContactValue = styled("p")(({ theme }) => ({
+    color: theme.palette.mode === 'dark' ? '#f1f5f9' : '#003554',
     fontSize: 15,
     margin: 0,
     fontWeight: 500,

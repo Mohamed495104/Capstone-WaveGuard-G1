@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { BottomNavigation, BottomNavigationAction, Paper, Box } from "@mui/material";
 import { navItems, mobileOrder } from "./navConfig";
+import { useTheme } from "@mui/material/styles";
 
 export default function MobileBottomNav() {
     const pathname = usePathname();
     const router = useRouter();
     const [value, setValue] = useState(0);
+    const theme = useTheme();
 
     const items = useMemo(
         () => navItems.filter((n) => mobileOrder.includes(n.path)).sort((a, b) => mobileOrder.indexOf(a.path) - mobileOrder.indexOf(b.path)),
@@ -29,11 +31,13 @@ export default function MobileBottomNav() {
                 left: 0,
                 right: 0,
                 display: { xs: "block", md: "none" },
-                borderTop: "1px solid #e5e7eb",
+                borderTop: theme.palette.mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
                 overflow: "hidden",
-                bgcolor: "#ffffff",
+                bgcolor: theme.palette.background.paper,
                 zIndex: 1300,
-                boxShadow: "0 -2px 10px rgba(0, 0, 0, 0.05)",
+                boxShadow: theme.palette.mode === 'dark' 
+                    ? '0 -2px 10px rgba(0, 0, 0, 0.3)' 
+                    : '0 -2px 10px rgba(0, 0, 0, 0.05)',
             }}
         >
             <BottomNavigation
@@ -46,9 +50,9 @@ export default function MobileBottomNav() {
                 sx={{
                     height: 72,
                     pb: "env(safe-area-inset-bottom)",
-                    bgcolor: "#ffffff",
+                    bgcolor: theme.palette.background.paper,
                     "& .MuiBottomNavigationAction-root": {
-                        color: "#94a3b8",
+                        color: theme.palette.mode === 'dark' ? '#94a3b8' : '#94a3b8',
                         minWidth: 0,
                         pt: 1.75,
                         pb: 1.25,
@@ -68,7 +72,7 @@ export default function MobileBottomNav() {
                         },
                     },
                     "& .Mui-selected": {
-                        color: "#0891b2",
+                        color: theme.palette.primary.main,
                         "& .MuiBottomNavigationAction-label": {
                             fontWeight: 700,
                             fontSize: "0.75rem",
@@ -104,7 +108,7 @@ export default function MobileBottomNav() {
                                                 width: 32,
                                                 height: 3,
                                                 borderRadius: "0 0 4px 4px",
-                                                bgcolor: "#0891b2",
+                                                bgcolor: theme.palette.primary.main,
                                                 animation: "slideDown 0.3s ease",
                                                 "@keyframes slideDown": {
                                                     from: {

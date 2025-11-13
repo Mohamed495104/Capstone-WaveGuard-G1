@@ -35,6 +35,11 @@ img[width][height] {
     border-radius: 8px;
 }
 
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+    background-color: rgba(255,255,255,0.2);
+}
+
 /* Responsive container reset */
 * {
     box-sizing: border-box;
