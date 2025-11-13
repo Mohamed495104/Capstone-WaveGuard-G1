@@ -1,19 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Box, Typography, IconButton, Menu, MenuItem, Divider, Avatar } from "@mui/material";
+import { Box, Typography, IconButton, Menu, MenuItem, Divider, Avatar, Switch } from "@mui/material";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonOutline from "@mui/icons-material/PersonOutline";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
+import LightModeIcon from "@mui/icons-material/LightMode";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { apiCall } from "@/utils/api";
+import { useTheme as useCustomTheme } from "@/context/ThemeContext";
+import { useTheme } from "@mui/material/styles";
 
 export default function MobileHeader() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [profileImage, setProfileImage] = useState('');
     const router = useRouter();
     const { logout } = useAuth();
+    const { mode, toggleTheme } = useCustomTheme();
+    const muiTheme = useTheme();
 
     // Fetch user profile to get profile image
     useEffect(() => {
@@ -60,14 +66,16 @@ export default function MobileHeader() {
                 right: 0,
                 zIndex: 1200,
                 height: 56,
-                bgcolor: "#fff",
-                borderBottom: "1px solid rgba(0,0,0,0.07)",
+                bgcolor: muiTheme.palette.background.paper,
+                borderBottom: `1px solid ${muiTheme.palette.mode === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.07)'}`,
                 display: { xs: "flex", md: "none" },
                 alignItems: "center",
                 justifyContent: "space-between",
                 px: 2,
                 py: 1,
-                boxShadow: "0 1px 6px rgba(0,0,0,0.03)",
+                boxShadow: muiTheme.palette.mode === 'dark' 
+                    ? "0 1px 6px rgba(0,0,0,0.3)" 
+                    : "0 1px 6px rgba(0,0,0,0.03)",
             }}
         >
             <Box display="flex" alignItems="center">
@@ -136,9 +144,12 @@ export default function MobileHeader() {
                 }}
                 PaperProps={{
                     sx: {
-                        minWidth: 180,
+                        minWidth: 200,
                         borderRadius: 2,
-                        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                        boxShadow: muiTheme.palette.mode === 'dark'
+                            ? "0 4px 20px rgba(0,0,0,0.5)"
+                            : "0 4px 20px rgba(0,0,0,0.1)",
+                        bgcolor: muiTheme.palette.background.paper,
                     }
                 }}
             >
@@ -149,14 +160,59 @@ export default function MobileHeader() {
                         px: 2,
                         gap: 1.5,
                         "&:hover": {
-                            bgcolor: "rgba(8, 145, 178, 0.08)",
+                            bgcolor: muiTheme.palette.mode === 'dark' 
+                                ? "rgba(6, 182, 212, 0.15)" 
+                                : "rgba(8, 145, 178, 0.08)",
                         }
                     }}
                 >
-                    <AccountCircleRoundedIcon sx={{ fontSize: 22, color: "#0891b2" }} />
+                    <AccountCircleRoundedIcon sx={{ fontSize: 22, color: muiTheme.palette.primary.main }} />
                     <Typography variant="body2" fontWeight={500}>
                         Profile
                     </Typography>
+                </MenuItem>
+                <Divider sx={{ my: 0.5 }} />
+                <MenuItem
+                    sx={{
+                        py: 1.5,
+                        px: 2,
+                        gap: 1.5,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        "&:hover": {
+                            bgcolor: muiTheme.palette.mode === 'dark' 
+                                ? "rgba(6, 182, 212, 0.15)" 
+                                : "rgba(8, 145, 178, 0.08)",
+                        }
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTheme();
+                    }}
+                >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {mode === 'dark' ? (
+                            <LightModeIcon sx={{ fontSize: 22, color: muiTheme.palette.primary.main }} />
+                        ) : (
+                            <DarkModeIcon sx={{ fontSize: 22, color: muiTheme.palette.primary.main }} />
+                        )}
+                        <Typography variant="body2" fontWeight={500}>
+                            Dark Mode
+                        </Typography>
+                    </Box>
+                    <Switch
+                        checked={mode === 'dark'}
+                        onChange={toggleTheme}
+                        size="small"
+                        sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: muiTheme.palette.primary.main,
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: muiTheme.palette.primary.main,
+                            },
+                        }}
+                    />
                 </MenuItem>
                 <Divider sx={{ my: 0.5 }} />
                 <MenuItem

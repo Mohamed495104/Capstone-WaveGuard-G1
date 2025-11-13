@@ -20,9 +20,12 @@ import {
     VolunteerActivism,
     Filter3,
     CameraAlt,
+    DarkMode,
+    LightMode,
 } from '@mui/icons-material';
-import { styles } from './profile.styles';
+import { getStyles } from './profile.styles';
 import withAuth from '@/components/auth/withAuth';
+import { useTheme as useCustomTheme } from '@/context/ThemeContext';
 
 const ProfilePage = () => {
     const router = useRouter();
@@ -32,6 +35,8 @@ const ProfilePage = () => {
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+    const { mode, toggleTheme } = useCustomTheme();
+    const styles = getStyles(mode);
 
     // User profile state
     const [userProfile, setUserProfile] = useState({
@@ -658,6 +663,31 @@ const ProfilePage = () => {
                                         <Switch
                                             checked={settings.showStatsOnLeaderboard}
                                             onChange={() => handleSettingToggle('showStatsOnLeaderboard')}
+                                            sx={styles.switch}
+                                        />
+                                    </Box>
+                                </Box>
+
+                                {/* Appearance Settings */}
+                                <Box sx={styles.settingsGroup}>
+                                    <Typography sx={styles.settingsGroupTitle}>Appearance</Typography>
+                                    <Box sx={styles.settingItem}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1 }}>
+                                            {mode === 'dark' ? (
+                                                <LightMode sx={{ fontSize: 20, color: styles.settingLabel.color }} />
+                                            ) : (
+                                                <DarkMode sx={{ fontSize: 20, color: styles.settingLabel.color }} />
+                                            )}
+                                            <Box>
+                                                <Typography sx={styles.settingLabel}>Dark Mode</Typography>
+                                                <Typography sx={styles.settingDescription}>
+                                                    Switch between light and dark theme
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                        <Switch
+                                            checked={mode === 'dark'}
+                                            onChange={toggleTheme}
                                             sx={styles.switch}
                                         />
                                     </Box>

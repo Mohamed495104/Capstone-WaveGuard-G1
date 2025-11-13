@@ -1,9 +1,9 @@
-export const styles = {
+export const getStyles = (mode) => ({
   container: {
     padding: { xs: "20px", md: "40px" },
     maxWidth: "1400px",
     margin: "0 auto",
-    backgroundColor: "#f9fafb",
+    backgroundColor: mode === 'dark' ? '#0f172a' : '#f9fafb',
     minHeight: "100vh",
   },
 
@@ -14,12 +14,12 @@ export const styles = {
   title: {
     fontSize: "28px",
     fontWeight: 700,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "8px",
   },
   subtitle: {
     fontSize: "14px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
   },
 
   // Main Content Layout
@@ -37,11 +37,11 @@ export const styles = {
 
   // Avatar Section
   avatarSection: {
-    backgroundColor: "#ffffff",
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
     borderRadius: "12px",
     padding: "32px 24px",
     textAlign: "center",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.5)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
     marginBottom: "16px",
     position: "relative",
   },
@@ -65,7 +65,7 @@ export const styles = {
     position: "absolute",
     bottom: "0",
     right: "0",
-    backgroundColor: "#0ea5e9",
+    backgroundColor: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
     color: "#ffffff",
     width: "32px",
     height: "32px",
@@ -74,7 +74,7 @@ export const styles = {
     borderRadius: "50%",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
     "&:hover": {
-      backgroundColor: "#0284c7",
+      backgroundColor: mode === 'dark' ? '#0891b2' : '#0284c7',
     },
   },
   uploadIcon: {
@@ -83,18 +83,18 @@ export const styles = {
   userName: {
     fontSize: "20px",
     fontWeight: 700,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "4px",
   },
   userLocation: {
     fontSize: "14px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     marginBottom: "12px",
   },
   badge: {
     display: "inline-block",
-    backgroundColor: "#cffafe",
-    color: "#0e7490",
+    backgroundColor: mode === 'dark' ? '#164e63' : '#cffafe',
+    color: mode === 'dark' ? '#67e8f9' : '#0e7490',
     padding: "6px 14px",
     borderRadius: "20px",
     fontSize: "13px",
@@ -103,20 +103,20 @@ export const styles = {
   },
   userBio: {
     fontSize: "13px",
-    color: "#4b5563",
+    color: mode === 'dark' ? '#cbd5e1' : '#4b5563',
     lineHeight: 1.6,
     textAlign: "left",
     marginTop: "16px",
     paddingTop: "16px",
-    borderTop: "1px solid #e5e7eb",
+    borderTop: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
   },
 
   // User Info
   userInfo: {
-    backgroundColor: "#ffffff",
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
     borderRadius: "12px",
     padding: "20px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.5)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
     marginBottom: "16px",
   },
   infoItem: {
@@ -130,29 +130,29 @@ export const styles = {
   },
   infoIcon: {
     fontSize: "18px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
   },
   infoText: {
     fontSize: "13px",
-    color: "#4b5563",
+    color: mode === 'dark' ? '#cbd5e1' : '#4b5563',
   },
 
   // Sign Out Button
   signOutButton: {
     width: "100%",
-    backgroundColor: "#ffffff",
-    color: "#6b7280",
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     padding: "12px",
     borderRadius: "8px",
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
     marginBottom: "16px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.5)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
     justifyContent: "flex-start",
     gap: "10px",
     "&:hover": {
-      backgroundColor: "#f9fafb",
+      backgroundColor: mode === 'dark' ? '#334155' : '#f9fafb',
     },
   },
   signOutIcon: {
@@ -161,15 +161,15 @@ export const styles = {
 
   // Quick Stats
   quickStats: {
-    backgroundColor: "#ffffff",
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
     borderRadius: "12px",
     padding: "20px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.5)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   quickStatsTitle: {
     fontSize: "15px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "16px",
   },
   statItem: {
@@ -186,29 +186,29 @@ export const styles = {
   },
   statLabel: {
     fontSize: "13px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     flex: 1,
   },
   statValue: {
     fontSize: "15px",
     fontWeight: 700,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
   },
 
   // Right Content
   rightContent: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
     borderRadius: "12px",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+    boxShadow: mode === 'dark' ? '0 1px 3px rgba(0, 0, 0, 0.5)' : '0 1px 3px rgba(0, 0, 0, 0.1)',
     overflow: "hidden",
   },
 
   // Tabs
   tabs: {
     display: "flex",
-    borderBottom: "1px solid #e5e7eb",
-    backgroundColor: "#f9fafb",
+    borderBottom: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
+    backgroundColor: mode === 'dark' ? '#0f172a' : '#f9fafb',
   },
   tab: {
     flex: 1,
@@ -216,17 +216,17 @@ export const styles = {
     textAlign: "center",
     fontSize: "14px",
     fontWeight: 500,
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     cursor: "pointer",
     transition: "all 0.2s",
     "&:hover": {
-      backgroundColor: "#f3f4f6",
+      backgroundColor: mode === 'dark' ? '#1e293b' : '#f3f4f6',
     },
   },
   activeTab: {
-    color: "#0ea5e9",
-    backgroundColor: "#ffffff",
-    borderBottom: "2px solid #0ea5e9",
+    color: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
+    backgroundColor: mode === 'dark' ? '#1e293b' : '#ffffff',
+    borderBottom: mode === 'dark' ? '2px solid #06b6d4' : '2px solid #0ea5e9',
   },
 
   // Tab Content
@@ -250,20 +250,20 @@ export const styles = {
   sectionTitle: {
     fontSize: "18px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "24px",
   },
 
   // Edit Button
   editButton: {
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
     gap: "6px",
     padding: "8px 16px",
     "&:hover": {
-      backgroundColor: "#f9fafb",
+      backgroundColor: mode === 'dark' ? '#334155' : '#f9fafb',
     },
   },
   editIcon: {
@@ -284,32 +284,36 @@ export const styles = {
   label: {
     fontSize: "13px",
     fontWeight: 600,
-    color: "#374151",
+    color: mode === 'dark' ? '#cbd5e1' : '#374151',
   },
   value: {
     fontSize: "14px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     padding: "10px 0",
   },
   bioValue: {
     fontSize: "14px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     lineHeight: 1.6,
     padding: "10px 0",
   },
   input: {
     "& .MuiOutlinedInput-root": {
       fontSize: "14px",
-      backgroundColor: "#f9fafb",
+      backgroundColor: mode === 'dark' ? '#0f172a' : '#f9fafb',
+      color: mode === 'dark' ? '#f1f5f9' : 'inherit',
       "& fieldset": {
-        borderColor: "#e5e7eb",
+        borderColor: mode === 'dark' ? '#334155' : '#e5e7eb',
       },
       "&:hover fieldset": {
-        borderColor: "#d1d5db",
+        borderColor: mode === 'dark' ? '#475569' : '#d1d5db',
       },
       "&.Mui-focused fieldset": {
-        borderColor: "#0ea5e9",
+        borderColor: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
       },
+    },
+    "& .MuiInputBase-input": {
+      color: mode === 'dark' ? '#f1f5f9' : 'inherit',
     },
   },
 
@@ -325,10 +329,10 @@ export const styles = {
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
-    color: "#6b7280",
-    border: "1px solid #e5e7eb",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
+    border: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
     "&:hover": {
-      backgroundColor: "#f9fafb",
+      backgroundColor: mode === 'dark' ? '#334155' : '#f9fafb',
     },
   },
   saveButton: {
@@ -336,10 +340,10 @@ export const styles = {
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
-    backgroundColor: "#0ea5e9",
+    backgroundColor: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
     color: "#ffffff",
     "&:hover": {
-      backgroundColor: "#0284c7",
+      backgroundColor: mode === 'dark' ? '#0891b2' : '#0284c7',
     },
   },
 
@@ -355,9 +359,9 @@ export const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px",
-    backgroundColor: "#f9fafb",
+    backgroundColor: mode === 'dark' ? '#0f172a' : '#f9fafb',
     borderRadius: "8px",
-    border: "1px solid #e5e7eb",
+    border: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
   },
   achievementLeft: {
     display: "flex",
@@ -374,17 +378,17 @@ export const styles = {
   },
   achievementIconSvg: {
     fontSize: "28px",
-    color: "#0ea5e9",
+    color: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
   },
   achievementName: {
     fontSize: "15px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "4px",
   },
   achievementDate: {
     fontSize: "13px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
   },
   rarityBadge: {
     padding: "6px 14px",
@@ -400,11 +404,11 @@ export const styles = {
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
-    color: "#6b7280",
-    border: "1px solid #e5e7eb",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
+    border: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
     borderRadius: "8px",
     "&:hover": {
-      backgroundColor: "#f9fafb",
+      backgroundColor: mode === 'dark' ? '#334155' : '#f9fafb',
     },
   },
 
@@ -418,7 +422,7 @@ export const styles = {
   settingsGroupTitle: {
     fontSize: "16px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "16px",
     marginTop: "8px",
   },
@@ -427,21 +431,21 @@ export const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "16px",
-    backgroundColor: "#f9fafb",
+    backgroundColor: mode === 'dark' ? '#0f172a' : '#f9fafb',
     borderRadius: "8px",
     marginBottom: "12px",
-    border: "1px solid #e5e7eb",
+    border: mode === 'dark' ? '1px solid #334155' : '1px solid #e5e7eb',
     gap: "20px",
   },
   settingLabel: {
     fontSize: "14px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: mode === 'dark' ? '#f1f5f9' : '#1a1a1a',
     marginBottom: "4px",
   },
   settingDescription: {
     fontSize: "13px",
-    color: "#6b7280",
+    color: mode === 'dark' ? '#94a3b8' : '#6b7280',
     lineHeight: 1.4,
   },
   switch: {
@@ -458,12 +462,12 @@ export const styles = {
     textTransform: "none",
     fontSize: "14px",
     fontWeight: 500,
-    color: "#0ea5e9",
-    border: "1px solid #0ea5e9",
+    color: mode === 'dark' ? '#06b6d4' : '#0ea5e9',
+    border: mode === 'dark' ? '1px solid #06b6d4' : '1px solid #0ea5e9',
     borderRadius: "8px",
     marginBottom: "12px",
     "&:hover": {
-      backgroundColor: "#f0f9ff",
+      backgroundColor: mode === 'dark' ? 'rgba(6, 182, 212, 0.1)' : '#f0f9ff',
     },
   },
   deleteAccountButton: {
@@ -476,7 +480,10 @@ export const styles = {
     border: "1px solid #ef4444",
     borderRadius: "8px",
     "&:hover": {
-      backgroundColor: "#fef2f2",
+      backgroundColor: mode === 'dark' ? 'rgba(239, 68, 68, 0.1)' : '#fef2f2',
     },
   },
-};
+});
+
+// Deprecated: kept for backward compatibility
+export const styles = getStyles('light');

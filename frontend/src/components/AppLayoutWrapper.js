@@ -1,8 +1,5 @@
 "use client";
 import {
-    CssBaseline,
-    ThemeProvider,
-    createTheme,
     Box,
 } from "@mui/material";
 import MobileHeader from "@/components/common/MobileHeader";
@@ -12,22 +9,12 @@ import SmoothPageTransition from "@/components/PageTransition";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useAuthContext } from "@/context/AuthContext"; // Import the custom hook
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const MobileBottomNav = dynamic(
     () => import("@/components/common/MobileBottomNav"),
     { ssr: false }
 );
-
-const theme = createTheme({
-    palette: {
-        mode: "light",
-        primary: { main: "#0891b2" },
-        background: { default: "#ffffff", paper: "#ffffff" },
-        text: { primary: "#0a0a0a", secondary: "rgba(0,0,0,0.6)" },
-    },
-    typography: { fontFamily: "Inter, sans-serif" },
-    shape: { borderRadius: 12 },
-});
 
 export default function AppLayoutWrapper({ children }) {
     const pathname = usePathname();
@@ -41,9 +28,7 @@ export default function AppLayoutWrapper({ children }) {
     const showLayout = isAuthenticated && !isPublicPage;
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-
+        <ThemeProvider>
             {/* Mobile header and Navbar only render when showLayout is true */}
             {showLayout && <MobileHeader />}
             {showLayout && <Navbar />}
