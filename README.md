@@ -15,6 +15,7 @@ WaveGuard is a mobile-first Progressive Web App designed to help volunteers part
 - Upload photos of collected trash using a mobile camera
 - AI automatically identifies and categorizes waste types
 - **Live location verification for data accuracy** 🆕
+- **AI-powered chatbot assistant for instant help** 🆕
 - Track personal and community cleanup impact
 - Join cleanup challenges and events
 - Earn badges and rewards for participation
@@ -46,9 +47,11 @@ WaveGuard is a mobile-first Progressive Web App designed to help volunteers part
 - **[LOCATION_FEATURE_ANALYSIS.md](./LOCATION_FEATURE_ANALYSIS.md)** - Technical analysis and architecture
 - **[LOCATION_USER_GUIDE.md](./LOCATION_USER_GUIDE.md)** - User guide for location permissions
 
-### 🤖 AI Chatbot Feature (Future)
+### 🤖 AI Chatbot Feature ✅
 - **[CHATBOT_FEATURE_SUMMARY.md](./CHATBOT_FEATURE_SUMMARY.md)** - ⭐ Executive summary and quick answers
 - **[CHATBOT_IMPLEMENTATION_PLAN.md](./CHATBOT_IMPLEMENTATION_PLAN.md)** - Comprehensive implementation guide and technical details
+- **[CHATBOT_USER_GUIDE.md](./CHATBOT_USER_GUIDE.md)** - User guide for using the AI chatbot
+- **[CHATBOT_DEVELOPER_GUIDE.md](./CHATBOT_DEVELOPER_GUIDE.md)** - Developer guide for maintaining the chatbot
 
 ### 📋 Development Guides
 - **[SUMMARY.md](./SUMMARY.md)** - Quick overview and getting started guide
