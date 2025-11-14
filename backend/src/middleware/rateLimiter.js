@@ -20,6 +20,8 @@ const CONFIG = {
     AUTH_MAX_REQUESTS: 5,
     // API-specific limits (moderate for protected routes)
     API_MAX_REQUESTS: 100, // 100 requests per minute for API routes
+    // Chatbot-specific limits (to prevent abuse of AI API)
+    CHATBOT_MAX_REQUESTS: 10, // 10 chatbot messages per minute
 };
 
 /**
@@ -147,3 +149,8 @@ export const authRateLimiter = createRateLimiter(CONFIG.AUTH_MAX_REQUESTS);
  * Moderate rate limiting for API endpoints (100 req/min)
  */
 export const apiRateLimiter = createRateLimiter(CONFIG.API_MAX_REQUESTS);
+
+/**
+ * Chatbot-specific rate limiting (10 messages/min to prevent AI API abuse)
+ */
+export const chatbotRateLimiter = createRateLimiter(CONFIG.CHATBOT_MAX_REQUESTS);

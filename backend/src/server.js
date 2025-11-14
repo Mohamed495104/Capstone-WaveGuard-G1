@@ -9,6 +9,7 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import achievementsRoutes from "./routes/achievementsRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
+import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -23,6 +24,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/achievements", achievementsRoutes);
 app.use("/api/images", imageRoutes);
 app.use("/api/home", homeRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).send("Server is running 🚀");

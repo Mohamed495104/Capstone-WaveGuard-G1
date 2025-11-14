@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import SmoothPageTransition from "@/components/PageTransition";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
+import ChatBot from "@/components/ChatBot";
 import { useAuthContext } from "@/context/AuthContext"; // Import the custom hook
 
 const MobileBottomNav = dynamic(
@@ -61,6 +62,7 @@ export default function AppLayoutWrapper({ children }) {
 
             {showLayout && <Footer />}
             {showLayout && <MobileBottomNav />}
+            {showLayout && <ChatBot />}
         </ThemeProvider>
     );
 }
