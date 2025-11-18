@@ -11,10 +11,17 @@ import {
   Snackbar,
   Alert,
   Paper,
+  FormControlLabel,
+  Checkbox,
+  CircularProgress,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import MyLocationIcon from "@mui/icons-material/MyLocation";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/utils/api";
 import withAuth from "@/components/auth/withAuth";
+import { getCurrentLocation, formatLocationError } from "@/utils/geolocation";
 
 const PROVINCES = [
   { code: "ON", name: "Ontario" },
@@ -63,11 +70,13 @@ function CreateChallengePage() {
     endDate: "",
     latitude: "",
     longitude: "",
+    activateInstantly: false,
   });
 
   const [errors, setErrors] = useState({});
   const [bannerPreview, setBannerPreview] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
+  const [fetchingLocation, setFetchingLocation] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -84,8 +93,13 @@ function CreateChallengePage() {
     if (!form.locationName.trim()) newErrors.locationName = "Location name required";
     if (!form.province) newErrors.province = "Province is required";
     if (!form.goal) newErrors.goal = "Goal is required";
-    if (!form.startDate) newErrors.startDate = "Start date required";
-    if (!form.endDate) newErrors.endDate = "End date required";
+    
+    // Only validate dates if not activating instantly
+    if (!form.activateInstantly) {
+      if (!form.startDate) newErrors.startDate = "Start date required";
+      if (!form.endDate) newErrors.endDate = "End date required";
+    }
+    
     if (!form.latitude) newErrors.latitude = "Latitude required";
     if (!form.longitude) newErrors.longitude = "Longitude required";
 
@@ -94,7 +108,7 @@ function CreateChallengePage() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (name === "province") {
       setForm((prev) => ({
@@ -102,6 +116,11 @@ function CreateChallengePage() {
         province: value,
         region: PROVINCE_TO_REGION[value] || "",
       }));
+      return;
+    }
+
+    if (type === "checkbox") {
+      setForm((prev) => ({ ...prev, [name]: checked }));
       return;
     }
 
@@ -114,6 +133,38 @@ function CreateChallengePage() {
 
     setBannerFile(file);
     setBannerPreview(URL.createObjectURL(file));
+  };
+
+  const handleGetLocation = async () => {
+    setFetchingLocation(true);
+    try {
+      const location = await getCurrentLocation();
+      setForm((prev) => ({
+        ...prev,
+        latitude: location.latitude.toFixed(6),
+        longitude: location.longitude.toFixed(6),
+      }));
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Location retrieved successfully!",
+      });
+      // Clear any previous errors for lat/long
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.latitude;
+        delete newErrors.longitude;
+        return newErrors;
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: formatLocationError(error),
+      });
+    } finally {
+      setFetchingLocation(false);
+    }
   };
 
   const uploadBanner = async () => {
@@ -147,10 +198,27 @@ function CreateChallengePage() {
 
     const bannerImage = await uploadBanner();
 
+    // Calculate dates based on instant activation
+    let startDate = form.startDate;
+    let endDate = form.endDate;
+    
+    if (form.activateInstantly) {
+      // Set start date to now
+      startDate = new Date().toISOString();
+      // Set end date to 30 days from now if not specified
+      if (!endDate) {
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 30);
+        endDate = futureDate.toISOString();
+      }
+    }
+
     const payload = {
       ...form,
       goal: Number(form.goal),
       bannerImage,
+      startDate,
+      endDate,
       totalVolunteers: 0,
       totalTrashCollected: 0,
       goalUnit: "items",
@@ -328,34 +396,94 @@ function CreateChallengePage() {
               helperText={errors.goal}
             />
 
-            {/* Dates */}
-            <TextField
-              id="startDate"
-              label="Start Date *"
-              type="date"
-              name="startDate"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ mb: 3 }}
-              value={form.startDate}
-              onChange={handleChange}
-              error={!!errors.startDate}
-              helperText={errors.startDate}
+            {/* Instant Activation Option */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.activateInstantly}
+                  onChange={handleChange}
+                  name="activateInstantly"
+                  color="primary"
+                />
+              }
+              label="Activate challenge instantly (starts now)"
+              sx={{ mb: 2 }}
             />
 
-            <TextField
-              id="endDate"
-              label="End Date *"
-              type="date"
-              name="endDate"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ mb: 3 }}
-              value={form.endDate}
-              onChange={handleChange}
-              error={!!errors.endDate}
-              helperText={errors.endDate}
-            />
+            {/* Dates - Only show if not instant activation */}
+            {!form.activateInstantly && (
+              <>
+                <TextField
+                  id="startDate"
+                  label="Start Date *"
+                  type="date"
+                  name="startDate"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mb: 3 }}
+                  value={form.startDate}
+                  onChange={handleChange}
+                  error={!!errors.startDate}
+                  helperText={errors.startDate}
+                />
+
+                <TextField
+                  id="endDate"
+                  label="End Date *"
+                  type="date"
+                  name="endDate"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mb: 3 }}
+                  value={form.endDate}
+                  onChange={handleChange}
+                  error={!!errors.endDate}
+                  helperText={errors.endDate}
+                />
+              </>
+            )}
+
+            {/* Optional End Date for instant activation */}
+            {form.activateInstantly && (
+              <TextField
+                id="endDate"
+                label="End Date (Optional - defaults to 30 days)"
+                type="date"
+                name="endDate"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                sx={{ mb: 3 }}
+                value={form.endDate}
+                onChange={handleChange}
+              />
+            )}
+
+            {/* Location Coordinates Section */}
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <Typography sx={{ fontWeight: 600 }}>
+                  Challenge Location Coordinates *
+                </Typography>
+                <Tooltip title="Use your current location">
+                  <IconButton
+                    onClick={handleGetLocation}
+                    disabled={fetchingLocation}
+                    color="primary"
+                    size="small"
+                  >
+                    {fetchingLocation ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <MyLocationIcon />
+                    )}
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
+              <Typography sx={{ color: "#64748b", fontSize: "0.875rem", mb: 2 }}>
+                Click the location icon to auto-fetch your current coordinates
+              </Typography>
+            </Box>
 
             {/* Coordinates */}
             <TextField
@@ -367,7 +495,7 @@ function CreateChallengePage() {
               value={form.latitude}
               onChange={handleChange}
               error={!!errors.latitude}
-              helperText={errors.latitude}
+              helperText={errors.latitude || "Example: 43.6532"}
             />
 
             <TextField
@@ -379,7 +507,7 @@ function CreateChallengePage() {
               value={form.longitude}
               onChange={handleChange}
               error={!!errors.longitude}
-              helperText={errors.longitude}
+              helperText={errors.longitude || "Example: -79.3832"}
             />
 
             <Button
