@@ -1,4 +1,6 @@
 import express from 'express';
+import multer from "multer";
+
 import {
     getChallenges,
     getChallengeStats,
@@ -6,28 +8,46 @@ import {
     joinChallenge,
     leaveChallenge,
     getJoinedChallenges,
+    createChallenge
 } from '../controllers/challengeController.js';
 
 import { verifyFirebaseToken } from '../middleware/authMiddleware.js';
 import { ensureUserExists } from '../middleware/userMiddleware.js';
+import { uploadChallengeBanner } from "../controllers/challengeUploadController.js";
 
 const router = express.Router();
+const upload = multer(); // in-memory buffer
 
-// Public routes that anyone can access
+// Public routes
 router.get('/', getChallenges);
 router.get('/stats', getChallengeStats);
 
-// Protected routes - require authentication
-// Get joined challenges (must come before /:id to avoid route conflict)
+// Protected Routes
 router.get('/joined', verifyFirebaseToken, ensureUserExists, getJoinedChallenges);
 
-// Get single challenge by ID
+// Upload banner first → GridFS returns URL
+router.post(
+    "/upload-banner",
+    verifyFirebaseToken,
+    ensureUserExists,
+    upload.single("image"),
+    uploadChallengeBanner
+);
+
+// Create challenge (requires authenticated user)
+router.post(
+    "/",
+    verifyFirebaseToken,
+    ensureUserExists,
+    upload.single("image"),  // Frontend sends it as `image`
+    createChallenge
+);
+
+// Public route but must be BELOW /stats
 router.get('/:id', getChallengeById);
 
-// Join a challenge
+// Join + Leave
 router.post('/:id/join', verifyFirebaseToken, ensureUserExists, joinChallenge);
-
-// Leave a challenge
 router.post('/:id/leave', verifyFirebaseToken, ensureUserExists, leaveChallenge);
 
 export default router;

@@ -42,23 +42,33 @@ const ChallengeCard = ({ challenge }) => {
     const router = useRouter();
     const { isJoined, joinChallenge } = useJoinedChallenges();
     const joined = isJoined(_id);
-    
+
     const [openDialog, setOpenDialog] = useState(false);
     const [isJoining, setIsJoining] = useState(false);
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+    const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
+    let bannerUrl = bannerImage;
+
+    if (bannerImage?.startsWith("http")) {
+        bannerUrl = bannerImage;
+    } else if (bannerImage?.startsWith("/challangeimg")) {
+        // Serves local images from /public/challangeimg/
+        bannerUrl = bannerImage;
+    } else {
+        bannerUrl = `${process.env.NEXT_PUBLIC_API_URL}${bannerImage}`;
+    }
+
+    // When user clicks on the card
     const handleCardClick = () => {
         router.push(`/challenges/${_id}`);
     };
 
-    const handleButtonClick = async (e) => {
-        e.stopPropagation(); // Prevent bubbling to Card click
-        
+    // Open confirmation dialog
+    const handleButtonClick = (e) => {
+        e.stopPropagation();
         if (joined) {
-            // If already joined, go to details page
             router.push(`/challenges/${_id}`);
         } else {
-            // If not joined, show confirmation dialog
             setOpenDialog(true);
         }
     };
@@ -66,112 +76,90 @@ const ChallengeCard = ({ challenge }) => {
     const handleConfirmJoin = async () => {
         try {
             setIsJoining(true);
-            
-            // Get user's current location
-            let userLocation = null;
+
+            // Get location
+            let userLocation;
             try {
-                setSnackbar({ 
-                    open: true, 
-                    message: 'Getting your location...', 
-                    severity: 'info' 
+                setSnackbar({
+                    open: true,
+                    message: "Getting your location...",
+                    severity: "info",
                 });
-                
+
                 userLocation = await getCurrentLocation();
-                
-                console.log('Location obtained:', userLocation);
             } catch (locationError) {
-                console.error('Location error:', locationError);
-                setSnackbar({ 
-                    open: true, 
-                    message: formatLocationError(locationError), 
-                    severity: 'error' 
+                setSnackbar({
+                    open: true,
+                    message: formatLocationError(locationError),
+                    severity: "error",
                 });
                 setIsJoining(false);
                 setOpenDialog(false);
                 return;
             }
-            
-            // Join challenge with location
+
+            // Join challenge
             await joinChallenge(_id, userLocation);
-            
+
+            setSnackbar({
+                open: true,
+                message: "Successfully joined the challenge!",
+                severity: "success",
+            });
+
             setOpenDialog(false);
             setIsJoining(false);
-            
-            setSnackbar({ 
-                open: true, 
-                message: 'Successfully joined the challenge!', 
-                severity: 'success' 
-            });
-            
-            // Wait a bit to let the button update visually, then redirect
+
             setTimeout(() => {
                 router.push(`/challenges/${_id}`);
             }, 500);
         } catch (error) {
-            console.error('Error joining challenge:', error);
-            setIsJoining(false);
-            setOpenDialog(false);
-            
-            // Handle location verification errors
             const errorData = error.response?.data;
             const errorCode = errorData?.error;
-            
-            if (errorCode === 'LOCATION_TOO_FAR') {
-                const distance = errorData?.distance;
-                const maxDistance = errorData?.maxDistance;
-                setSnackbar({ 
-                    open: true, 
-                    message: `You are ${distance} km from the challenge location (max allowed: ${maxDistance} km). Please be closer to join.`, 
-                    severity: 'error' 
-                });
-            } else if (errorCode === 'LOCATION_REQUIRED') {
-                setSnackbar({ 
-                    open: true, 
-                    message: 'Location is required to join this challenge', 
-                    severity: 'error' 
+
+            setIsJoining(false);
+            setOpenDialog(false);
+
+            if (errorCode === "LOCATION_TOO_FAR") {
+                setSnackbar({
+                    open: true,
+                    message: `You're too far away to join this challenge.`,
+                    severity: "error",
                 });
             } else {
-                setSnackbar({ 
-                    open: true, 
-                    message: errorData?.message || 'Error joining challenge', 
-                    severity: 'error' 
+                setSnackbar({
+                    open: true,
+                    message: errorData?.message || "Error joining challenge",
+                    severity: "error",
                 });
             }
         }
     };
 
-    const handleCancelJoin = () => {
-        setOpenDialog(false);
-    };
-
-    const handleCloseSnackbar = () => {
-        setSnackbar({ ...snackbar, open: false });
-    };
-
     const progress = goal > 0 ? Math.min((totalTrashCollected / goal) * 100, 100) : 0;
 
     const getStatusConfig = () => {
-        const configs = {
+        const statuses = {
             active: { label: "Active", bgColor: "#10b981" },
             completed: { label: "Completed", bgColor: "#6b7280" },
             upcoming: { label: "Upcoming", bgColor: "#f59e0b" },
         };
-        return configs[status] || configs.active;
+        return statuses[status] || statuses.active;
     };
 
     const statusConfig = getStatusConfig();
 
     const formatDate = (date) => {
         if (!date) return "";
-        const d = new Date(date);
-        return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        return new Date(date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+        });
     };
 
-    const getProgressColor = () => {
-        if (progress >= 80) return "#10b981";
-        if (progress >= 50) return "#0ea5e9";
-        return "#f59e0b";
-    };
+    const handleCancelJoin = () => setOpenDialog(false);
+    const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
     return (
         <>
@@ -183,28 +171,21 @@ const ChallengeCard = ({ challenge }) => {
                     display: "flex",
                     flexDirection: "column",
                     borderRadius: "12px",
-                    backgroundColor: "white",
                     border: "1px solid #e5e7eb",
-                    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-                    transition: "all 0.3s ease",
+                    transition: "0.3s",
                     "&:hover": {
                         transform: "translateY(-6px)",
-                        boxShadow: "0 12px 24px rgba(0, 0, 0, 0.1)",
-                        borderColor: "#0ea5e9",
+                        boxShadow: "0 12px 24px rgba(0,0,0,0.1)",
                     },
                 }}
             >
-                {/* Banner */}
-                <Box sx={{ position: "relative", height: 180 }}>
+                {/* Banner Image */}
+                <Box sx={{ height: 180, position: "relative" }}>
                     <CardMedia
                         component="img"
-                        image={bannerImage}
+                        image={bannerUrl}
                         alt={title}
-                        sx={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                        }}
+                        sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />
                     <Chip
                         label={statusConfig.label}
@@ -213,78 +194,50 @@ const ChallengeCard = ({ challenge }) => {
                             position: "absolute",
                             top: 10,
                             right: 10,
-                            backgroundColor: statusConfig.bgColor,
+                            background: statusConfig.bgColor,
                             color: "white",
                             fontWeight: 600,
                         }}
                     />
                 </Box>
 
-                {/* Content */}
-                <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1, p: 2.5 }}>
-                    <Typography
-                        variant="h6"
-                        sx={{
-                            fontWeight: 700,
-                            fontSize: "1rem",
-                            lineHeight: 1.3,
-                            mb: 1.5,
-                            color: "#1e293b",
-                        }}
-                    >
+                <CardContent sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
                         {title}
                     </Typography>
 
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                        <LocationOnIcon sx={{ fontSize: 18, color: "#64748b", mr: 0.5 }} />
-                        <Typography variant="body2" sx={{ color: "#64748b" }}>
+                    <Box sx={{ display: "flex", mb: 1 }}>
+                        <LocationOnIcon sx={{ mr: 0.5, color: "#64748b" }} />
+                        <Typography variant="body2" color="text.secondary">
                             {locationName}
                         </Typography>
                     </Box>
 
-                    <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                        <CalendarTodayIcon sx={{ fontSize: 16, color: "#64748b", mr: 0.5 }} />
-                        <Typography variant="body2" sx={{ color: "#64748b" }}>
+                    <Box sx={{ display: "flex", mb: 2 }}>
+                        <CalendarTodayIcon sx={{ mr: 0.5, color: "#64748b" }} />
+                        <Typography variant="body2" color="text.secondary">
                             {formatDate(startDate)} – {formatDate(endDate)}
                         </Typography>
                     </Box>
 
-                    <Box sx={{ mt: "auto", mb: 2 }}>
-                        <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600, fontSize: "0.8rem", color: "#1e293b", mb: 0.5 }}
-                        >
-                            {totalTrashCollected.toLocaleString()} / {goal.toLocaleString()} items collected
-                        </Typography>
-                        <LinearProgress
-                            variant="determinate"
-                            value={progress}
-                            sx={{
-                                height: 6,
-                                borderRadius: 3,
-                                backgroundColor: "#e5e7eb",
-                                "& .MuiLinearProgress-bar": {
-                                    backgroundColor: getProgressColor(),
-                                },
-                            }}
-                        />
-                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        {totalTrashCollected} / {goal} items collected
+                    </Typography>
 
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            pt: 2,
-                            borderTop: "1px solid #e5e7eb",
-                        }}
-                    >
-                        <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <PeopleIcon sx={{ fontSize: 16, color: "#64748b", mr: 0.5 }} />
-                            <Typography variant="body2" sx={{ color: "#64748b" }}>
-                                {totalVolunteers.toLocaleString()} volunteers
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        sx={{ height: 6, mb: 2, borderRadius: 3 }}
+                    />
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Box sx={{ display: "flex" }}>
+                            <PeopleIcon sx={{ mr: 0.5, color: "#64748b" }} />
+                            <Typography variant="body2" color="text.secondary">
+                                {totalVolunteers} volunteers
                             </Typography>
                         </Box>
+
                         {(status === "active" || status === "upcoming") && (
                             <Button
                                 variant="contained"
@@ -293,15 +246,7 @@ const ChallengeCard = ({ challenge }) => {
                                 sx={{
                                     backgroundColor: joined ? "#10b981" : "#0ea5e9",
                                     color: "white",
-                                    textTransform: "none",
-                                    fontWeight: 600,
                                     px: 2.5,
-                                    py: 0.5,
-                                    borderRadius: "6px",
-                                    "&:hover": {
-                                        backgroundColor: joined ? "#059669" : "#0284c7",
-                                    },
-                                    cursor: "pointer",
                                 }}
                                 onClick={handleButtonClick}
                             >
@@ -312,73 +257,28 @@ const ChallengeCard = ({ challenge }) => {
                 </CardContent>
             </Card>
 
-            {/* Confirmation Dialog */}
-            <Dialog
-                open={openDialog}
-                onClose={handleCancelJoin}
-                aria-labelledby="join-challenge-dialog-title"
-                aria-describedby="join-challenge-dialog-description"
-            >
-                <DialogTitle id="join-challenge-dialog-title">
-                    Join Challenge?
-                </DialogTitle>
+            {/* Join Confirmation Dialog */}
+            <Dialog open={openDialog} onClose={handleCancelJoin}>
+                <DialogTitle>Join Challenge?</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="join-challenge-dialog-description">
-                        Are you sure you want to join <strong>{title}</strong>? 
-                        <br />
-                        <br />
-                        You'll be able to upload cleanup photos and contribute to this challenge's goal.
+                    <DialogContentText>
+                        Do you want to join <strong>{title}</strong>?
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2 }}>
-                    <Button 
-                        onClick={handleCancelJoin}
-                        disabled={isJoining}
-                        sx={{ 
-                            textTransform: "none",
-                            color: "#64748b"
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleConfirmJoin}
-                        variant="contained"
-                        disabled={isJoining}
-                        sx={{
-                            textTransform: "none",
-                            background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
-                            "&:hover": {
-                                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
-                            },
-                        }}
-                    >
-                        {isJoining ? (
-                            <>
-                                <CircularProgress size={20} sx={{ mr: 1, color: "white" }} />
-                                Joining...
-                            </>
-                        ) : (
-                            "Join Challenge"
-                        )}
+                <DialogActions>
+                    <Button onClick={handleCancelJoin}>Cancel</Button>
+                    <Button onClick={handleConfirmJoin} variant="contained">
+                        {isJoining ? "Joining…" : "Join Challenge"}
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            {/* Snackbar for notifications */}
-            <Snackbar 
-                open={snackbar.open} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
                 onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleCloseSnackbar} 
-                    severity={snackbar.severity} 
-                    sx={{ width: '100%' }}
-                >
-                    {snackbar.message}
-                </Alert>
+                <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
             </Snackbar>
         </>
     );

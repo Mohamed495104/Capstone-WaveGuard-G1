@@ -19,6 +19,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
 import {
     PageContainerStyle,
     HeaderBoxStyle,
@@ -32,14 +34,20 @@ import CTASection from "@/components/sections/CTASection";
 import withAuth from "@/components/auth/withAuth";
 import { useJoinedChallenges } from "@/context/JoinedChallengesContext";
 
-// Import mock data as fallback
-import { challenges as mockChallenges, mockStats, regions as regionList } from "@/data/challenges";
+import {
+    challenges as mockChallenges,
+    mockStats,
+    regions as regionList,
+} from "@/data/challenges";
 
 function ChallengesPage() {
+    const router = useRouter();
+
     const [challenges, setChallenges] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const { joinedChallenges } = useJoinedChallenges();
+
     const [selectedRegion, setSelectedRegion] = useState("All");
     const [selectedStatus, setSelectedStatus] = useState("All");
 
@@ -50,28 +58,25 @@ function ChallengesPage() {
     const upcomingScrollRef = useRef(null);
     const completedScrollRef = useRef(null);
 
-    // RegionList
     const uniqueRegions = ["All", ...new Set(regionList.filter((r) => r && r !== "All"))];
 
-    // Map provinces to regions
-    const getRegionFromProvince = (province) => {
-        const provinceToRegion = {
-            'ON': 'Central',
-            'QC': 'Central',
-            'BC': 'West',
-            'AB': 'West',
-            'SK': 'West',
-            'MB': 'West',
-            'NS': 'East',
-            'NB': 'East',
-            'PE': 'East',
-            'NL': 'East',
-            'YT': 'North',
-            'NT': 'North',
-            'NU': 'North'
-        };
-        return provinceToRegion[province] || 'Central';
+    const provinceToRegion = {
+        ON: "Central",
+        QC: "Central",
+        BC: "West",
+        AB: "West",
+        SK: "West",
+        MB: "West",
+        NS: "East",
+        NB: "East",
+        PE: "East",
+        NL: "East",
+        YT: "North",
+        NT: "North",
+        NU: "North",
     };
+
+    const getRegionFromProvince = (province) => provinceToRegion[province] || "Central";
 
     const fetchData = async () => {
         try {
@@ -80,15 +85,16 @@ function ChallengesPage() {
                 axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/challenges`),
                 axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/challenges/stats`),
             ]);
-            // Add region field to challenges based on province
-            const challengesWithRegion = (challengesRes.data || []).map(challenge => ({
+
+            const challengesWithRegion = (challengesRes.data || []).map((challenge) => ({
                 ...challenge,
-                region: challenge.region || getRegionFromProvince(challenge.province)
+                region: challenge.region || getRegionFromProvince(challenge.province),
             }));
+
             setChallenges(challengesWithRegion);
             setStats(statsRes.data || mockStats);
-        } catch (apiError) {
-            console.warn("Using mock data:", apiError.message);
+        } catch (error) {
+            console.warn("API failed, using mock data:", error.message);
             setChallenges(mockChallenges);
             setStats(mockStats);
         } finally {
@@ -100,115 +106,92 @@ function ChallengesPage() {
         fetchData();
     }, []);
 
-    // Refresh challenges when user joins/leaves a challenge
     useEffect(() => {
-        if (joinedChallenges.length >= 0) {
-            fetchData();
-        }
+        fetchData();
     }, [joinedChallenges]);
 
-    // Safer filter logic
-    const filterChallenges = (challengeList) => {
-        let filtered = [...challengeList];
+    const filterChallenges = (list) => {
+        let filtered = [...list];
+
         if (selectedRegion !== "All") {
-            filtered = filtered.filter((c) => c.region?.toLowerCase() === selectedRegion.toLowerCase());
+            filtered = filtered.filter(
+                (c) => c.region?.toLowerCase() === selectedRegion.toLowerCase()
+            );
         }
         if (selectedStatus !== "All") {
-            filtered = filtered.filter((c) => c.status?.toLowerCase() === selectedStatus.toLowerCase());
+            filtered = filtered.filter(
+                (c) => c.status?.toLowerCase() === selectedStatus.toLowerCase()
+            );
         }
         return filtered;
     };
 
-    const activeChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "active"));
-    const upcomingChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "upcoming"));
-    const completedChallenges = filterChallenges(challenges.filter((c) => c.status?.toLowerCase() === "completed"));
+    const activeChallenges = filterChallenges(
+        challenges.filter((c) => c.status?.toLowerCase() === "active")
+    );
+    const upcomingChallenges = filterChallenges(
+        challenges.filter((c) => c.status?.toLowerCase() === "upcoming")
+    );
+    const completedChallenges = filterChallenges(
+        challenges.filter((c) => c.status?.toLowerCase() === "completed")
+    );
 
-    // Scroll handler
     const scroll = (ref, direction) => {
         if (ref.current) {
-            const scrollAmount = 400;
             ref.current.scrollBy({
-                left: direction === "left" ? -scrollAmount : scrollAmount,
+                left: direction === "left" ? -400 : 400,
                 behavior: "smooth",
             });
         }
     };
 
-    // Scrollable section
     const ScrollableRow = ({ title, icon, challenges, scrollRef }) => {
         if (challenges.length === 0) return null;
 
         return (
             <Box sx={{ mb: 6 }}>
-                {/* Header */}
                 <Box
                     sx={{
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "space-between",
                         mb: 3,
+                        alignItems: "center",
                     }}
                 >
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {icon}
-                        <Typography
-                            variant="h6"
-                            sx={{
-                                fontWeight: 700,
-                                color: "#1e293b",
-                                fontSize: { xs: "1.125rem", sm: "1.25rem" },
-                            }}
-                        >
+                        <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e293b" }}>
                             {title}
                         </Typography>
                     </Box>
 
                     {!isMobile && (
                         <Box sx={{ display: "flex", gap: 1 }}>
-                            <IconButton
-                                onClick={() => scroll(scrollRef, "left")}
-                                sx={{
-                                    backgroundColor: "#f1f5f9",
-                                    "&:hover": { backgroundColor: "#e2e8f0" },
-                                }}
-                            >
+                            <IconButton onClick={() => scroll(scrollRef, "left")}>
                                 <ChevronLeftIcon />
                             </IconButton>
-                            <IconButton
-                                onClick={() => scroll(scrollRef, "right")}
-                                sx={{
-                                    backgroundColor: "#f1f5f9",
-                                    "&:hover": { backgroundColor: "#e2e8f0" },
-                                }}
-                            >
+                            <IconButton onClick={() => scroll(scrollRef, "right")}>
                                 <ChevronRightIcon />
                             </IconButton>
                         </Box>
                     )}
                 </Box>
 
-                {/* Cards */}
                 <Box
                     ref={scrollRef}
                     sx={{
                         display: "flex",
                         gap: 3,
                         overflowX: "auto",
-                        overflowY: "hidden",
                         pb: 2,
-                        "&::-webkit-scrollbar": { height: "8px" },
-                        "&::-webkit-scrollbar-thumb": {
-                            backgroundColor: "#cbd5e1",
-                            borderRadius: "10px",
-                        },
                     }}
                 >
-                    {challenges.map((challenge, i) => (
+                    {challenges.map((challenge) => (
                         <Box
-                            key={challenge._id || i}
+                            key={challenge._id}
                             sx={{
-                                minWidth: { xs: "280px", sm: "340px", md: "360px" },
-                                maxWidth: { xs: "280px", sm: "340px", md: "360px" },
+                                minWidth: { xs: "280px", sm: "340px" },
+                                maxWidth: { xs: "280px", sm: "340px" },
                             }}
                         >
                             <ChallengeCard challenge={challenge} />
@@ -222,32 +205,24 @@ function ChallengesPage() {
     return (
         <Box sx={PageContainerStyle}>
             <Container maxWidth="xl">
-                {/* Header */}
                 <Box sx={HeaderBoxStyle}>
-                    <Typography variant={isMobile ? "h5" : "h4"} sx={HeaderTitleStyle}>
+                    <Typography variant="h4" sx={HeaderTitleStyle}>
                         🌊 Cleanup Challenges
                     </Typography>
-                    <Typography variant={isMobile ? "body2" : "body1"} sx={HeaderSubtitleStyle}>
+                    <Typography variant="body1" sx={HeaderSubtitleStyle}>
                         Join hands in restoring our coastlines — every cleanup counts!
                     </Typography>
                 </Box>
 
                 {loading ? (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            minHeight: "50vh",
-                        }}
-                    >
+                    <Box sx={{ display: "flex", justifyContent: "center", minHeight: "50vh" }}>
                         <CircularProgress size={60} />
                     </Box>
                 ) : (
                     <>
                         <StatsCard stats={stats} />
 
-                        {/* Filters */}
+                        {/* FILTER SECTION */}
                         <Box
                             sx={{
                                 mb: 5,
@@ -255,15 +230,11 @@ function ChallengesPage() {
                                 backgroundColor: "white",
                                 borderRadius: "16px",
                                 border: "1px solid #e5e7eb",
-                                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                                 display: "flex",
-                                flexWrap: "wrap",
-                                alignItems: "center",
-                                justifyContent: "space-between",
                                 gap: 2,
+                                flexWrap: "wrap",
                             }}
                         >
-                            {/* Region */}
                             <FormControl sx={{ minWidth: 200 }}>
                                 <InputLabel>Filter by Region</InputLabel>
                                 <Select
@@ -279,7 +250,6 @@ function ChallengesPage() {
                                 </Select>
                             </FormControl>
 
-                            {/* Status */}
                             <FormControl sx={{ minWidth: 200 }}>
                                 <InputLabel>Filter by Status</InputLabel>
                                 <Select
@@ -296,29 +266,30 @@ function ChallengesPage() {
                             </FormControl>
                         </Box>
 
-                        {/* Sections */}
+                        {/* ACTIVE */}
                         <ScrollableRow
                             title="Active Challenges"
-                            icon={<TrendingUpIcon sx={{ fontSize: 28, color: "#10b981" }} />}
+                            icon={<TrendingUpIcon sx={{ color: "#10b981", fontSize: 28 }} />}
                             challenges={activeChallenges}
                             scrollRef={activeScrollRef}
                         />
 
+                        {/* UPCOMING */}
                         <ScrollableRow
                             title="Upcoming Challenges"
-                            icon={<ScheduleIcon sx={{ fontSize: 28, color: "#f59e0b" }} />}
+                            icon={<ScheduleIcon sx={{ color: "#f59e0b", fontSize: 28 }} />}
                             challenges={upcomingChallenges}
                             scrollRef={upcomingScrollRef}
                         />
 
+                        {/* COMPLETED */}
                         <ScrollableRow
                             title="Completed Challenges"
-                            icon={<CheckCircleIcon sx={{ fontSize: 28, color: "#6b7280" }} />}
+                            icon={<CheckCircleIcon sx={{ color: "#6b7280", fontSize: 28 }} />}
                             challenges={completedChallenges}
                             scrollRef={completedScrollRef}
                         />
-
-                        <CTASection />
+                        <CTASection onCreateClick={() => router.push("/challenges/create")} />
                     </>
                 )}
             </Container>

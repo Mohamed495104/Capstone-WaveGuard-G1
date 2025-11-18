@@ -1,7 +1,7 @@
 import { styled } from "@mui/material/styles";
 import { Card, TextField } from "@mui/material";
 
-// 🔹 Glass Effect Container
+// Glass card container
 export const GlassCard = styled(Card)(({ theme }) => ({
     backdropFilter: "blur(20px)",
     backgroundColor: "rgba(255,255,255,0.1)",
@@ -15,12 +15,11 @@ export const GlassCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-// 🔹 TextField with glass border + glowing focus
+// Styled input fields
 export const StyledTextField = styled(TextField)(({ theme }) => ({
     "& .MuiOutlinedInput-root": {
         backgroundColor: "rgba(255,255,255,0.08)",
         borderRadius: "10px",
-        transition: "border-color 0.3s ease",
         "& fieldset": { borderColor: "rgba(255,255,255,0.2)" },
         "&:hover fieldset": { borderColor: "rgba(255,255,255,0.35)" },
         "&.Mui-focused fieldset": { borderColor: "#0891b2" },
@@ -28,27 +27,11 @@ export const StyledTextField = styled(TextField)(({ theme }) => ({
     "& .MuiInputBase-input": {
         color: "#fff",
         fontSize: "15px",
-        [theme.breakpoints.down("sm")]: {
-            fontSize: "14px",
-            padding: "14px",
-        },
-    },
-    "& .MuiInputLabel-root": {
-        color: "rgba(255,255,255,0.7)",
+        padding: "12px 14px",
     },
 }));
 
-// 🔹 Stats section (bottom metrics)
-export const StatsBox = {
-    display: "flex",
-    justifyContent: "space-around",
-    mt: 3,
-    pt: 2,
-    borderTop: "1px solid rgba(255,255,255,0.1)",
-    textAlign: "center",
-};
-
-// 🔹 Background (Ocean gradient + blur overlay)
+// Background styling
 export const BackgroundStyle = {
     minHeight: "100vh",
     width: "100%",
@@ -66,7 +49,7 @@ export const BackgroundStyle = {
     overflowY: "auto",
 };
 
-// 🔹 Button style (white primary CTA)
+// Primary CTA button
 export const PrimaryButtonStyle = {
     background: "#fff",
     color: "#0891b2",
@@ -74,10 +57,5 @@ export const PrimaryButtonStyle = {
     py: 1.3,
     borderRadius: "10px",
     textTransform: "none",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.25)",
     "&:hover": { background: "rgba(255,255,255,0.95)" },
-    "&:disabled": {
-        background: "rgba(255,255,255,0.5)",
-        color: "rgba(8,145,178,0.5)",
-    },
 };

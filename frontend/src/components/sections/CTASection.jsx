@@ -4,9 +4,9 @@ import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material"
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AddIcon from "@mui/icons-material/Add";
 
-const CTASection = () => {
+const CTASection = ({ onCreateClick }) => {   // <-- RECEIVE PROP HERE
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     return (
         <Box
@@ -28,7 +28,8 @@ const CTASection = () => {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)",
+                    background:
+                        "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%)",
                     pointerEvents: "none",
                 },
             }}
@@ -39,7 +40,7 @@ const CTASection = () => {
                     mb: 2,
                     opacity: 0.9,
                     position: "relative",
-                    zIndex: 1
+                    zIndex: 1,
                 }}
             />
 
@@ -65,7 +66,7 @@ const CTASection = () => {
                     lineHeight: 1.6,
                     position: "relative",
                     zIndex: 1,
-                    fontSize: { xs: '0.875rem', sm: '1rem' }
+                    fontSize: { xs: "0.875rem", sm: "1rem" },
                 }}
             >
                 Start your own cleanup initiative and invite your community to join.
@@ -76,6 +77,7 @@ const CTASection = () => {
                 variant="contained"
                 size="large"
                 startIcon={<AddIcon />}
+                onClick={onCreateClick}   // <-- CLICK HANDLER ADDED HERE
                 sx={{
                     backgroundColor: "white",
                     color: "#0ea5e9",
@@ -84,7 +86,7 @@ const CTASection = () => {
                     py: 1.5,
                     borderRadius: "12px",
                     textTransform: "none",
-                    fontSize: { xs: '0.95rem', sm: '1rem' },
+                    fontSize: { xs: "0.95rem", sm: "1rem" },
                     boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
                     position: "relative",
                     zIndex: 1,

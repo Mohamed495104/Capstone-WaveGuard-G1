@@ -63,7 +63,7 @@ const LogoText = styled("h4")(() => ({
 }));
 
 const Description = styled("p")(() => ({
-    color: "#5A7B8A",
+    color: "#45616dff",
     lineHeight: 1.7,
     fontSize: 15,
     marginBottom: 24,
@@ -114,7 +114,7 @@ const EmailInput = styled("input")(() => ({
 }));
 
 const SubmitButton = styled("button")(() => ({
-    background: "#0891B2",
+    background: "#005574ff",
     color: "#fff",
     border: "none",
     borderRadius: 8,
@@ -127,7 +127,7 @@ const SubmitButton = styled("button")(() => ({
     alignItems: "center",
     justifyContent: "center",
     "&:hover": {
-        background: "#0077A3",
+        background: "#005574ff",
         transform: "translateY(-1px)",
     },
     "&:active": {
@@ -137,7 +137,7 @@ const SubmitButton = styled("button")(() => ({
 
 const NewsletterHint = styled("span")(() => ({
     fontSize: 12,
-    color: "#6B8C98",
+    color: "#536e78ff",
     lineHeight: 1.4,
 }));
 
@@ -165,7 +165,7 @@ const LinkColumn = styled("div")(() => ({
 }));
 
 const ColumnTitle = styled("h5")(() => ({
-    color: "#003554",
+    color: "#022c45ff",
     fontWeight: 600,
     fontSize: 16,
     marginBottom: 16,
@@ -182,7 +182,7 @@ const LinkList = styled("ul")(() => ({
 }));
 
 const LinkItem = styled("li")(() => ({
-    color: "#6B8C98",
+    color: "#43575eff",
     fontSize: 14,
     marginBottom: 12,
     cursor: "pointer",
@@ -266,7 +266,7 @@ const ContactInfo = styled("div")(() => ({
 
 const ContactLabel = styled("p")(() => ({
     fontWeight: 600,
-    color: "#0891B2",
+    color: "#006983ff",
     margin: 0,
     fontSize: 14,
     "@media (max-width: 768px)": {
@@ -275,7 +275,7 @@ const ContactLabel = styled("p")(() => ({
 }));
 
 const ContactValue = styled("p")(() => ({
-    color: "#003554",
+    color: "#012a42ff",
     fontSize: 15,
     margin: 0,
     fontWeight: 500,
@@ -411,4 +411,4 @@ export default function Footer() {
             </ContactArea>
         </FooterContainer>
     );
-}
+}   

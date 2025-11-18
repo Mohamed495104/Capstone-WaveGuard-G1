@@ -1,65 +1,137 @@
 import Challenge from "../models/Challenge.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
-import { 
-    validateLocation, 
-    shouldBypassLocationCheck, 
+
+import {
+    validateLocation,
+    shouldBypassLocationCheck,
     isLocationVerificationEnabled,
-    getMaxAllowedDistance 
+    getMaxAllowedDistance
 } from "../utils/locationUtils.js";
 
-// Helper function to determine challenge status based on dates
+import { uploadImageToGridFS } from "../utils/gridfsUpload.js";
+
+// ---------------------- STATUS UTILS ----------------------
+
 const getChallengeStatus = (startDate, endDate) => {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
-    if (now < start) {
-        return 'upcoming';
-    } else if (now >= start && now <= end) {
-        return 'active';
-    } else {
-        return 'completed';
-    }
+
+    if (now < start) return "upcoming";
+    if (now >= start && now <= end) return "active";
+    return "completed";
 };
 
-// Helper function to update challenge statuses based on current date
-const updateChallengeStatuses = async (challenges) => {
-    return challenges.map(challenge => {
-        const computedStatus = getChallengeStatus(challenge.startDate, challenge.endDate);
-        // Return the challenge with computed status
-        return {
-            ...challenge.toObject(),
-            status: computedStatus
-        };
-    });
+const updateChallengeStatuses = (challenges) => {
+    return challenges.map((challenge) => ({
+        ...challenge.toObject(),
+        status: getChallengeStatus(challenge.startDate, challenge.endDate),
+    }));
 };
 
-// Fetch all challenges
-export const getChallenges = async (req, res) => {
+// ---------------------- CREATE CHALLENGE ----------------------
+
+export const createChallenge = async (req, res) => {
     try {
-        const challenges = await Challenge.find({}).sort({ startDate: 1 });
-        
-        // Update statuses based on current date
-        const challengesWithStatus = await updateChallengeStatuses(challenges);
-        
-        res.json(challengesWithStatus);
+        const {
+            title,
+            description,
+            locationName,
+            province,
+            region,
+            goal,
+            startDate,
+            endDate,
+            bannerImage,
+            location
+        } = req.body;
+
+        // 1. Validate required text fields
+        if (!title || !locationName || !province || !region || !goal || !startDate || !endDate) {
+            return res.status(400).json({
+                message: "All fields are required"
+            });
+        }
+
+        // 2. Validate banner image (URL)
+        if (!bannerImage) {
+            return res.status(400).json({
+                message: "Banner image URL missing"
+            });
+        }
+
+        // 3. Validate geographic location
+        if (
+            !location ||
+            !Array.isArray(location.coordinates) ||
+            location.coordinates.length !== 2
+        ) {
+            return res.status(400).json({
+                message: "Invalid location coordinates"
+            });
+        }
+
+        // 4. Compute challenge status
+        const status = getChallengeStatus(startDate, endDate);
+
+        // 5. Create challenge
+        const challenge = new Challenge({
+            title,
+            description,
+            locationName,
+            province,
+            region,
+            bannerImage,
+            goal,
+            goalUnit: "items",
+            startDate,
+            endDate,
+            status,
+            totalTrashCollected: 0,
+            totalVolunteers: 0,
+            wasteBreakdown: {},
+            location,
+            createdBy: req.mongoUser?._id || null,
+        });
+
+        await challenge.save();
+
+        return res.json({
+            message: "Challenge created successfully",
+            challenge,
+        });
+
     } catch (error) {
+        console.error("Error creating challenge:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
 
-// Get aggregated stats for the challenges page
+// ---------------------- GET ALL CHALLENGES ----------------------
+
+export const getChallenges = async (req, res) => {
+    try {
+        const challenges = await Challenge.find({}).sort({ startDate: 1 });
+        res.json(updateChallengeStatuses(challenges));
+    } catch (error) {
+        console.error("Error fetching challenges:", error);
+        res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// ---------------------- GET CHALLENGE STATS ----------------------
+
 export const getChallengeStats = async (req, res) => {
     try {
         const totalChallenges = await Challenge.countDocuments();
 
         const activeVolunteersResult = await Challenge.aggregate([
-            { $group: { _id: null, total: { $sum: "$totalVolunteers" } } }
+            { $group: { _id: null, total: { $sum: "$totalVolunteers" } } },
         ]);
 
         const itemsCollectedResult = await Challenge.aggregate([
-            { $group: { _id: null, total: { $sum: "$totalTrashCollected" } } }
+            { $group: { _id: null, total: { $sum: "$totalTrashCollected" } } },
         ]);
 
         const provincesResult = await Challenge.distinct("province");
@@ -70,15 +142,15 @@ export const getChallengeStats = async (req, res) => {
             itemsCollected: itemsCollectedResult[0]?.total || 0,
             provinces: provincesResult.length || 0,
         });
+
     } catch (error) {
-        console.error(error);
+        console.error("Error getting stats:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
 
-// Get single challenge by ID
-// GET /api/challenges/:id
-// access  Public
+// ---------------------- GET SINGLE CHALLENGE ----------------------
+
 export const getChallengeById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -88,32 +160,27 @@ export const getChallengeById = async (req, res) => {
         }
 
         const challenge = await Challenge.findById(id);
-        
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
         }
 
-        // Compute status based on dates
-        const computedStatus = getChallengeStatus(challenge.startDate, challenge.endDate);
-        const challengeWithStatus = {
+        res.json({
             ...challenge.toObject(),
-            status: computedStatus
-        };
+            status: getChallengeStatus(challenge.startDate, challenge.endDate),
+        });
 
-        res.json(challengeWithStatus);
     } catch (error) {
         console.error("Error fetching challenge:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
 
-// Join a challenge
-// POST /api/challenges/:id/join
-// Private
+// ---------------------- JOIN CHALLENGE ----------------------
+
 export const joinChallenge = async (req, res) => {
     try {
         const { id } = req.params;
-        const { location } = req.body; // { latitude, longitude }
+        const { location } = req.body;
         const userId = req.mongoUser._id;
         const userEmail = req.mongoUser.email;
 
@@ -121,57 +188,50 @@ export const joinChallenge = async (req, res) => {
             return res.status(400).json({ message: "Invalid challenge ID" });
         }
 
-        // Check if challenge exists
         const challenge = await Challenge.findById(id);
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
         }
-        
-        // Compute the real-time status
+
         const computedStatus = getChallengeStatus(challenge.startDate, challenge.endDate);
-        
-        // Prevent joining completed challenges
-        if (computedStatus === 'completed') {
+        if (computedStatus === "completed") {
             return res.status(400).json({ message: "Cannot join a completed challenge" });
         }
 
-        // Check if user already joined
         const user = await User.findById(userId);
         if (user.joinedChallenges.includes(id)) {
             return res.status(400).json({ message: "Already joined this challenge" });
         }
 
-        // Location verification
+        // Location verification logic
         if (isLocationVerificationEnabled() && !shouldBypassLocationCheck(userEmail)) {
-            if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
-                return res.status(400).json({ 
+
+            if (!location || typeof location.latitude !== "number" || typeof location.longitude !== "number") {
+                return res.status(400).json({
                     message: "Location is required to join this challenge",
-                    error: "LOCATION_REQUIRED"
+                    error: "LOCATION_REQUIRED",
                 });
             }
 
             const maxDistance = getMaxAllowedDistance();
             const validation = validateLocation(location, challenge.location, maxDistance);
-            
+
             if (!validation.isValid) {
-                return res.status(403).json({ 
+                return res.status(403).json({
                     message: validation.message,
                     distance: validation.distance,
-                    maxDistance: maxDistance,
-                    error: "LOCATION_TOO_FAR"
+                    maxDistance,
+                    error: "LOCATION_TOO_FAR",
                 });
             }
-
-            console.log(`[Location] User ${userEmail} verified for challenge ${id}: ${validation.message}`);
         }
 
-        // Add challenge to user's joined challenges and increment totalChallenges
+        // Update user + challenge
         await User.findByIdAndUpdate(userId, {
             $addToSet: { joinedChallenges: id },
-            $inc: { totalChallenges: 1 }
+            $inc: { totalChallenges: 1 },
         });
 
-        // Increment challenge volunteer count
         const updatedChallenge = await Challenge.findByIdAndUpdate(
             id,
             { $inc: { totalVolunteers: 1 } },
@@ -182,18 +242,18 @@ export const joinChallenge = async (req, res) => {
             message: "Joined successfully",
             challenge: {
                 ...updatedChallenge.toObject(),
-                status: computedStatus
-            }
+                status: computedStatus,
+            },
         });
+
     } catch (error) {
         console.error("Error joining challenge:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
 
-// @desc    Leave a challenge
-// @route   POST /api/challenges/:id/leave
-// @access  Private
+// ---------------------- LEAVE CHALLENGE ----------------------
+
 export const leaveChallenge = async (req, res) => {
     try {
         const { id } = req.params;
@@ -203,74 +263,61 @@ export const leaveChallenge = async (req, res) => {
             return res.status(400).json({ message: "Invalid challenge ID" });
         }
 
-        // Check if challenge exists
         const challenge = await Challenge.findById(id);
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
         }
 
-        // Check if user has joined
         const user = await User.findById(userId);
         if (!user.joinedChallenges.includes(id)) {
             return res.status(400).json({ message: "You haven't joined this challenge" });
         }
 
-        // Remove challenge from user's joined challenges and decrement totalChallenges
         await User.findByIdAndUpdate(userId, {
             $pull: { joinedChallenges: id },
-            $inc: { totalChallenges: -1 }
+            $inc: { totalChallenges: -1 },
         });
 
-        // Decrement challenge volunteer count (ensure it doesn't go below 0)
-        const currentChallenge = await Challenge.findById(id);
-        const newVolunteerCount = Math.max(0, currentChallenge.totalVolunteers - 1);
-        
         const updatedChallenge = await Challenge.findByIdAndUpdate(
             id,
-            { totalVolunteers: newVolunteerCount },
+            { $inc: { totalVolunteers: -1 } },
             { new: true }
         );
 
         res.json({
             message: "Left successfully",
-            challenge: updatedChallenge
+            challenge: updatedChallenge,
         });
+
     } catch (error) {
         console.error("Error leaving challenge:", error);
         res.status(500).json({ message: "Server Error" });
     }
 };
 
-// @desc    Get user's joined challenges
-// @route   GET /api/challenges/joined
-// @access  Private
+// ---------------------- GET JOINED CHALLENGES ----------------------
+
 export const getJoinedChallenges = async (req, res) => {
     try {
         const userId = req.mongoUser._id;
         const { status } = req.query;
 
-        const user = await User.findById(userId).populate('joinedChallenges');
-        
+        const user = await User.findById(userId).populate("joinedChallenges");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        let joinedChallenges = user.joinedChallenges;
-        
-        // Update statuses based on current date
-        joinedChallenges = joinedChallenges.map(challenge => ({
+        let joined = user.joinedChallenges.map((challenge) => ({
             ...challenge.toObject(),
-            status: getChallengeStatus(challenge.startDate, challenge.endDate)
+            status: getChallengeStatus(challenge.startDate, challenge.endDate),
         }));
 
-        // Filter by status if provided
-        if (status && ['active', 'upcoming', 'completed'].includes(status.toLowerCase())) {
-            joinedChallenges = joinedChallenges.filter(
-                challenge => challenge.status.toLowerCase() === status.toLowerCase()
-            );
+        if (status && ["active", "upcoming", "completed"].includes(status.toLowerCase())) {
+            joined = joined.filter((c) => c.status.toLowerCase() === status.toLowerCase());
         }
 
-        res.json(joinedChallenges);
+        res.json(joined);
+
     } catch (error) {
         console.error("Error fetching joined challenges:", error);
         res.status(500).json({ message: "Server Error" });

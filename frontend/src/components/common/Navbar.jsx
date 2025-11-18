@@ -35,6 +35,7 @@ export default function Navbar() {
     }, []);
 
     return (
+        // Add aria-label to AppBar if it serves as a banner/site header (which it does)
         <AppBar
             position="sticky"
             elevation={0}
@@ -69,11 +70,15 @@ export default function Navbar() {
                         }
                     }}
                     onClick={() => router.push("/home")}
+                    // Add role="link" and aria-label since this stack acts as a click target
+                    role="link" 
+                    aria-label="WaveGuard home"
                 >
                     <Box
                         component="img"
                         src="/images/logoblue.png"
-                        alt="WaveGuard"
+                        // 1. FIXED: Missing alternative text. 
+                        alt="WaveGuard logo - ocean wave icon" 
                         sx={{
                             height: 44,
                             width: 44,
@@ -82,7 +87,10 @@ export default function Navbar() {
                         }}
                     />
                     <Typography
+                        // 2. FIXED: Hierarchy. Use role="heading" with aria-level to declare the site title hierarchy, if you cannot use a native h1.
+                        // However, since this is a global element, using <p> or <span> is often acceptable, but we'll use a role here for clarity.
                         variant="h6"
+                        component="span" // Use span to avoid multiple H tags if H1 is elsewhere
                         sx={{
                             fontWeight: 700,
                             fontSize: "1.25rem",
@@ -102,7 +110,10 @@ export default function Navbar() {
                     spacing={1.5}
                 >
                     {/* Nav items */}
+                    {/* 3. FIXED: Semantic grouping. Wrap main nav links in a <nav> tag. */}
                     <Stack
+                        component="nav" 
+                        aria-label="Primary site navigation"
                         direction="row"
                         alignItems="center"
                         spacing={0.5}
@@ -114,10 +125,12 @@ export default function Navbar() {
                         }}
                     >
                         {navItems.map(({ label, path, icon: Icon }) => (
+                            // Buttons should ideally be Link components, but as long as they function as navigation and have text content, they are fine.
                             <Button
                                 key={path}
                                 onClick={() => router.push(path)}
                                 startIcon={<Icon sx={{ fontSize: 20 }} />}
+                                // ... (styles remain the same)
                                 sx={{
                                     textTransform: "none",
                                     fontWeight: isActive(path) ? 600 : 500,
@@ -153,6 +166,8 @@ export default function Navbar() {
                     <IconButton
                         size="medium"
                         onClick={() => router.push("/profile")}
+                        // 4. FIXED: Explicit Label. Added descriptive aria-label for screen readers.
+                        aria-label="View user profile settings"
                         sx={{
                             bgcolor: "#f1f5f9",
                             border: "1px solid #e2e8f0",
@@ -173,6 +188,9 @@ export default function Navbar() {
                     >
                         <Avatar
                             src={profileImage || undefined}
+                            // 5. FIXED: Image alt text within Avatar component. If profileImage is present, it needs alt text.
+                            // If it's a decorative default icon, alt can be empty, but since profileImage is dynamic, use an aria-label on the Avatar itself.
+                            alt={profileImage ? "User profile picture" : "Default profile icon"} 
                             sx={{
                                 width: 40,
                                 height: 40,
