@@ -254,9 +254,14 @@ function CreateChallengePage() {
             Create New Challenge
           </Typography>
 
-          <Typography sx={{ mb: 4, color: "#64748b" }}>
+          <Typography sx={{ mb: 2, color: "#64748b" }}>
             Fill all required fields to create your cleanup event.
           </Typography>
+
+          <Alert severity="info" sx={{ mb: 4 }}>
+            💡 <strong>Tip:</strong> Create challenges for shorelines, beaches, or waterfront areas 
+            across Canada. Use the location button below to automatically set your coordinates.
+          </Alert>
 
           {/* ACCESSIBLE IMAGE UPLOAD */}
           <Box sx={{ mb: 3 }}>
@@ -481,7 +486,8 @@ function CreateChallengePage() {
               </Box>
 
               <Typography sx={{ color: "#64748b", fontSize: "0.875rem", mb: 2 }}>
-                Click the location icon to auto-fetch your current coordinates
+                📍 Click the location icon to auto-fetch your current coordinates. Make sure you&apos;re at 
+                or near the cleanup location when creating the challenge for accurate geolocation.
               </Typography>
             </Box>
 
