@@ -47,6 +47,22 @@ export function AuthProvider({ children }) {
         // It will fire automatically after signInWithPopup/signInWithRedirect is successful.
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
+            
+            // If user is authenticated, ensure backend session cookie exists
+            if (currentUser) {
+                try {
+                    // Get a fresh ID token and create/refresh the session cookie
+                    const idToken = await currentUser.getIdToken(true);
+                    await axios.post(
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-session`,
+                        { idToken },
+                        { withCredentials: true }
+                    );
+                } catch (error) {
+                    console.error("Failed to create/refresh session cookie:", error);
+                }
+            }
+            
             setLoading(false);
             setAuthVersion(prev => prev + 1); // Increment version on every auth state change
         });
