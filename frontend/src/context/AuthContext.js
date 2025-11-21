@@ -51,8 +51,9 @@ export function AuthProvider({ children }) {
             // If user is authenticated, ensure backend session cookie exists
             if (currentUser) {
                 try {
-                    // Get a fresh ID token and create/refresh the session cookie
-                    const idToken = await currentUser.getIdToken(true);
+                    // Get ID token (without forcing refresh to avoid rate limits)
+                    // The token is cached by Firebase and is valid for 1 hour
+                    const idToken = await currentUser.getIdToken(false);
                     await axios.post(
                         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-session`,
                         { idToken },
