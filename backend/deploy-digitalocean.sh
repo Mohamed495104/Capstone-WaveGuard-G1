@@ -15,6 +15,13 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Check if we're in a git repository
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo -e "${RED}Error: Not a git repository${NC}"
+    echo "This script must be run from within a git repository"
+    exit 1
+fi
+
 # Check if we're in the backend directory
 if [ ! -f "package.json" ]; then
     echo -e "${RED}Error: Must run this script from the backend directory${NC}"
@@ -71,7 +78,11 @@ case $choice in
             fi
             
             echo -e "${YELLOW}Pushing to main branch...${NC}"
-            git push origin main
+            if ! git push origin main; then
+                echo -e "${RED}Error: Failed to push to remote repository${NC}"
+                echo "Please check your git configuration and try again"
+                exit 1
+            fi
             
             echo -e "${GREEN}✓ Pushed to GitHub!${NC}"
             echo ""

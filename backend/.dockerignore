@@ -14,25 +14,6 @@ npm-debug.log
 .gitignore
 .github
 
-# Documentation
-*.md
-!README.md
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-
-# Testing
-coverage
-.nyc_output
-*.test.js
-
-# Logs
-logs
-*.log
-
 # OS
 .DS_Store
 Thumbs.db
@@ -46,3 +27,7 @@ temp
 render.yaml
 railway.json
 vercel.json
+
+# Documentation - exclude all markdown except README.md
+*.md
+!README.md
