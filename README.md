@@ -67,6 +67,7 @@ WaveGuard is a mobile-first Progressive Web App designed to help volunteers part
 
 ### 🚀 Deployment & Hosting
 - **[HOSTING_INSTRUCTIONS.md](./HOSTING_INSTRUCTIONS.md)** - ⭐ **SIMPLE STEP-BY-STEP HOSTING GUIDE** (Start here!)
+- **[DIGITALOCEAN_DEPLOYMENT.md](./DIGITALOCEAN_DEPLOYMENT.md)** - 🎓 **DigitalOcean deployment for students with $200 credit!**
 - **[QUICK_START_HOSTING.md](./QUICK_START_HOSTING.md)** - Deploy in 30 minutes
 - **[PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md)** - Pre-deployment checklist
 - **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Complete deployment guide with strategies and best practices
@@ -81,6 +82,7 @@ WaveGuard is a mobile-first Progressive Web App designed to help volunteers part
 2. **Backend Developers:** [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) → [BACKEND_ARCHITECTURE.md](./BACKEND_ARCHITECTURE.md) → [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 3. **Frontend Developers:** [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) → [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 4. **Want to Host/Deploy?** → [HOSTING_INSTRUCTIONS.md](./HOSTING_INSTRUCTIONS.md) ⭐ **Simple hosting guide**
+   - **Students with $200 credit?** → [DIGITALOCEAN_DEPLOYMENT.md](./DIGITALOCEAN_DEPLOYMENT.md) 🎓 **40 months FREE!**
 5. **DevOps/Deployment:** [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for detailed deployment strategies
 
 ## Links
