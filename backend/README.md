@@ -22,18 +22,16 @@ Server runs on `http://localhost:5000`
 
 ### Production Deployment
 
-**Choose your hosting platform:**
+**DigitalOcean App Platform** ⭐ Recommended for students
 
-1. **DigitalOcean App Platform** ⭐ Recommended for students
-   - See [DIGITALOCEAN_DEPLOYMENT.md](../DIGITALOCEAN_DEPLOYMENT.md)
-   - $200 GitHub Student Pack credit = 40 months free!
-   - Use helper script: `./deploy-digitalocean.sh`
+- **Quick Start:** [DIGITALOCEAN_APP_PLATFORM_GUIDE.md](../DIGITALOCEAN_APP_PLATFORM_GUIDE.md)
+- **Complete Guide:** [DIGITALOCEAN_DEPLOYMENT.md](../DIGITALOCEAN_DEPLOYMENT.md)
+- **Troubleshooting:** [PRODUCTION_FIX_GUIDE.md](../PRODUCTION_FIX_GUIDE.md)
+- **Cost:** $200 GitHub Student Pack credit = 40 months free!
 
-2. **Railway** - Good free alternative
-   - See [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md#option-b-railway)
-
-3. **Render** - Free tier with limitations
-   - See [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md#option-c-render)
+**Alternative Options:**
+- **Railway** - See [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md#option-b-railway)
+- **Render** - See [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md#option-c-render)
 
 ## 📁 Project Structure
 
@@ -51,9 +49,6 @@ backend/
 │   └── server.js      # Server entry point
 ├── .do/               # DigitalOcean config
 │   └── app.yaml
-├── Dockerfile         # Docker configuration
-├── docker-compose.yml # Docker Compose setup
-├── deploy-digitalocean.sh  # Deployment helper script
 ├── package.json
 └── .env.example       # Environment variables template
 ```
@@ -69,25 +64,6 @@ Key variables:
 - `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` - Firebase Admin SDK
 - `LOCATION_VERIFICATION_ENABLED` - Enable/disable location checks
 
-## 🐳 Docker
-
-**Build and run with Docker:**
-```bash
-# Build image
-docker build -t waveguard-backend .
-
-# Run container
-docker run -p 5000:5000 --env-file .env waveguard-backend
-
-# Or use Docker Compose
-docker-compose up -d
-```
-
-**Helper script:**
-```bash
-./deploy-digitalocean.sh
-```
-
 ## 🔧 Available Scripts
 
 - `npm start` - Start production server
@@ -96,9 +72,11 @@ docker-compose up -d
 
 ## 📚 Documentation
 
+- [DigitalOcean App Platform Guide](../DIGITALOCEAN_APP_PLATFORM_GUIDE.md) - **Simplified deployment**
+- [Production Fix Guide](../PRODUCTION_FIX_GUIDE.md) - **Troubleshooting**
+- [DigitalOcean Complete Guide](../DIGITALOCEAN_DEPLOYMENT.md)
 - [API Documentation](../API_DOCUMENTATION.md)
 - [Backend Architecture](../BACKEND_ARCHITECTURE.md)
-- [DigitalOcean Deployment](../DIGITALOCEAN_DEPLOYMENT.md)
 - [General Hosting Guide](../HOSTING_INSTRUCTIONS.md)
 - [Seeding Guide](./SEEDING_GUIDE.md)
 

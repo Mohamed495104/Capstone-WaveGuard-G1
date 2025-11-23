@@ -7,17 +7,12 @@
 - Activate DigitalOcean benefit ($200 credit)
 
 ### 2. Read the Guide
+📖 **[Simplified Guide: ../DIGITALOCEAN_APP_PLATFORM_GUIDE.md](../DIGITALOCEAN_APP_PLATFORM_GUIDE.md)**
 📖 **[Complete Guide: ../DIGITALOCEAN_DEPLOYMENT.md](../DIGITALOCEAN_DEPLOYMENT.md)**
+📖 **[Production Fix: ../PRODUCTION_FIX_GUIDE.md](../PRODUCTION_FIX_GUIDE.md)** (If having issues)
 
-### 3. Deploy (Choose One)
+### 3. Deploy via DigitalOcean Dashboard
 
-#### Option A: Use Helper Script (Easiest)
-```bash
-cd backend
-./deploy-digitalocean.sh
-```
-
-#### Option B: Manual via DigitalOcean Dashboard
 1. Go to https://cloud.digitalocean.com/apps
 2. Create App → Connect GitHub repo
 3. Source directory: `backend`
@@ -48,34 +43,6 @@ NEXT_PUBLIC_API_URL=https://your-app.ondigitalocean.app
 
 ---
 
-## Testing Locally with Docker
-
-### Build and Test
-```bash
-# Build Docker image
-docker build -t waveguard-backend .
-
-# Run container
-docker run -p 5000:5000 --env-file .env waveguard-backend
-
-# Test health
-curl http://localhost:5000/health
-```
-
-### Using Docker Compose
-```bash
-# Start services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
----
-
 ## Cost with Student Credit
 
 - **Monthly:** $5
@@ -96,14 +63,15 @@ docker-compose down
 
 ## Documentation
 
-📚 **Full Guides:**
-- [DIGITALOCEAN_DEPLOYMENT.md](../DIGITALOCEAN_DEPLOYMENT.md) - Complete guide (20KB)
-- [DIGITALOCEAN_SETUP_SUMMARY.md](../DIGITALOCEAN_SETUP_SUMMARY.md) - Overview (10KB)
-- [DIGITALOCEAN_IMPLEMENTATION.md](../DIGITALOCEAN_IMPLEMENTATION.md) - Implementation details
+📚 **Recommended Reading Order:**
+1. [DIGITALOCEAN_APP_PLATFORM_GUIDE.md](../DIGITALOCEAN_APP_PLATFORM_GUIDE.md) - **START HERE** - Simplified guide
+2. [PRODUCTION_FIX_GUIDE.md](../PRODUCTION_FIX_GUIDE.md) - **Troubleshooting** common issues
+3. [DIGITALOCEAN_DEPLOYMENT.md](../DIGITALOCEAN_DEPLOYMENT.md) - Complete guide with all options
+4. [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md) - General hosting guide
 
 📋 **Quick Reference:**
-- [HOSTING_INSTRUCTIONS.md](../HOSTING_INSTRUCTIONS.md) - General hosting guide
 - [backend/README.md](./README.md) - Backend documentation
+- [SEEDING_GUIDE.md](./SEEDING_GUIDE.md) - Database seeding instructions
 
 ---
 
