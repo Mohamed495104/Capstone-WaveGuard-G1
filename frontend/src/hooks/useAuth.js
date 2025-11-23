@@ -1,5 +1,6 @@
 import { auth } from "@/lib/firebase";
 import axios from "axios";
+import { buildApiUrl } from "@/config/api";
 import {
     setPersistence,
     browserSessionPersistence,
@@ -22,7 +23,7 @@ function isMobileDevice() {
 // Sync user with backend (used for popup login)
 async function syncUser(idToken, retries = 2) {
     try {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken });
+        await axios.post(buildApiUrl('/api/auth/sync'), { idToken });
     } catch (err) {
         if (retries > 0) {
             await new Promise((res) => setTimeout(res, 500));
@@ -41,7 +42,7 @@ export default function useAuth() {
     const createSession = async (idToken) => {
         try {
             await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-session`,
+                buildApiUrl('/api/auth/create-session'),
                 { idToken },
                 { withCredentials: true }
             );
@@ -64,7 +65,7 @@ export default function useAuth() {
         await ensureSessionPersistence();
 
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
+            await axios.post(buildApiUrl('/api/auth/register'), {
                 email,
                 password,
                 name,
@@ -103,7 +104,7 @@ export default function useAuth() {
     const logout = async () => {
         try {
             await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+                buildApiUrl('/api/auth/logout'),
                 {},
                 { withCredentials: true }
             );

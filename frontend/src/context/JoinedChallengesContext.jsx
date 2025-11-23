@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { apiCall, requestCache } from "@/utils/api";
 import { useAuthContext } from "./AuthContext";
+import { buildApiUrl } from "@/config/api";
 
 // Create context
 const JoinedChallengesContext = createContext();
@@ -23,7 +24,7 @@ export const JoinedChallengesProvider = ({ children }) => {
 
         try {
             setLoading(true);
-            const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/challenges/joined`);
+            const response = await apiCall('get', buildApiUrl('/api/challenges/joined'));
             setJoinedChallenges(response.data || []);
         } catch (error) {
             if (error.isRateLimitError) {
@@ -47,7 +48,7 @@ export const JoinedChallengesProvider = ({ children }) => {
             const requestBody = location ? { location } : {};
             const response = await apiCall(
                 'post', 
-                `${process.env.NEXT_PUBLIC_API_URL}/api/challenges/${challengeId}/join`,
+                buildApiUrl(`/api/challenges/${challengeId}/join`),
                 requestBody
             );
             
@@ -66,7 +67,7 @@ export const JoinedChallengesProvider = ({ children }) => {
 
     const leaveChallenge = async (challengeId) => {
         try {
-            const response = await apiCall('post', `${process.env.NEXT_PUBLIC_API_URL}/api/challenges/${challengeId}/leave`);
+            const response = await apiCall('post', buildApiUrl(`/api/challenges/${challengeId}/leave`));
             
             // Invalidate joined challenges cache before refetching
             requestCache.invalidatePattern('/api/challenges/joined');

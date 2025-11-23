@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./navConfig";
 import PersonOutline from "@mui/icons-material/PersonOutline";
 import { apiCall } from "@/utils/api";
+import { buildApiUrl, getApiUrl } from "@/config/api";
 
 export default function Navbar() {
     const pathname = usePathname();
@@ -17,12 +18,12 @@ export default function Navbar() {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                const res = await apiCall('get', buildApiUrl('/api/profile'));
                 if (res?.data?.profileImage) {
                     // Ensure profile image URL is properly formatted
                     const imageUrl = res.data.profileImage.startsWith('http') 
                         ? res.data.profileImage 
-                        : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
+                        : `${getApiUrl()}${res.data.profileImage}`;
                     setProfileImage(imageUrl);
                 }
             } catch (error) {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiCall } from "@/utils/api";
+import { buildApiUrl } from "@/config/api";
 
 export default function useProfile() {
     const [profile, setProfile] = useState(null);
@@ -9,7 +10,7 @@ export default function useProfile() {
     const fetchProfile = async () => {
         setLoading(true);
         try {
-            const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+            const res = await apiCall('get', buildApiUrl('/api/profile'));
             setProfile(res.data);
             setError("");
         } catch (err) {
@@ -26,7 +27,7 @@ export default function useProfile() {
     const updateProfile = async (updates) => {
         setLoading(true);
         try {
-            const res = await apiCall("patch", "/api/profile", updates);
+            const res = await apiCall("patch", buildApiUrl("/api/profile"), updates);
             setProfile(res.data);
             setError("");
         } catch (err) {

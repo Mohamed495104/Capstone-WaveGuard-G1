@@ -4,13 +4,14 @@ import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Box, CircularProgress } from "@mui/material";
 import axios from "axios";
+import { buildApiUrl } from "@/config/api";
 
 const AuthContext = createContext();
 
 // Helper: Sync user with backend
 async function syncUser(idToken, retries = 2) {
     try {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken });
+        await axios.post(buildApiUrl('/api/auth/sync'), { idToken });
     } catch (err) {
         if (retries > 0) {
             await new Promise((res) => setTimeout(res, 500));
