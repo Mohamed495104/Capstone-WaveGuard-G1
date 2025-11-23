@@ -25,7 +25,7 @@ export const verifySessionCookie = async (req, res, next) => {
         res.clearCookie('session', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
         });
 
@@ -93,7 +93,7 @@ export const verifyAuth = async (req, res, next) => {
             res.clearCookie('session', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
             });
             // Fall through to try Bearer token
