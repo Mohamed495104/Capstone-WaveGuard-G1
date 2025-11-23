@@ -1,30 +1,8 @@
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import { initializeAI } from "./services/aiService.js";
-import { apiRateLimiter } from "./middleware/rateLimiter.js";
-import challengeRoutes from "./routes/challengeRoutes.js";
-import profileRoutes from "./routes/profileRoutes.js";
-import cleanupRoutes from "./routes/cleanupRoutes.js";
-import dashboardRoutes from "./routes/dashboardRoutes.js";
-import achievementsRoutes from "./routes/achievementsRoutes.js";
-import imageRoutes from "./routes/imageRoutes.js";
-import homeRoutes from "./routes/homeRoutes.js";
-import authRoutes from "./routes/authRoutes.js";
 
 const PORT = process.env.PORT || 5000;
-
-// Apply rate limiting to all API routes (100 requests/min)
-app.use("/api", apiRateLimiter);
-
-// Register API routes
-app.use("/api/auth", authRoutes);  
-app.use("/api/challenges", challengeRoutes);
-app.use("/api/profile", profileRoutes);
-app.use("/api/cleanups", cleanupRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/achievements", achievementsRoutes);
-app.use("/api/images", imageRoutes);
-app.use("/api/home", homeRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).send("Server is running 🚀");

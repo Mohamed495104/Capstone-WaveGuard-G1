@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import routes from './api/index.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
+import { apiRateLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
@@ -20,7 +21,13 @@ app.use(
 app.use(express.json());
 app.use(cookieParser()); // Parse cookies for session authentication
 
+// Apply rate limiting to all API routes (100 requests/min)
+app.use('/api', apiRateLimiter);
+
+// Register all API routes
 app.use('/api', routes);
+
+// Error handling middleware (must be last)
 app.use(errorMiddleware);
 
 export default app;
