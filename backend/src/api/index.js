@@ -1,3 +1,26 @@
+/**
+ * Centralized API Route Registration
+ * 
+ * This module consolidates all API route registrations in one place to prevent
+ * duplicate route registration issues that were causing 404 errors in production.
+ * 
+ * Previously, routes were registered in both:
+ * - server.js (individual registrations)
+ * - app.js (through this index.js)
+ * 
+ * This caused conflicts where requests couldn't match routes properly.
+ * 
+ * All API routes are now registered here and mounted at /api in app.js:
+ * - /api/auth           - Authentication endpoints
+ * - /api/newsletter     - Newsletter subscription
+ * - /api/challenges     - Challenge CRUD and join/leave operations
+ * - /api/profile        - User profile management
+ * - /api/cleanups       - Cleanup uploads and tracking
+ * - /api/dashboard      - Dashboard statistics
+ * - /api/achievements   - User achievements
+ * - /api/images         - Image serving
+ * - /api/home           - Home page data
+ */
 import express from "express";
 import authRoutes from "../routes/authRoutes.js";
 import newsletterRoutes from "../routes/newsletterRoutes.js";

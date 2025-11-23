@@ -49,5 +49,10 @@ export function buildApiUrl(path) {
     return `${baseUrl}${normalizedPath}`;
 }
 
-// Export the base API URL for backward compatibility
-export const API_URL = getApiUrl();
+/**
+ * Export the base API URL
+ * Note: This is a getter function to avoid issues with environment variables
+ * not being available at module load time
+ * @deprecated Use getApiUrl() instead for better control
+ */
+export const API_URL = getApiUrl;
