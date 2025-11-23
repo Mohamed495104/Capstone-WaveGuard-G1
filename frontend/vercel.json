@@ -6,7 +6,7 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "NEXT_PUBLIC_API_URL"="https://marinecareai-lkvub.ondigitalocean.app",
+    "NEXT_PUBLIC_API_URL"="marinecareai-lkvub.ondigitalocean.app",
 "NEXT_PUBLIC_FIREBASE_API_KEY"="AIzaSyDg4mS6DUD1jQYL-0ORUcmVO7vaJg_I1k0",
 "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="waveguard-407d8.firebaseapp.com",
 "NEXT_PUBLIC_FIREBASE_PROJECT_ID"="waveguard-407d8",
