@@ -6,12 +6,12 @@
 
 **Architecture:**
 - Frontend (Next.js 15) → **Vercel** (Best for Next.js, Free tier)
-- Backend (Node.js/Express) → **Railway** or **Render** (Free tier available)
+- Backend (Node.js/Express) → **Railway**, **Render**, or **DigitalOcean** 
 - Database → **MongoDB Atlas** (Free M0 cluster, 512MB)
 - Authentication → **Firebase** (Already configured)
 
 **Estimated Time:** 30-45 minutes  
-**Cost:** $0 (using free tiers)
+**Cost:** $0 (using free tiers) or $5/month DigitalOcean (free with student credit)
 
 ---
 
@@ -24,7 +24,7 @@
 
 ### Production Environment
 - Frontend: `https://your-app.vercel.app`
-- Backend: `https://your-app.railway.app` or `https://your-app.onrender.com`
+- Backend: `https://your-app.railway.app`, `https://your-app.onrender.com`, or `https://your-app.ondigitalocean.app`
 - Database: MongoDB Atlas cloud cluster
 
 ---
@@ -35,7 +35,10 @@ Before you start, make sure you have:
 
 - [x] GitHub repository access
 - [ ] Vercel account (sign up with GitHub at [vercel.com](https://vercel.com))
-- [ ] Railway account ([railway.app](https://railway.app)) OR Render account ([render.com](https://render.com))
+- [ ] Backend hosting account - choose ONE:
+  - [ ] Railway account ([railway.app](https://railway.app))
+  - [ ] Render account ([render.com](https://render.com))
+  - [ ] **DigitalOcean account ([digitalocean.com](https://www.digitalocean.com/)) - Recommended if you have GitHub Student Pack!** 🎓
 - [ ] MongoDB Atlas account ([mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas))
 - [ ] Firebase project credentials (you already have this)
 
@@ -91,9 +94,36 @@ Before you start, make sure you have:
 
 ---
 
-## 🔧 Step 2: Deploy Backend (Railway or Render)
+## 🔧 Step 2: Deploy Backend
 
-### Option A: Railway (Recommended - Simpler)
+**Choose ONE backend hosting option:**
+
+### Option A: DigitalOcean App Platform ⭐ **RECOMMENDED for Students!**
+
+**Why DigitalOcean?**
+- ✅ **$200 GitHub Student Pack credit** = 40 months FREE!
+- ✅ **More storage space** than Render free tier
+- ✅ **No sleep time** - always running
+- ✅ **Better performance** - dedicated resources
+
+**Quick Setup:**
+
+👉 **[Complete DigitalOcean Deployment Guide](./DIGITALOCEAN_DEPLOYMENT.md)** 👈
+
+**TL;DR:**
+1. Sign up at [DigitalOcean.com](https://www.digitalocean.com/)
+2. Activate GitHub Student Pack credit
+3. Create new App → Connect GitHub repo
+4. Source directory: `backend`
+5. Add environment variables (same as below)
+6. Deploy! Get URL: `https://your-app.ondigitalocean.app`
+
+**Cost:** $5/month (FREE for 40 months with student credit!)
+
+---
+
+### Option B: Railway (Good Free Alternative)
+
 
 #### 2.1 Create Railway Project
 
@@ -145,7 +175,7 @@ TESTING_MODE=false
 
 ---
 
-### Option B: Render (Alternative to Railway)
+### Option C: Render (Free Tier with Limitations)
 
 #### 2.1 Create Web Service
 

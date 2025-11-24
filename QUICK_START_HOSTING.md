@@ -35,16 +35,26 @@ Quick version:
 ---
 
 ### Step 2: Deploy Backend (10 min)
-[Follow → HOSTING_INSTRUCTIONS.md Step 2](#)
 
-Quick version:
-1. Sign up at [Railway.app](https://railway.app)
+**Choose ONE option:**
+
+**Option A: DigitalOcean** 🎓 (Recommended for students)
+[Follow → DIGITALOCEAN_DEPLOYMENT.md](./DIGITALOCEAN_DEPLOYMENT.md)
+1. Sign up at [DigitalOcean.com](https://www.digitalocean.com/)
+2. Activate $200 GitHub Student Pack credit
+3. Create App Platform project from GitHub
+4. Add environment variables
+5. Deploy! (40 months FREE with credit)
+
+**Option B: Railway/Render** (Free tiers)
+[Follow → HOSTING_INSTRUCTIONS.md Step 2](./HOSTING_INSTRUCTIONS.md#option-b-railway)
+1. Sign up at [Railway.app](https://railway.app) or [Render.com](https://render.com)
 2. Import GitHub repository
 3. Set root directory to `backend`
 4. Add environment variables
 5. Generate public URL
 
-**Output:** Backend URL (e.g., `https://waveguard-backend.railway.app`)
+**Output:** Backend URL (e.g., `https://waveguard-backend.ondigitalocean.app`)
 
 ---
 

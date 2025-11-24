@@ -1,0 +1,75 @@
+# DigitalOcean App Platform Configuration
+# Auto-deployment configuration for WaveGuard Backend
+
+name: waveguard-backend
+region: nyc
+
+services:
+  - name: api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: Mohamed495104/Capstone-WaveGuard-G1
+    source_dir: /backend
+    
+    # Environment Configuration
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    # basic-xxs: $5/month (512MB RAM, 1 vCPU) - Covered by student credit
+    # Can upgrade to basic-xs ($12/month, 1GB RAM) if needed
+    
+    # Build Configuration
+    build_command: npm ci --omit=dev
+    run_command: npm start
+    
+    # HTTP Configuration
+    http_port: 5000
+    
+    # Health Check
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 60
+      period_seconds: 30
+      timeout_seconds: 10
+      success_threshold: 1
+      failure_threshold: 3
+    
+    # Auto-scaling (optional, for production)
+    # autoscaling:
+    #   min_instance_count: 1
+    #   max_instance_count: 3
+    
+    # Environment Variables (configure these in DigitalOcean dashboard)
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "5000"
+      - key: MONGO_URI
+        scope: RUN_TIME
+        type: SECRET
+      - key: FRONTEND_URL
+        scope: RUN_TIME
+      - key: FIREBASE_PROJECT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: FIREBASE_CLIENT_EMAIL
+        scope: RUN_TIME
+        type: SECRET
+      - key: FIREBASE_PRIVATE_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: LOCATION_VERIFICATION_ENABLED
+        value: "true"
+      - key: LOCATION_MAX_DISTANCE_KM
+        value: "5"
+      - key: TESTING_MODE
+        value: "false"
+      - key: AI_MODEL_CACHE_DIR
+        value: /tmp/ai-models
+
+# Optional: Add alerts for monitoring
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED

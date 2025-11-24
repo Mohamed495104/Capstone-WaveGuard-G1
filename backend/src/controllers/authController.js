@@ -51,85 +51,111 @@ export const checkEmail = async (req, res) => {
  * @access  Public
  */
 export const registerUser = async (req, res) => {
-    const { email, password, name } = req.body;
-
-    // Basic validation
-    if (!email || !password || !name) {
-        return res.status(400).json({ success: false, message: "Please provide email, password, and name" });
-    }
-
-    // Validate email
-    const emailValidation = validateEmail(email);
-    if (!emailValidation.valid) {
-        return res.status(400).json({ success: false, message: emailValidation.error });
-    }
-
-    // Validate password
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.valid) {
-        return res.status(400).json({ success: false, message: passwordValidation.error });
-    }
-
-    // Validate name
-    const nameValidation = validateName(name);
-    if (!nameValidation.valid) {
-        return res.status(400).json({ success: false, message: nameValidation.error });
-    }
-
-    const sanitizedEmail = emailValidation.sanitized;
-    const sanitizedName = nameValidation.sanitized;
-
-    // 1. Check if user already exists in MongoDB
-    const mongoUserExists = await User.findOne({ email: sanitizedEmail });
-    if (mongoUserExists) {
-        return res.status(400).json({ success: false, message: "Email is already registered" });
-    }
-
-    let firebaseUser;
     try {
-        // 2. Create user in Firebase Auth
-        firebaseUser = await admin.auth().createUser({
-            email: sanitizedEmail,
-            password: password,
-            displayName: sanitizedName,
-        });
+        const { email, password, name } = req.body;
 
-        // 3. Create user in MongoDB
-        const newUser = await User.create({
-            firebaseUid: firebaseUser.uid,
-            email: sanitizedEmail,
-            name: sanitizedName,
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "User registered successfully",
-            user: {
-                id: newUser._id,
-                firebaseUid: newUser.firebaseUid,
-                name: newUser.name,
-                email: newUser.email,
-            },
-        });
-
-    } catch (error) {
-        // 4. Rollback: If MongoDB creation fails, delete the Firebase user
-        // This prevents de-synced "ghost" users
-        if (firebaseUser) {
-            await admin.auth().deleteUser(firebaseUser.uid);
-            console.error(`Rollback: Deleted Firebase user ${firebaseUser.uid} due to MongoDB error.`);
+        // Basic validation
+        if (!email || !password || !name) {
+            return res.status(400).json({ success: false, message: "Please provide email, password, and name" });
         }
 
-        console.error("Registration Error:", error);
-        // Handle Firebase-specific errors
-        if (error.code === 'auth/email-already-exists') {
+        // Validate email
+        const emailValidation = validateEmail(email);
+        if (!emailValidation.valid) {
+            return res.status(400).json({ success: false, message: emailValidation.error });
+        }
+
+        // Validate password
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({ success: false, message: passwordValidation.error });
+        }
+
+        // Validate name
+        const nameValidation = validateName(name);
+        if (!nameValidation.valid) {
+            return res.status(400).json({ success: false, message: nameValidation.error });
+        }
+
+        const sanitizedEmail = emailValidation.sanitized;
+        const sanitizedName = nameValidation.sanitized;
+
+        // 1. Check if user already exists in MongoDB
+        const mongoUserExists = await User.findOne({ email: sanitizedEmail });
+        if (mongoUserExists) {
             return res.status(400).json({ success: false, message: "Email is already registered" });
         }
-        if (error.code === 'auth/invalid-password') {
-            return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
-        }
 
-        res.status(500).json({ success: false, message: "Server error during registration" });
+        let firebaseUser;
+        try {
+            // 2. Create user in Firebase Auth
+            firebaseUser = await admin.auth().createUser({
+                email: sanitizedEmail,
+                password: password,
+                displayName: sanitizedName,
+            });
+
+            // 3. Create user in MongoDB
+            const newUser = await User.create({
+                firebaseUid: firebaseUser.uid,
+                email: sanitizedEmail,
+                name: sanitizedName,
+            });
+
+            res.status(201).json({
+                success: true,
+                message: "User registered successfully",
+                user: {
+                    id: newUser._id,
+                    firebaseUid: newUser.firebaseUid,
+                    name: newUser.name,
+                    email: newUser.email,
+                },
+            });
+
+        } catch (error) {
+            // 4. Rollback: If MongoDB creation fails, delete the Firebase user
+            // This prevents de-synced "ghost" users
+            if (firebaseUser) {
+                try {
+                    await admin.auth().deleteUser(firebaseUser.uid);
+                    console.error(`Rollback: Deleted Firebase user ${firebaseUser.uid} due to MongoDB error.`);
+                } catch (rollbackError) {
+                    console.error(`Failed to rollback Firebase user ${firebaseUser.uid}:`, rollbackError);
+                }
+            }
+
+            console.error("Registration Error:", error);
+            // Log detailed error information (only in development to avoid exposing internals)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("Error details:", {
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
+            }
+            
+            // Handle Firebase-specific errors
+            if (error.code === 'auth/email-already-exists') {
+                return res.status(400).json({ success: false, message: "Email is already registered" });
+            }
+            if (error.code === 'auth/invalid-password') {
+                return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
+            }
+
+            return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
+        }
+    } catch (error) {
+        console.error("Unexpected registration error:", error);
+        // Log detailed error information (only in development to avoid exposing internals)
+        if (process.env.NODE_ENV !== 'production') {
+            console.error("Unexpected error details:", {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+        }
+        return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
     }
 };
 
@@ -214,11 +240,13 @@ export const createSessionCookie = async (req, res) => {
         const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
 
         // Set cookie options
+        // For cross-origin requests (Vercel frontend + DigitalOcean backend),
+        // we need sameSite: 'none' and secure: true in production
         const options = {
             maxAge: expiresIn,
             httpOnly: true,  // Not accessible via JavaScript (XSS protection)
             secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-            sameSite: 'strict', // CSRF protection
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
             path: '/',
         };
 
@@ -281,7 +309,7 @@ export const clearSessionCookie = async (req, res) => {
         res.clearCookie('session', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
         });
 
