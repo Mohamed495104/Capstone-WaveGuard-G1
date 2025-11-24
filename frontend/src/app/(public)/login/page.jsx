@@ -258,7 +258,7 @@ export default function LoginPage() {
                     <Grid item xs={12} md={6} lg={5} sx={{ order: { xs: 2, md: 1 }, display: "flex", justifyContent: "center", alignItems: "center" }}>
                         <GlassCard sx={{ width: "100%", maxWidth: 420 }}>
                             <Box textAlign="center" mb={3}>
-                                <Typography variant="h5" fontWeight={700} color="#fff">WaveGuard</Typography>
+                                <Typography variant="h5" fontWeight={700} color="#fff">MarineCare</Typography>
                                 <Typography variant="body2" color="rgba(255,255,255,0.8)">Continue your impact journey</Typography>
                             </Box>
 

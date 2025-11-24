@@ -76,8 +76,8 @@ export default function Navbar() {
                 >
                     <Box
                         component="img"
-                        src="/images/logoblue.png"
-                        alt="WaveGuard"
+                        src="/images/2.png"
+                        alt="MarineCare"
                         sx={{
                             height: 44,
                             width: 44,
@@ -95,7 +95,7 @@ export default function Navbar() {
                             display: { xs: "none", lg: "block" }
                         }}
                     >
-                        WaveGuard
+                        MarineCare
                     </Typography>
                 </Stack>
 

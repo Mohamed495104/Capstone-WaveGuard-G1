@@ -5,7 +5,7 @@ import { JoinedChallengesProvider } from "@/context/JoinedChallengesContext";
 import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
-    title: "WaveGuard - Ocean Conservation Platform",
+    title: "MarineCare - Ocean Conservation Platform",
     description:
         "Join Canada's ocean conservation movement. Track cleanup efforts, classify waste with AI, and protect our coastlines.",
     keywords:
@@ -14,7 +14,7 @@ export const metadata = {
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "WaveGuard",
+        title: "MarineCare",
     },
     icons: {
         icon: "/favicon.ico",
@@ -23,7 +23,7 @@ export const metadata = {
     },
 };
 
-// ✅ New syntax for Next.js 15+ (moved out of metadata)
+// New syntax for Next.js 15+
 export const viewport = {
     width: "device-width",
     initialScale: 1,
@@ -31,7 +31,7 @@ export const viewport = {
     userScalable: true,
 };
 
-// ✅ New dedicated export for theme color
+// New dedicated export for theme color
 export const themeColor = "#0077b6";
 
 export default function RootLayout({ children }) {
@@ -50,7 +50,7 @@ export default function RootLayout({ children }) {
                 href="/images/login-optimized.webp"
                 media="(min-width: 901px)"
             />
-            <link rel="preload" as="image" href="/images/logowhite-optimized.webp" />
+            <link rel="preload" as="image" href="/images/1.png" />
         </head>
         <body
             style={{

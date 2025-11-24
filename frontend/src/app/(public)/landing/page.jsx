@@ -58,7 +58,7 @@ function Page() {
         { label: "Food Wrappers", count: "12%", percentage: 60, desc: "Frequently found in Canadian coastal cleanup efforts" },
     ];
 
-    const whyWaveGuard = [
+    const whyMarineCare = [
         {
             emoji: "🌊",
             title: "Combat Marine Pollution",
@@ -413,7 +413,7 @@ function Page() {
             <Section sx={{ background: "#fff" }}>
                 <Container maxWidth="lg">
                     <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
-                        <SectionBadge>Why WaveGuard?</SectionBadge>
+                        <SectionBadge>Why MarineCare?</SectionBadge>
                         <Typography
                             variant="h3"
                             sx={{
@@ -438,13 +438,13 @@ function Page() {
                             }}
                         >
                             Individual actions alone can't solve the ocean plastic crisis - but organized,
-                            data-driven collective action can. WaveGuard transforms scattered cleanup efforts into
+                            data-driven collective action can. MarineCare transforms scattered cleanup efforts into
                             a coordinated movement with measurable impact.
                         </Typography>
                     </Box>
 
                     <FeatureGrid>
-                        {whyWaveGuard.map((feature, i) => (
+                        {whyMarineCare.map((feature, i) => (
                             <FeatureCard key={i} elevation={0}>
                                 <Box sx={{
                                     display: "flex",
@@ -505,7 +505,7 @@ function Page() {
                                     mb: 3
                                 }}
                             >
-                                WaveGuard exists to bridge the gap between individual concern and collective action.
+                                MarineCare exists to bridge the gap between individual concern and collective action.
                                 We provide the tools, community, and data infrastructure needed to turn beach cleanups
                                 into a powerful force for environmental change across Canada.
                             </Typography>

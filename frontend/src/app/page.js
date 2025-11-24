@@ -121,8 +121,8 @@ export default function HomePage() {
           }}
         >
           <Image
-            src="/images/logowhite-optimized.webp"
-            alt="WaveGuard Logo"
+            src="/images/1.png"
+            alt="MarineCare Logo"
             fill
             priority
             sizes="100px"
@@ -157,7 +157,7 @@ export default function HomePage() {
             },
           }}
         >
-          Welcome to WaveGuard
+          Welcome to MarineCare
         </Typography>
 
         {/* Subtitle with fade-in animation */}
