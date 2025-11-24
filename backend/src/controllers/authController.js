@@ -281,11 +281,12 @@ export const createSessionCookie = async (req, res) => {
         // Set cookie options
         // For cross-origin requests (Vercel frontend + DigitalOcean backend),
         // we need sameSite: 'none' and secure: true in production
+        // For development (localhost), we use sameSite: 'lax' and secure: false
         const cookieOptions = {
             maxAge: expiresIn,
             httpOnly: true,
-            secure: true,           // Always true on HTTPS
-            sameSite: 'none',       // Required for cross-origin
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
         };
 
@@ -365,8 +366,8 @@ export const clearSessionCookie = async (req, res) => {
         // Clear the session cookie
         res.clearCookie('session', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'none',
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/',
         });
 
