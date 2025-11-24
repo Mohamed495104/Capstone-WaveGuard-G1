@@ -395,7 +395,7 @@ export const createChallenge = async (req, res) => {
             locationName,
             province,
             region,
-            goal: parseInt(goal, 10),
+            goal: Math.round(Number(goal)),
             goalUnit,
             startDate: start,
             endDate: end,

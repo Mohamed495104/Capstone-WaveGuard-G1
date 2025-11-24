@@ -15,6 +15,11 @@ import {
   Alert,
   Snackbar,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 
 import PeopleIcon from "@mui/icons-material/People";
@@ -43,24 +48,64 @@ function ChallengeDetailsPage({ params }) {
 
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
 
+  // Handle leave challenge
+  const handleLeaveChallenge = async () => {
+    try {
+      setIsLeaving(true);
+      await leaveChallenge(challenge._id);
+      setLeaveDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: "You have left the challenge",
+        severity: "success",
+      });
+      // Refresh challenge data to update volunteer count
+      fetchChallenge(false);
+    } catch (error) {
+      console.error("Error leaving challenge:", error);
+      setSnackbar({
+        open: true,
+        message: error.message || "Failed to leave challenge",
+        severity: "error",
+      });
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
   // Helper: Get proper banner image URL
   const getBannerImageUrl = (bannerImage) => {
-    if (!bannerImage) return "";
+    if (!bannerImage) return "/images/placeholder-challenge.jpg";
     
+    // Already full URL
     if (bannerImage.startsWith("http://") || bannerImage.startsWith("https://")) {
       return bannerImage;
     }
     
+    // Static files from /public (e.g., /challangeimg/img1.jpg)
+    if (bannerImage.startsWith("/challangeimg/")) {
+      return bannerImage; // Served directly by Next.js from public folder
+    }
+    
+    // API routes for GridFS images (e.g., /api/images/123)
     if (bannerImage.startsWith("/api/")) {
       return `${process.env.NEXT_PUBLIC_API_URL}${bannerImage}`;
     }
     
+    // Any other path that doesn't start with / - likely a relative API path
+    if (!bannerImage.startsWith("/")) {
+      return `${process.env.NEXT_PUBLIC_API_URL}/${bannerImage}`;
+    }
+    
+    // Default: assume it's an API path
     return `${process.env.NEXT_PUBLIC_API_URL}${bannerImage}`;
   };
 
@@ -399,6 +444,27 @@ function ChallengeDetailsPage({ params }) {
                     Upload Cleanup
                   </Button>
                 )}
+                <Button
+                  variant="outlined"
+                  onClick={() => setLeaveDialogOpen(true)}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                    borderRadius: 2,
+                    py: 1.2,
+                    px: 3,
+                    borderColor: "rgba(239, 68, 68, 0.6)",
+                    color: "#ef4444",
+                    bgcolor: "rgba(239, 68, 68, 0.1)",
+                    "&:hover": { 
+                      bgcolor: "rgba(239, 68, 68, 0.2)",
+                      borderColor: "#ef4444",
+                    },
+                  }}
+                >
+                  Leave Challenge
+                </Button>
               </>
             ) : (
               <Button
@@ -858,6 +924,36 @@ function ChallengeDetailsPage({ params }) {
           </Grid>
         </Paper>
       </Container>
+
+      {/* Leave Challenge Confirmation Dialog */}
+      <Dialog
+        open={leaveDialogOpen}
+        onClose={() => setLeaveDialogOpen(false)}
+        aria-labelledby="leave-dialog-title"
+        aria-describedby="leave-dialog-description"
+      >
+        <DialogTitle id="leave-dialog-title">
+          Leave Challenge?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="leave-dialog-description">
+            Are you sure you want to leave "{challenge?.title}"? You can always rejoin later.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLeaveDialogOpen(false)} disabled={isLeaving}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleLeaveChallenge} 
+            color="error" 
+            variant="contained"
+            disabled={isLeaving}
+          >
+            {isLeaving ? "Leaving..." : "Leave Challenge"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Snackbar */}
       <Snackbar
