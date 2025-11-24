@@ -395,7 +395,7 @@ export const createChallenge = async (req, res) => {
             locationName,
             province,
             region,
-            goal: Math.round(Number(goal)),
+            goal: Number(String(goal).trim()),
             goalUnit,
             startDate: start,
             endDate: end,
@@ -409,6 +409,9 @@ export const createChallenge = async (req, res) => {
             totalVolunteers: 0,
             createdBy: req.mongoUser?._id
         });
+
+        // Debug: Log the goal value being saved
+        console.log("[Challenge] Creating with goal:", newChallenge.goal, "from input:", goal);
 
         await newChallenge.save();
 

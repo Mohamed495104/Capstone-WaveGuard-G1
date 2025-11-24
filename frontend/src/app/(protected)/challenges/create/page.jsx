@@ -241,7 +241,7 @@ function CreateChallengePage() {
       locationName: form.locationName,
       province: form.province,
       region: form.region,
-      goal: Math.round(Number(form.goal)),
+      goal: Number(String(form.goal).trim()),
       startDate,
       endDate,
       latitude: userLocation.latitude,
@@ -256,6 +256,9 @@ function CreateChallengePage() {
         coordinates: [Number(userLocation.longitude), Number(userLocation.latitude)],
       },
     };
+
+    // Debug: Log the goal value being sent
+    console.log("Creating challenge with goal:", payload.goal, "from form value:", form.goal);
 
     try {
       await apiCall("post", `${process.env.NEXT_PUBLIC_API_URL}/api/challenges`, payload);
