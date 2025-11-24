@@ -8,6 +8,7 @@ import axios from "axios";
 const AuthContext = createContext();
 
 // Helper: Create session cookie (HttpOnly, XSS-safe)
+// This also syncs the user to MongoDB on the backend
 async function createSession(idToken, retries = 2) {
     try {
         await axios.post(
@@ -24,7 +25,8 @@ async function createSession(idToken, retries = 2) {
     }
 }
 
-// Helper: Sync user with backend (legacy support)
+// Helper: Sync user with backend (for backward compatibility with old auth flow)
+// Note: This is kept for compatibility but may be deprecated in favor of createSession
 async function syncUser(idToken, retries = 2) {
     try {
         await axios.post(
@@ -52,10 +54,10 @@ export function AuthProvider({ children }) {
             try {
                 const result = await getRedirectResult(auth);
                 if (result && result.user) {
-                    // User signed in via redirect, create session cookie and sync with backend
+                    // User signed in via redirect
+                    // Create session cookie (this also syncs user to MongoDB on backend)
                     const idToken = await result.user.getIdToken(true);
                     await createSession(idToken);
-                    await syncUser(idToken);
                     setAuthVersion(prev => prev + 1); // Increment version on auth change
                 }
             } catch (error) {
