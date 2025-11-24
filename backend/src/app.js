@@ -9,10 +9,22 @@ dotenv.config();
 
 const app = express();
 
+// Build array of allowed origins, removing duplicates and empty values
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://capstone-marinecare.vercel.app",
+    process.env.FRONTEND_URL,
+].filter(Boolean); // Remove undefined/null values
+
+// Remove duplicates
+const uniqueOrigins = [...new Set(allowedOrigins)];
+
+console.log("🔒 CORS allowed origins:", uniqueOrigins);
+
 // Only allow trusted frontend origins for CORS
 app.use(
     cors({
-        origin: ["http://localhost:3000", "https://capstone-marinecare.vercel.app", process.env.FRONTEND_URL].filter(Boolean),
+        origin: uniqueOrigins,
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true, // Required for cookies
         allowedHeaders: ["Content-Type", "Authorization"],
