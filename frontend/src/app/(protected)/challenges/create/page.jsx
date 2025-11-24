@@ -241,7 +241,7 @@ function CreateChallengePage() {
       locationName: form.locationName,
       province: form.province,
       region: form.region,
-      goal: Number(form.goal),
+      goal: parseInt(form.goal, 10),
       startDate,
       endDate,
       latitude: userLocation.latitude,

@@ -89,7 +89,7 @@ export const getChallengeById = async (req, res) => {
             return res.status(400).json({ message: "Invalid challenge ID" });
         }
 
-        const challenge = await Challenge.findById(id);
+        const challenge = await Challenge.findById(id).populate('createdBy', 'name email profileImage');
         
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
@@ -353,18 +353,26 @@ export const createChallenge = async (req, res) => {
                         longitude: parseFloat(userLongitude)
                     };
 
-                    // Validate user is near a shoreline (using challenge location as reference)
-                    const isValid = await validateLocation(
-                        userLocation.latitude,
-                        userLocation.longitude,
-                        challengeLocation.latitude,
-                        challengeLocation.longitude
+                    // Validate user is near the challenge location
+                    const userLocationObj = {
+                        latitude: userLocation.latitude,
+                        longitude: userLocation.longitude
+                    };
+                    
+                    const challengeLocationObj = {
+                        coordinates: [challengeLocation.longitude, challengeLocation.latitude] // GeoJSON format [lng, lat]
+                    };
+                    
+                    const validation = validateLocation(
+                        userLocationObj,
+                        challengeLocationObj,
+                        getMaxAllowedDistance()
                     );
 
-                    if (!isValid) {
+                    if (!validation.isValid) {
                         const maxDistance = getMaxAllowedDistance();
                         return res.status(403).json({ 
-                            message: `You must be within ${maxDistance}km of a shoreline to create a challenge` 
+                            message: `You must be within ${maxDistance}km of the challenge location to create a challenge. You are ${validation.distance}km away.` 
                         });
                     }
                 }
@@ -387,7 +395,7 @@ export const createChallenge = async (req, res) => {
             locationName,
             province,
             region,
-            goal: Number(goal),
+            goal: parseInt(goal, 10),
             goalUnit,
             startDate: start,
             endDate: end,

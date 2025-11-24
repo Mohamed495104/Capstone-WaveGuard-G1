@@ -6,24 +6,35 @@ import { usePathname, useRouter } from "next/navigation";
 import { navItems } from "./navConfig";
 import PersonOutline from "@mui/icons-material/PersonOutline";
 import { apiCall } from "@/utils/api";
+import { useAuthContext } from "@/context/AuthContext";
 
 export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
+    const { user: authUser, authVersion } = useAuthContext(); // Get auth context for profile sync
     const [profileImage, setProfileImage] = useState('');
     const isActive = (path) => (path === "/" ? pathname === "/" : pathname?.startsWith(path));
 
-    // Fetch user profile to get profile image
+    // Fetch user profile to get profile image - re-fetch when auth changes
     useEffect(() => {
         const fetchUserProfile = async () => {
+            // Clear profile image if no user
+            if (!authUser?.uid) {
+                setProfileImage('');
+                return;
+            }
+            
             try {
-                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                // Disable cache to always get fresh profile data
+                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
                 if (res?.data?.profileImage) {
                     // Ensure profile image URL is properly formatted
                     const imageUrl = res.data.profileImage.startsWith('http') 
                         ? res.data.profileImage 
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
                     setProfileImage(imageUrl);
+                } else {
+                    setProfileImage('');
                 }
             } catch (error) {
                 if (error.isRateLimitError) {
@@ -31,12 +42,13 @@ export default function Navbar() {
                 } else {
                     console.error('Failed to fetch profile:', error);
                 }
-                // Keep default empty string on error
+                // Clear profile image on error
+                setProfileImage('');
             }
         };
 
         fetchUserProfile();
-    }, []);
+    }, [authUser?.uid, authVersion]); // Re-fetch when auth user or version changes
 
     return (
         <AppBar

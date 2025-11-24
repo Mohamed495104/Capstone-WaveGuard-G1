@@ -309,18 +309,6 @@ function ChallengeDetailsPage({ params }) {
                 fontSize: "0.75rem",
               }}
             />
-            <Chip
-              label="Beginner Friendly"
-              size="small"
-              sx={{
-                bgcolor: "rgba(15,23,42,0.6)",
-                color: "#e5e7eb",
-                borderColor: "rgba(148,163,184,0.4)",
-                borderWidth: 1,
-                borderStyle: "solid",
-                fontSize: "0.75rem",
-              }}
-            />
           </Stack>
 
           <Typography
@@ -361,6 +349,13 @@ function ChallengeDetailsPage({ params }) {
                 {challenge.totalVolunteers.toLocaleString()} volunteers
               </Typography>
             </Stack>
+            {challenge.createdBy && (
+              <Stack direction="row" alignItems="center" spacing={0.75}>
+                <Typography component="span" sx={{ opacity: 0.8 }}>
+                  Created by: {challenge.createdBy.name || 'Unknown'}
+                </Typography>
+              </Stack>
+            )}
           </Stack>
 
           {/* Join/Upload Buttons */}
