@@ -34,6 +34,11 @@ const ProfilePage = () => {
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+    
+    // Profile update state
+    const [profileUpdateSuccess, setProfileUpdateSuccess] = useState('');
+    const [profileUpdateError, setProfileUpdateError] = useState('');
+    const [savingProfile, setSavingProfile] = useState(false);
 
     // User profile state
     const [userProfile, setUserProfile] = useState({
@@ -359,6 +364,10 @@ const ProfilePage = () => {
 
     const handleSaveProfile = async () => {
         try {
+            setSavingProfile(true);
+            setProfileUpdateError('');
+            setProfileUpdateSuccess('');
+            
             const updateData = {
                 name: editProfile.name,
                 location: editProfile.location,
@@ -368,8 +377,14 @@ const ProfilePage = () => {
             await apiCall('patch', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, updateData);
             await fetchProfile(); // Refetch profile to sync latest data
             setIsEditing(false);
+            setProfileUpdateSuccess('Profile updated successfully!');
+            // Clear success message after 5 seconds
+            setTimeout(() => setProfileUpdateSuccess(''), 5000);
         } catch (error) {
             console.error('Failed to update profile:', error);
+            setProfileUpdateError('Failed to update profile. Please try again.');
+        } finally {
+            setSavingProfile(false);
         }
     };
 
@@ -611,6 +626,18 @@ const ProfilePage = () => {
                     {/* Tab Content */}
                     {activeTab === 'profile' && (
                         <Box sx={styles.tabContent}>
+                            {/* Profile Update Success/Error Messages */}
+                            {profileUpdateSuccess && (
+                                <Alert severity="success" sx={{ mb: 3, fontSize: '14px' }} onClose={() => setProfileUpdateSuccess('')}>
+                                    {profileUpdateSuccess}
+                                </Alert>
+                            )}
+                            {profileUpdateError && (
+                                <Alert severity="error" sx={{ mb: 3, fontSize: '14px' }} onClose={() => setProfileUpdateError('')}>
+                                    {profileUpdateError}
+                                </Alert>
+                            )}
+                            
                             {/* Personal Information */}
                             <Box sx={styles.section}>
                                 <Box sx={styles.sectionHeader}>
@@ -799,11 +826,18 @@ const ProfilePage = () => {
 
                                 {isEditing && (
                                     <Box sx={styles.buttonGroup}>
-                                        <Button sx={styles.cancelButton} onClick={handleEditProfile}>
+                                        <Button sx={styles.cancelButton} onClick={handleEditProfile} disabled={savingProfile}>
                                             Cancel
                                         </Button>
-                                        <Button sx={styles.saveButton} onClick={handleSaveProfile}>
-                                            Save Changes
+                                        <Button sx={styles.saveButton} onClick={handleSaveProfile} disabled={savingProfile}>
+                                            {savingProfile ? (
+                                                <>
+                                                    <CircularProgress size={16} sx={{ color: '#ffffff', mr: 1 }} />
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                'Save Changes'
+                                            )}
                                         </Button>
                                     </Box>
                                 )}
