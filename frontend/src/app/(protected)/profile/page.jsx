@@ -93,7 +93,8 @@ const ProfilePage = () => {
 
     async function fetchProfile() {
         try {
-            const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+            // Disable cache to always get fresh profile data (important for user switching)
+            const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
             if (res?.data) {
                 // Ensure profile image URL is properly formatted
                 const profileImage = res.data.profileImage 

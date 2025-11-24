@@ -51,7 +51,8 @@ function HomePage() {
             setUser(null);
             
             try {
-                const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                // Disable cache to always get fresh profile data (important for user switching)
+                const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
                 if (response?.data) {
                     setUser(response.data);
                 }

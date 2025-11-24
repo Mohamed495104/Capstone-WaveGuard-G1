@@ -1,6 +1,8 @@
 import Challenge from "../models/Challenge.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
+import { Readable } from "stream";
+import { gridfsBucket } from "../config/db.js";
 import { 
     validateLocation, 
     shouldBypassLocationCheck, 
@@ -289,5 +291,175 @@ export const getJoinedChallenges = async (req, res) => {
     } catch (error) {
         console.error("Error fetching joined challenges:", error);
         res.status(500).json({ message: "Server Error" });
+    }
+};
+
+// @desc    Create a new challenge
+// @route   POST /api/challenges
+// @access  Private (authenticated users)
+export const createChallenge = async (req, res) => {
+    try {
+        const {
+            title,
+            description,
+            locationName,
+            province,
+            region,
+            goal,
+            startDate,
+            endDate,
+            latitude,
+            longitude,
+            bannerImage,
+            goalUnit = "items"
+        } = req.body;
+
+        // Validate required fields
+        if (!title || !locationName || !province || !goal || !startDate || !endDate || !latitude || !longitude) {
+            return res.status(400).json({ 
+                message: "Missing required fields: title, locationName, province, goal, startDate, endDate, latitude, longitude" 
+            });
+        }
+
+        // Validate dates
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (start >= end) {
+            return res.status(400).json({ 
+                message: "End date must be after start date" 
+            });
+        }
+
+        // Location verification for challenge creation
+        // Only verify if location verification is enabled
+        if (isLocationVerificationEnabled()) {
+            // Check if user should bypass location check
+            const userEmail = req.user?.email || req.mongoUser?.email;
+            const shouldBypass = shouldBypassLocationCheck(userEmail);
+
+            if (!shouldBypass) {
+                // User provided location for the challenge center
+                const challengeLocation = {
+                    latitude: parseFloat(latitude),
+                    longitude: parseFloat(longitude)
+                };
+
+                // Get user's current location from request body (if provided)
+                const { userLatitude, userLongitude } = req.body;
+                
+                if (userLatitude && userLongitude) {
+                    const userLocation = {
+                        latitude: parseFloat(userLatitude),
+                        longitude: parseFloat(userLongitude)
+                    };
+
+                    // Validate user is near a shoreline (using challenge location as reference)
+                    const isValid = await validateLocation(
+                        userLocation.latitude,
+                        userLocation.longitude,
+                        challengeLocation.latitude,
+                        challengeLocation.longitude
+                    );
+
+                    if (!isValid) {
+                        const maxDistance = getMaxAllowedDistance();
+                        return res.status(403).json({ 
+                            message: `You must be within ${maxDistance}km of a shoreline to create a challenge` 
+                        });
+                    }
+                }
+            }
+        }
+
+        // Determine initial status based on start date
+        const now = new Date();
+        let status = 'active';
+        if (start > now) {
+            status = 'upcoming';
+        } else if (end < now) {
+            status = 'completed';
+        }
+
+        // Create new challenge
+        const newChallenge = new Challenge({
+            title,
+            description,
+            locationName,
+            province,
+            region,
+            goal: Number(goal),
+            goalUnit,
+            startDate: start,
+            endDate: end,
+            status,
+            location: {
+                type: "Point",
+                coordinates: [parseFloat(longitude), parseFloat(latitude)]
+            },
+            bannerImage: bannerImage || "",
+            totalTrashCollected: 0,
+            totalVolunteers: 0,
+            createdBy: req.mongoUser?._id
+        });
+
+        await newChallenge.save();
+
+        res.status(201).json({
+            message: "Challenge created successfully",
+            challenge: newChallenge
+        });
+    } catch (error) {
+        console.error("Error creating challenge:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+// Helper function to upload image to GridFS
+function uploadImageToGridFS(buffer, filename) {
+    if (!gridfsBucket) {
+        throw new Error("GridFS bucket not initialized");
+    }
+    return new Promise((resolve, reject) => {
+        const readable = new Readable();
+        readable.push(buffer);
+        readable.push(null);
+
+        const uploadStream = gridfsBucket.openUploadStream(filename, {
+            contentType: 'image/jpeg'
+        });
+
+        readable.pipe(uploadStream);
+
+        uploadStream.on('finish', () => {
+            resolve(uploadStream.id.toString());
+        });
+
+        uploadStream.on('error', (error) => {
+            reject(error);
+        });
+    });
+}
+
+// @desc    Upload challenge banner image
+// @route   POST /api/challenges/upload-banner
+// @access  Private (authenticated users)
+export const uploadBanner = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No image file provided" });
+        }
+
+        const { buffer, originalname } = req.file;
+        
+        // Upload to GridFS
+        const fileId = await uploadImageToGridFS(buffer, originalname || "challenge-banner.jpg");
+        
+        // Return the image ID
+        res.status(200).json({
+            message: "Banner uploaded successfully",
+            bannerImage: `/api/images/${fileId}`
+        });
+    } catch (error) {
+        console.error("Error uploading banner:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
