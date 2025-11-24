@@ -52,7 +52,7 @@ export const BackgroundStyle = {
 // Primary CTA button
 export const PrimaryButtonStyle = {
     background: "#fff",
-    color: "#0891b2",
+    color: "#046d87ff",
     fontWeight: 700,
     py: 1.3,
     borderRadius: "10px",

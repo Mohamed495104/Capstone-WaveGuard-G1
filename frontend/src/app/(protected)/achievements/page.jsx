@@ -13,6 +13,8 @@ import { getAuth } from "firebase/auth";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import TimelineIcon from "@mui/icons-material/Timeline";
+import StarIcon from "@mui/icons-material/Star";
+
 import axios from "axios";
 
 import { PageContainerStyle, HeaderBoxStyle, HeaderTitleStyle, HeaderSubtitleStyle } from "./achievements.styles";
@@ -136,7 +138,7 @@ function AchievementsPage() {
                                 { icon: <EmojiEventsIcon sx={{ color: "#00a6d6" }} />, label: "Achievements", value: stats.achievements },
                                 { icon: <TimelineIcon sx={{ color: "#10b981" }} />, label: "Total Points", value: stats.totalPoints },
                                 { icon: <LeaderboardIcon sx={{ color: "#f59e0b" }} />, label: "Rank", value: stats.rank },
-                                { icon: "🌟", label: "Completion", value: stats.completion },
+                                { icon:<StarIcon sx={{ color: "#fbbf24" }} />, label: "Completion", value: stats.completion },
                             ].map((stat, i) => (
                                 <Box
                                     key={i}
@@ -154,10 +156,10 @@ function AchievementsPage() {
                                         },
                                     }}
                                 >
-                                    <Typography variant="h4" fontWeight={700} mb={1}>
+                                    <Typography fontWeight={700} mb={1}>
                                         {stat.icon}
                                     </Typography>
-                                    <Typography fontSize={15} color="#475569" mb={0.5}>
+                                    <Typography fontSize={15} variant="h4" color="#475569" mb={0.5}>
                                         {stat.label}
                                     </Typography>
                                     <Typography variant="h5" color="#0077b6" fontWeight={700}>
@@ -246,7 +248,7 @@ function AchievementsPage() {
                                                 variant="caption"
                                                 sx={{
                                                     backgroundColor: m.completed ? "#6ee7b7" : "#e0f7fa",
-                                                    color: m.completed ? "#065f46" : "#0077b6",
+                                                    color: m.completed ? "#065f46" : "#025074ff",
                                                     borderRadius: "6px",
                                                     px: 1.5,
                                                     py: 0.5,
@@ -272,7 +274,7 @@ function AchievementsPage() {
                                     >
                                         <Typography
                                             variant="subtitle2"
-                                            color="#0369a1"
+                                            color="#025074ff"
                                             fontWeight={700}
                                             mb={1}
                                         >

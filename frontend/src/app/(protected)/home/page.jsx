@@ -1,303 +1,376 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import withAuth from '@/components/auth/withAuth';
-import { Box, Typography, Grid, Card, CircularProgress } from "@mui/material";
+    "use client";
+    import React, { useState, useEffect } from "react";
+    import Image from "next/image";
+    import { useRouter } from "next/navigation";
+    import withAuth from '@/components/auth/withAuth';
+    import { Box, Typography, Grid, Card, CircularProgress } from "@mui/material";
 
-import {
-    HeroSection,
-    HeroOverlay,
-    HeroTag,
-    HeroTitle,
-    HeroDesc,
-    HeroButtons,
-    PrimaryButton,
-    OutlineButton,
-    StatsBox,
-    WorkSection,
-    WorkBadge,
-    WorkGrid,
-    WorkCard,
-    CleanSection,
-    CleanBox,
-    CleanText,
-    MissionSection,
-    MissionContent,
-    MissionButton,
-} from "./home.styles";
+    import {
+        HeroSection,
+        HeroOverlay,
+        HeroTag,
+        HeroTitle,
+        HeroDesc,
+        HeroButtons,
+        PrimaryButton,
+        OutlineButton,
+        StatsBox,
+        WorkSection,
+        WorkBadge,
+        WorkGrid,
+        WorkCard,
+        CleanSection,
+        CleanBox,
+        CleanText,
+        MissionSection,
+        MissionContent,
+        MissionButton,
+    } from "./home.styles";
 
-function HomePage() {
-    const router = useRouter();
-    const [stats, setStats] = useState({
-        totalItemsCollected: 0,
-        activeContributors: 0,
-        liveChallenges: 0,
-        totalWasteKg: 0,
-        beachesCleaned: 0
-    });
-    const [loading, setLoading] = useState(true);
+    function HomePage() {
+        const router = useRouter();
+        const [stats, setStats] = useState({
+            totalItemsCollected: 0,
+            activeContributors: 0,
+            liveChallenges: 0,
+            totalWasteKg: 0,
+            beachesCleaned: 0
+        });
+        const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/home/stats`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setStats(data);
+        useEffect(() => {
+            const fetchStats = async () => {
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/home/stats`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        setStats(data);
+                    }
+                } catch (error) {
+                    console.error("Error fetching home stats:", error);
+                } finally {
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error("Error fetching home stats:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchStats();
-    }, []);
+            fetchStats();
+        }, []);
 
-    return (
-        <>
+        return (
+            <>
+                {/* HERO SECTION */}
+                <HeroSection>
+                    <HeroOverlay>
+                        <HeroTag>WaveGuard Platform</HeroTag>
 
-            {/* HERO SECTION */}
-            <HeroSection>
-                <HeroOverlay>
-                    <HeroTag>WaveGuard Platform</HeroTag>
-                    <HeroTitle>
-                        Welcome to Your <br />
-                        <span style={{ color: "#67e8c3" }}>Impact Dashboard</span>
-                    </HeroTitle>
-                    <HeroDesc>
-                        Track your contributions, join cleanup challenges, and connect with 
-                        volunteers making a difference. Your efforts are creating real change 
-                        across Canada's coastlines.
-                    </HeroDesc>
-                    <HeroButtons>
-                        <PrimaryButton onClick={() => router.push('/challenges')}>
-                            Browse Challenges
-                        </PrimaryButton>
-                        <OutlineButton onClick={() => router.push('/upload')}>
-                            Upload Cleanup
-                        </OutlineButton>
-                    </HeroButtons>
+                        {/* H1 – Main Page Title */}
+                        <HeroTitle as="h1">
+                            Welcome to Your <br />
+                            <span style={{ color: "#65dcbdff" }}>Impact Dashboard</span>
+                        </HeroTitle>
 
-                    <StatsBox>
-                        {loading ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                                <CircularProgress size={30} sx={{ color: '#fff' }} />
-                            </Box>
-                        ) : (
-                            <>
-                                <Box>
-                                    <Typography variant="h5" color="#fff" fontWeight={700}>
-                                        {stats.totalItemsCollected.toLocaleString()}
-                                    </Typography>
-                                    <Typography color="#d0eaf0">Total Items Classified</Typography>
-                                </Box>
-                                <Box>
-                                    <Typography variant="h5" color="#fff" fontWeight={700}>
-                                        {stats.activeContributors.toLocaleString()}
-                                    </Typography>
-                                    <Typography color="#d0eaf0">Active Contributors</Typography>
-                                </Box>
-                                <Box>
-                                    <Typography variant="h5" color="#fff" fontWeight={700}>
-                                        {stats.liveChallenges}
-                                    </Typography>
-                                    <Typography color="#d0eaf0">Live Challenges</Typography>
-                                </Box>
-                            </>
-                        )}
-                    </StatsBox>
-                </HeroOverlay>
-            </HeroSection>
+                        <HeroDesc>
+                            Track your contributions, join cleanup challenges, and connect with
+                            volunteers making a difference. Your efforts are creating real change
+                            across Canada's coastlines.
+                        </HeroDesc>
 
-            {/* HOW TO USE THE APP */}
-            <WorkSection>
-                <WorkBadge>Getting Started</WorkBadge>
-                <Typography variant="h4" fontWeight={700} color="#003554" mb={1}>
-                    How to Use WaveGuard
-                </Typography>
-                <Typography color="#004b63" mb={6} maxWidth="700px" margin="0 auto 48px">
-                    Follow these simple steps to start making an impact. Our AI-powered platform 
-                    makes it easy to track and share your cleanup efforts.
-                </Typography>
+                        <HeroButtons>
+                            <PrimaryButton onClick={() => router.push('/challenges')}>
+                                Browse Challenges
+                            </PrimaryButton>
+                            <OutlineButton onClick={() => router.push('/upload')}>
+                                Upload Cleanup
+                            </OutlineButton>
+                        </HeroButtons>
 
-                <WorkGrid>
-                    {[
-                        {
-                            img: "/images/challenges.png",
-                            title: "1. Join a Challenge",
-                            desc: "Browse active cleanup challenges in your area and join the ones that interest you.",
-                        },
-                        {
-                            img: "/images/cleanup-optimized.webp",
-                            title: "2. Collect Waste",
-                            desc: "Participate in beach or shoreline cleanups and collect marine debris.",
-                        },
-                        {
-                            img: "/images/ai-detection.png",
-                            title: "3. Upload & Classify",
-                            desc: "Take photos of collected items. Our AI instantly identifies and categorizes waste types.",
-                        },
-                        {
-                            img: "/images/track.png",
-                            title: "4. Track Impact",
-                            desc: "View your statistics, earn badges, and see how you're contributing to ocean conservation.",
-                        },
-                    ].map((card, i) => (
-                        <WorkCard key={i}>
-                            <Image src={card.img} alt={card.title} width={64} height={64} />
-                            <Typography variant="h6" color="#0077b6" mt={1} mb={1}>
-                                {card.title}
-                            </Typography>
-                            <Typography color="#004b63" fontSize="14px" lineHeight={1.6}>
-                                {card.desc}
-                            </Typography>
-                        </WorkCard>
-                    ))}
-                </WorkGrid>
-            </WorkSection>
-
-            {/* COMMUNITY STATS */}
-            <CleanSection>
-                <CleanBox>
-                    <Box sx={{ maxWidth: 500, textAlign: 'center' }}>
-                        <Image
-                            src="/images/community.png"
-                            alt="Community Impact"
-                            width={280}
-                            height={280}
-                            style={{ borderRadius: 12 }}
-                        />
-                    </Box>
-                    <CleanText>
-                        <span className="badge">Our Community</span>
-                        <h3>Volunteer Contributions So Far</h3>
-                        <p>
-                            Together, our community has made incredible progress in protecting 
-                            Canada's coastlines. Here's what we've accomplished as a team.
-                        </p>
-                        <Box sx={{ mt: 3 }}>
+                        <StatsBox>
                             {loading ? (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-                                    <CircularProgress size={30} />
+                                <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                                    <CircularProgress size={30} sx={{ color: '#fff' }} />
                                 </Box>
                             ) : (
-                                [
-                                    { label: "Items Collected & Classified", value: stats.totalItemsCollected.toLocaleString(), color: "#0077b6" },
-                                    { label: "Total Waste Removed", value: `${stats.totalWasteKg.toLocaleString()} kg`, color: "#00a6d6" },
-                                    { label: "Active Volunteers This Month", value: stats.activeContributors.toLocaleString(), color: "#67e8c3" },
-                                    { label: "Beaches & Shorelines Cleaned", value: stats.beachesCleaned.toLocaleString(), color: "#51cf66" },
-                                ].map((stat, i) => (
-                                    <Box key={i} sx={{ mb: 2 }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                            <Typography variant="body2" fontWeight={600} color="#003554">
-                                                {stat.label}
-                                            </Typography>
-                                            <Typography variant="body2" fontWeight={700} color={stat.color}>
-                                                {stat.value}
-                                            </Typography>
-                                        </Box>
+                                <>
+                                    <Box>
+                                        <Typography variant="h4" color="#fff" fontWeight={700}>
+                                            {stats.totalItemsCollected.toLocaleString()}
+                                        </Typography>
+                                        <Typography color="#d0eaf0">Total Items Classified</Typography>
                                     </Box>
-                                ))
+                                    <Box>
+                                        <Typography variant="h4" color="#fff" fontWeight={700}>
+                                            {stats.activeContributors.toLocaleString()}
+                                        </Typography>
+                                        <Typography color="#d0eaf0">Active Contributors</Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography variant="h4" color="#fff" fontWeight={700}>
+                                            {stats.liveChallenges}
+                                        </Typography>
+                                        <Typography color="#d0eaf0">Live Challenges</Typography>
+                                    </Box>
+                                </>
                             )}
+                        </StatsBox>
+                    </HeroOverlay>
+                </HeroSection>
+
+                {/* HOW TO USE THE APP */}
+                <WorkSection>
+                    <WorkBadge>Getting Started</WorkBadge>
+
+                    {/* H2 – Section Title */}
+                    <Typography component="h2" variant="h4" fontWeight={700} color="#003554" mb={1}>
+                        How to Use WaveGuard
+                    </Typography>
+
+                    <Typography color="#004b63" mb={6} maxWidth="700px" margin="0 auto 48px">
+                        Follow these simple steps to start making an impact. Our AI-powered platform
+                        makes it easy to track and share your cleanup efforts.
+                    </Typography>
+
+                    <WorkGrid>
+                        {[
+                            {
+                                img: "/images/challenges.png",
+                                title: "1. Join a Challenge",
+                                desc: "Browse active cleanup challenges in your area and join the ones that interest you.",
+                                alt: "People participating in an outdoor cleanup challenge"
+                            },
+                            {
+                                img: "/images/cleanup-optimized.webp",
+                                title: "2. Collect Waste",
+                                desc: "Participate in beach or shoreline cleanups and collect marine debris.",
+                                alt: "Volunteers collecting waste along a shoreline"
+                            },
+                            {
+                                img: "/images/ai-detection.png",
+                                title: "3. Upload & Classify",
+                                desc: "Take photos of collected items. Our AI instantly identifies and categorizes waste types.",
+                                alt: "AI interface analyzing and classifying cleanup items"
+                            },
+                            {
+                                img: "/images/track.png",
+                                title: "4. Track Impact",
+                                desc: "View your statistics, earn badges, and see how you're contributing to ocean conservation.",
+                                alt: "Dashboard showing progress tracking and impact statistics"
+                            },
+
+                        ].map((card, i) => (
+                            <WorkCard key={i}>
+                                <Image src={card.img} alt={card.title} width={64} height={64} />
+
+                                {/* H3 – Step Titles */}
+                                <Typography component="h3" variant="h6" color="#0077b6" mt={1} mb={1}>
+                                    {card.title}
+                                </Typography>
+
+                                <Typography color="#004b63" fontSize="14px" lineHeight={1.6}>
+                                    {card.desc}
+                                </Typography>
+                            </WorkCard>
+                        ))}
+                    </WorkGrid>
+                </WorkSection>
+
+                {/* COMMUNITY STATS */}
+                <CleanSection>
+                    <CleanBox>
+                        <Box sx={{ maxWidth: 500, textAlign: 'center' }}>
+                            <Image
+                                src="/images/community.png"
+                                alt="Community Impact"
+                                width={280}
+                                height={280}
+                                style={{ borderRadius: 12 }}
+                            />
                         </Box>
-                    </CleanText>
-                </CleanBox>
-            </CleanSection>
 
-            {/* CHALLENGES & ACHIEVEMENTS */}
-            <WorkSection sx={{ background: "#fff" }}>
-                <WorkBadge>Engagement Features</WorkBadge>
-                <Typography variant="h4" fontWeight={700} color="#003554" mb={1}>
-                    Challenges & Achievements
-                </Typography>
-                <Typography color="#004b63" mb={6} maxWidth="700px" margin="0 auto 48px">
-                    Stay motivated with our gamification features. Complete challenges, earn badges, 
-                    and climb the leaderboard while making a real difference.
-                </Typography>
+                        <CleanText>
+                            <span className="badge">Our Community</span>
 
-                <Grid container spacing={4} maxWidth="1000px" margin="0 auto" justifyContent="center">
-                    {[
-                        {
-                            title: "Active Challenges",
-                            icon: "🏆",
-                            desc: "Join local and national cleanup events",
-                            count: loading ? "..." : `${stats.liveChallenges} Live`,
-                            color: "#0077b6"
-                        },
-                        {
-                            title: "Earn Badges",
-                            icon: "🎖️",
-                            desc: "Unlock achievements for your contributions",
-                            count: "15 Types",
-                            color: "#ffa500"
-                        },
-                        {
-                            title: "Leaderboards",
-                            icon: "📊",
-                            desc: "Compete with volunteers across Canada",
-                            count: "Top 100",
-                            color: "#51cf66"
-                        },
-                    ].map((feature, i) => (
-                        <Grid item xs={12} sm={4} key={i}>
-                            <Card 
-                                elevation={0} 
-                                sx={{ 
-                                    p: 3, 
-                                    textAlign: 'center',
-                                    border: `2px solid ${feature.color}20`,
-                                    borderRadius: 3,
-                                    height: '100%',
-                                    transition: 'all 0.3s',
-                                    '&:hover': {
-                                        transform: 'translateY(-8px)',
-                                        boxShadow: `0 8px 24px ${feature.color}30`
-                                    }
-                                }}
-                            >
-                                <Typography fontSize="3rem" mb={1}>{feature.icon}</Typography>
-                                <Typography variant="h6" color={feature.color} fontWeight={700} mb={1}>
-                                    {feature.title}
-                                </Typography>
-                                <Typography variant="body2" color="#004b63" mb={2} lineHeight={1.6}>
-                                    {feature.desc}
-                                </Typography>
-                                <Typography variant="h6" color="#003554" fontWeight={700}>
-                                    {feature.count}
-                                </Typography>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </WorkSection>
+                            {/* H2 – Section Title */}
+                            <h2>Volunteer Contributions So Far</h2>
 
-            {/* CTA SECTION */}
-            <MissionSection>
-                <MissionContent>
-                    <span className="badge">Start Contributing</span>
-                    <h3>Ready to Make Your Impact?</h3>
-                    <p>
-                        Every cleanup you log contributes to vital scientific research and helps 
-                        protect Canada's marine ecosystems. Join a challenge today and start tracking 
-                        your environmental impact.
-                    </p>
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <PrimaryButton onClick={() => router.push('/challenges')}>
-                            Browse Challenges
-                        </PrimaryButton>
-                        <OutlineButton onClick={() => router.push('/upload')} sx={{ 
-                            border: '2px solid #fff',
-                            '&:hover': { background: 'rgba(255,255,255,0.1)' }
-                        }}>
-                            Upload Your First Cleanup
-                        </OutlineButton>
-                    </Box>
-                </MissionContent>
-            </MissionSection>
-        </>
-    );
-}
-export default withAuth(HomePage);
+                            <p>
+                                Together, our community has made incredible progress in protecting
+                                Canada's coastlines. Here's what we've accomplished as a team.
+                            </p>
+
+                            <Box sx={{ mt: 3 }}>
+                                {loading ? (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                                        <CircularProgress size={30} />
+                                    </Box>
+                                ) : (
+                                    [
+                                        { label: "Items Collected & Classified", value: stats.totalItemsCollected.toLocaleString(), color: "#0077b6" },
+                                        { label: "Total Waste Removed", value: `${stats.totalWasteKg.toLocaleString()} kg`, color: "#00a6d6" },
+                                        { label: "Active Volunteers This Month", value: stats.activeContributors.toLocaleString(), color: "#67e8c3" },
+                                        { label: "Beaches & Shorelines Cleaned", value: stats.beachesCleaned.toLocaleString(), color: "#51cf66" },
+                                    ].map((stat, i) => (
+                                        <Box key={i} sx={{ mb: 2 }}>
+                                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="h6" fontWeight={600} color="#003554">
+                                                    {stat.label}
+                                                </Typography>
+                                                <Typography variant="h6" fontWeight={700} color={stat.color}>
+                                                    {stat.value}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ))
+                                )}
+                            </Box>
+                        </CleanText>
+                    </CleanBox>
+                </CleanSection>
+
+                {/* CHALLENGES & ACHIEVEMENTS */}
+                <WorkSection sx={{ background: "#fff" }}>
+                    <WorkBadge>Engagement Features</WorkBadge>
+
+                    {/* H2 – Section Title */}
+                    <Typography
+                        component="h2"
+                        variant="h4"
+                        fontWeight={700}
+                        color="#003554"
+                        mb={1}
+                    >
+                        Challenges & Achievements
+                    </Typography>
+
+                    <Typography
+                        color="#004b63"
+                        mb={6}
+                        maxWidth="700px"
+                        margin="0 auto 48px"
+                    >
+                        Stay motivated with our gamification features. Complete challenges, earn badges,
+                        and climb the leaderboard while making a real difference.
+                    </Typography>
+
+                    <Grid
+                        container
+                        spacing={4}
+                        maxWidth="1000px"
+                        margin="0 auto"
+                        justifyContent="center"
+                    >
+                        {[
+                            {
+                                title: "Active Challenges",
+                                icon: "🏆",
+                                alt: "Trophy icon representing active cleanup challenges",
+                                desc: "Join local and national cleanup events",
+                                count: loading ? "..." : `${stats.liveChallenges} Live`,
+                                color: "#0077b6"
+                            },
+                            {
+                                title: "Earn Badges",
+                                icon: "🎖️",
+                                alt: "Medal icon representing achievement badges",
+                                desc: "Unlock achievements for your contributions",
+                                count: "15 Types",
+                                color: "#ffa500"
+                            },
+                            {
+                                title: "Leaderboards",
+                                icon: "📊",
+                                alt: "Bar chart icon representing leaderboard rankings",
+                                desc: "Compete with volunteers across Canada",
+                                count: "Top 100",
+                                color: "#51cf66"
+                            },
+                        ].map((feature, i) => (
+                            <Grid item xs={12} sm={4} key={i}>
+                                <Card
+                                    elevation={0}
+                                    sx={{
+                                        p: 3,
+                                        textAlign: 'center',
+                                        border: `2px solid ${feature.color}20`,
+                                        borderRadius: 3,
+                                        height: '100%',
+                                        transition: 'all 0.3s',
+                                        '&:hover': {
+                                            transform: 'translateY(-8px)',
+                                            boxShadow: `0 8px 24px ${feature.color}30`
+                                        }
+                                    }}
+                                >
+                                    {/* Accessible Emoji Icon */}
+                                    <span
+                                        role="img"
+                                        aria-label={feature.alt}
+                                        style={{ fontSize: "3rem", display: "block", marginBottom: "8px" }}
+                                    >
+                                        {feature.icon}
+                                    </span>
+
+                                    {/* H3 – Feature Card Title */}
+                                    <Typography
+                                        component="h3"
+                                        variant="h6"
+                                        color={feature.color}
+                                        fontWeight={700}
+                                        mb={1}
+                                    >
+                                        {feature.title}
+                                    </Typography>
+
+                                    <Typography
+                                        variant="body2"
+                                        color="#004b63"
+                                        mb={2}
+                                        lineHeight={1.6}
+                                    >
+                                        {feature.desc}
+                                    </Typography>
+
+                                    <Typography
+                                        variant="h6"
+                                        color="#003554"
+                                        fontWeight={700}
+                                    >
+                                        {feature.count}
+                                    </Typography>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </WorkSection>
+
+
+                {/* CTA SECTION */}
+                <MissionSection>
+                    <MissionContent>
+                        <span className="badge">Start Contributing</span>
+
+                        {/* H2 – Section Title */}
+                        <h2>Ready to Make Your Impact?</h2>
+
+                        <p>
+                            Every cleanup you log contributes to vital scientific research and helps
+                            protect Canada's marine ecosystems. Join a challenge today and start tracking
+                            your environmental impact.
+                        </p>
+
+                        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <PrimaryButton onClick={() => router.push('/challenges')}>
+                                Browse Challenges
+                            </PrimaryButton>
+                            <OutlineButton onClick={() => router.push('/upload')} sx={{
+                                border: '2px solid #fff',
+                                '&:hover': { background: 'rgba(255,255,255,0.1)' }
+                            }}>
+                                Upload Your First Cleanup
+                            </OutlineButton>
+                        </Box>
+                    </MissionContent>
+                </MissionSection>
+            </>
+        );
+    }
+    export default withAuth(HomePage);

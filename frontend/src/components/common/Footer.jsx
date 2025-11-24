@@ -1,6 +1,14 @@
 "use client";
 import Image from "next/image";
+import Link from "next/link";
 import { styled } from "@mui/material/styles";
+import { Box, Stack, Typography, IconButton, Button } from "@mui/material";
+
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
 
 /* Styled Components */
 const FooterContainer = styled("footer")(() => ({
@@ -19,12 +27,11 @@ const FooterContainer = styled("footer")(() => ({
 
 const TopSection = styled("div")(() => ({
     display: "grid",
-    gridTemplateColumns: "400px 1fr",
+    gridTemplateColumns: "minmax(350px, 450px) 1fr", 
     gap: "80px",
     maxWidth: "1400px",
     margin: "0 auto 50px",
     "@media (max-width: 1200px)": {
-        gridTemplateColumns: "350px 1fr",
         gap: "60px",
     },
     "@media (max-width: 1024px)": {
@@ -32,16 +39,12 @@ const TopSection = styled("div")(() => ({
         gap: "40px",
         marginBottom: "40px",
     },
-    "@media (max-width: 768px)": {
-        gap: "32px",
-        marginBottom: "32px",
-    },
 }));
 
 const About = styled("div")(() => ({
     maxWidth: "100%",
-    "@media (max-width: 768px)": {
-        maxWidth: "100%",
+    '@media (max-width: 1024px)': {
+        textAlign: 'center',
     },
 }));
 
@@ -50,6 +53,9 @@ const LogoRow = styled("div")(() => ({
     alignItems: "center",
     gap: 12,
     marginBottom: 16,
+    '@media (max-width: 1024px)': {
+        justifyContent: 'center',
+    },
 }));
 
 const LogoText = styled("h4")(() => ({
@@ -63,10 +69,13 @@ const LogoText = styled("h4")(() => ({
 }));
 
 const Description = styled("p")(() => ({
-    color: "#45616dff",
+    color: "#003554", 
     lineHeight: 1.7,
     fontSize: 15,
     marginBottom: 24,
+    '@media (max-width: 1024px)': {
+        textAlign: 'center',
+    },
     "@media (max-width: 768px)": {
         fontSize: 14,
         lineHeight: 1.6,
@@ -75,6 +84,11 @@ const Description = styled("p")(() => ({
 
 const NewsletterSection = styled("div")(() => ({
     marginTop: 24,
+    '@media (max-width: 1024px)': {
+        textAlign: 'left',
+        maxWidth: '400px',
+        margin: '24px auto 0 auto',
+    },
 }));
 
 const NewsletterTitle = styled("h5")(() => ({
@@ -82,12 +96,9 @@ const NewsletterTitle = styled("h5")(() => ({
     fontWeight: 600,
     color: "#003554",
     marginBottom: 12,
-    "@media (max-width: 768px)": {
-        fontSize: 14,
-    },
 }));
 
-const NewsletterForm = styled("div")(() => ({
+const NewsletterForm = styled("form")(() => ({
     display: "flex",
     gap: 10,
     alignItems: "center",
@@ -103,7 +114,7 @@ const EmailInput = styled("input")(() => ({
     color: "#003554",
     background: "#ffffff",
     outline: "none",
-    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+    transition: "border-color 0.3s ease, boxShadow 0.3s ease",
     "&:focus": {
         borderColor: "#0891B2",
         boxShadow: "0 0 0 3px rgba(8, 145, 178, 0.1)",
@@ -114,7 +125,7 @@ const EmailInput = styled("input")(() => ({
 }));
 
 const SubmitButton = styled("button")(() => ({
-    background: "#005574ff",
+    background: "#0891B2",
     color: "#fff",
     border: "none",
     borderRadius: 8,
@@ -127,7 +138,7 @@ const SubmitButton = styled("button")(() => ({
     alignItems: "center",
     justifyContent: "center",
     "&:hover": {
-        background: "#005574ff",
+        background: "#0077A3",
         transform: "translateY(-1px)",
     },
     "&:active": {
@@ -137,188 +148,102 @@ const SubmitButton = styled("button")(() => ({
 
 const NewsletterHint = styled("span")(() => ({
     fontSize: 12,
-    color: "#536e78ff",
+    color: "#003554", 
     lineHeight: 1.4,
 }));
 
-const LinksSection = styled("div")(() => ({
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "50px",
-    "@media (max-width: 1200px)": {
-        gap: "40px",
-    },
+const LinksSection = styled("nav")(() => ({ 
+    display: "flex",
+    flexDirection: 'column',
+    
+    // FIX: Center content horizontally when stacked on mobile/tablet
     "@media (max-width: 1024px)": {
-        gridTemplateColumns: "repeat(4, 1fr)",
-        gap: "30px",
+        alignItems: 'center', 
     },
-    "@media (max-width: 768px)": {
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: "24px 16px",
+    // Align content to the left on desktop and push the entire block right
+    "@media (min-width: 1025px)": {
+        alignItems: 'flex-start',
+        marginLeft: 'auto',
     },
+    // Default alignment for Flexbox children inside
+    alignItems: 'flex-start', 
 }));
 
 const LinkColumn = styled("div")(() => ({
-    "@media (max-width: 768px)": {
-        minWidth: "unset",
-    },
+    // Retained
 }));
 
 const ColumnTitle = styled("h5")(() => ({
-    color: "#022c45ff",
+    color: "#003554",
     fontWeight: 600,
     fontSize: 16,
     marginBottom: 16,
-    "@media (max-width: 768px)": {
-        fontSize: 15,
-        marginBottom: 12,
-    },
+    textAlign: 'left', 
 }));
 
 const LinkList = styled("ul")(() => ({
     listStyle: "none",
     padding: 0,
     margin: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    flexWrap: 'nowrap',
 }));
 
 const LinkItem = styled("li")(() => ({
-    color: "#43575eff",
+    color: "#003554", 
     fontSize: 14,
     marginBottom: 12,
     cursor: "pointer",
-    transition: "color 0.2s ease, transform 0.2s ease",
     "&:hover": {
         color: "#0891B2",
-        transform: "translateX(2px)",
     },
-    "@media (max-width: 768px)": {
-        fontSize: 13,
-        marginBottom: 10,
-    },
-}));
-
-const ContactArea = styled("div")(() => ({
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: "30px",
-    paddingTop: "32px",
-    borderTop: "1px solid #D1E5ED",
-    maxWidth: "1400px",
-    margin: "0 auto",
-    "@media (max-width: 1024px)": {
-        gap: "20px",
-    },
-    "@media (max-width: 768px)": {
-        flexDirection: "column",
-        gap: "16px",
-        paddingTop: "24px",
+    "& a": {
+        color: "inherit",
+        textDecoration: "none",
+        "&:hover": {
+            color: "#0891B2",
+        },
     },
 }));
 
-const ContactCard = styled("div")(() => ({
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    background: "#FFFFFF",
-    borderRadius: 12,
-    padding: "18px 28px",
-    boxShadow: "0 2px 8px rgba(0, 83, 116, 0.06)",
-    transition: "transform 0.3s ease, box-shadow 0.3s ease",
-    minWidth: 280,
-    "@media (max-width: 1024px)": {
-        minWidth: 240,
-        padding: "16px 24px",
-    },
-    "@media (max-width: 768px)": {
-        width: "100%",
-        minWidth: "unset",
-        justifyContent: "flex-start",
-        padding: "16px 20px",
-    },
-    "&:hover": {
-        transform: "translateY(-2px)",
-        boxShadow: "0 4px 12px rgba(0, 83, 116, 0.12)",
-    },
-}));
-
-const IconWrapper = styled("div")(() => ({
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    background: "#E6F7FA",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    "@media (max-width: 768px)": {
-        width: 40,
-        height: 40,
-    },
-}));
-
-const ContactInfo = styled("div")(() => ({
-    display: "flex",
-    flexDirection: "column",
-    gap: 2,
-}));
-
-const ContactLabel = styled("p")(() => ({
-    fontWeight: 600,
-    color: "#006983ff",
-    margin: 0,
-    fontSize: 14,
-    "@media (max-width: 768px)": {
-        fontSize: 13,
-    },
-}));
-
-const ContactValue = styled("p")(() => ({
-    color: "#012a42ff",
-    fontSize: 15,
-    margin: 0,
-    fontWeight: 500,
-    "@media (max-width: 768px)": {
-        fontSize: 14,
-    },
-}));
 
 /* Component */
 export default function Footer() {
-    const linkGroups = [
+    
+    const coreNavigationLinks = [
+        { label: "Home", href: "/home" },
+        { label: "Challenges", href: "/challenges" },
+        { label: "Upload", href: "/upload" },
+        { label: "Dashboard", href: "/dashboard" },
+        { label: "Achievements", href: "/achievements" },
+        { label: "Profile", href: "/profile" },
+    ];
+
+    const navigationGroup = [
         {
-            title: "Platform",
-            items: ["Challenges", "Upload Cleanup", "Dashboard", "Achievements"],
-        },
-        {
-            title: "Resources",
-            items: ["How It Works", "AI Detection", "Impact Reports"],
-        },
-        {
-            title: "Company",
-            items: ["About Us", "Our Mission", "Contact"],
-        },
-        {
-            title: "Legal",
-            items: ["Privacy Policy", "Terms of Service", "Cookie Policy", "Accessibility"],
+            title: "Quick Navigation",
+            items: coreNavigationLinks,
         },
     ];
 
+
     return (
-        <FooterContainer>
+        <FooterContainer role="contentinfo">
             {/* Top Section */}
             <TopSection>
                 {/* About Section */}
                 <About>
                     <LogoRow>
-                        <Image
-                            src="/images/logo.png"
-                            alt="WaveGuard Logo"
-                            width={36}
-                            height={36}
-                        />
-                        <LogoText>WaveGuard</LogoText>
+                        <Link href="/" passHref aria-label="Marine Care home">
+                            <Image
+                                src="/images/logo.png"
+                                alt="Marine Care wave logo"
+                                width={36}
+                                height={36}
+                            />
+                        </Link>
+                        <LogoText>Marine Care</LogoText>
                     </LogoRow>
 
                     <Description>
@@ -330,14 +255,15 @@ export default function Footer() {
                     {/* Newsletter */}
                     <NewsletterSection>
                         <NewsletterTitle>Subscribe to our newsletter</NewsletterTitle>
-
-                        <NewsletterForm>
+                        
+                        <NewsletterForm action="#" method="POST">
+                            <label htmlFor="newsletter-email" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }}>Email address for newsletter</label>
                             <EmailInput
+                                id="newsletter-email"
                                 type="email"
                                 placeholder="your@email.com"
-                                aria-label="Email address"
                             />
-                            <SubmitButton aria-label="Subscribe">
+                            <SubmitButton aria-label="Subscribe to newsletter">
                                 →
                             </SubmitButton>
                         </NewsletterForm>
@@ -347,14 +273,18 @@ export default function Footer() {
                     </NewsletterSection>
                 </About>
 
-                {/* Links Section */}
-                <LinksSection>
-                    {linkGroups.map((group, idx) => (
+                {/* Links Section (Single Vertical Column, Centered on Mobile) */}
+                <LinksSection aria-label="Quick navigation links">
+                    {navigationGroup.map((group, idx) => (
                         <LinkColumn key={idx}>
                             <ColumnTitle>{group.title}</ColumnTitle>
                             <LinkList>
                                 {group.items.map((item) => (
-                                    <LinkItem key={item}>{item}</LinkItem>
+                                    <LinkItem key={item.label}>
+                                        <Link href={item.href || '#'} passHref>
+                                            {item.label}
+                                        </Link>
+                                    </LinkItem>
                                 ))}
                             </LinkList>
                         </LinkColumn>
@@ -362,53 +292,52 @@ export default function Footer() {
                 </LinksSection>
             </TopSection>
 
-            {/* Contact Information */}
-            <ContactArea>
-                <ContactCard>
-                    <IconWrapper>
-                        <Image
-                            src="/images/mail.png"
-                            alt="Mail Icon"
-                            width={22}
-                            height={22}
-                        />
-                    </IconWrapper>
-                    <ContactInfo>
-                        <ContactLabel>Email Us</ContactLabel>
-                        <ContactValue>support@waveguard.ca</ContactValue>
-                    </ContactInfo>
-                </ContactCard>
+            {/* --- FINAL SOCIAL AND LEGAL BAR --- */}
+            <Box sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                paddingTop: "32px",
+                borderTop: "1px solid #D1E5ED",
+                maxWidth: "1400px",
+                margin: "0 auto",
+                flexWrap: 'wrap',
+                '@media (max-width: 768px)': {
+                    flexDirection: 'column',
+                    gap: 2,
+                    alignItems: 'center',
+                }
+            }}>
+                {/* Left: Copyright and Email Link */}
+                <Stack direction="row" spacing={2} alignItems="center" sx={{ '@media (max-width: 768px)': { mb: 2 } }}>
+                    <Typography variant="body2" sx={{ color: '#003554', fontSize: 13, fontWeight: 500 }}>
+                        © {new Date().getFullYear()} Marine Care.
+                    </Typography>
+                    <Button 
+                        href="mailto:support@marinecare.ca"
+                        startIcon={<MailOutlineIcon />}
+                        sx={{ color: '#0891B2', textTransform: 'none', fontSize: 13, fontWeight: 600 }}
+                    >
+                        support@marinecare.ca
+                    </Button>
+                </Stack>
 
-                <ContactCard>
-                    <IconWrapper>
-                        <Image
-                            src="/images/phone.png"
-                            alt="Phone Icon"
-                            width={22}
-                            height={22}
-                        />
-                    </IconWrapper>
-                    <ContactInfo>
-                        <ContactLabel>Call Us</ContactLabel>
-                        <ContactValue>1-800-WAVE-GUARD</ContactValue>
-                    </ContactInfo>
-                </ContactCard>
-
-                <ContactCard>
-                    <IconWrapper>
-                        <Image
-                            src="/images/location.png"
-                            alt="Location Icon"
-                            width={22}
-                            height={22}
-                        />
-                    </IconWrapper>
-                    <ContactInfo>
-                        <ContactLabel>Location</ContactLabel>
-                        <ContactValue>Coast to Coast, Canada</ContactValue>
-                    </ContactInfo>
-                </ContactCard>
-            </ContactArea>
+                {/* Right: Social Icons */}
+                <Stack direction="row" spacing={1.5}>
+                    <IconButton href="https://facebook.com/marinecare" target="_blank" aria-label="Visit Marine Care on Facebook">
+                        <FacebookIcon sx={{ color: '#003554' }} />
+                    </IconButton>
+                    <IconButton href="https://twitter.com/marinecare" target="_blank" aria-label="Visit Marine Care on Twitter">
+                        <TwitterIcon sx={{ color: '#003554' }} />
+                    </IconButton>
+                    <IconButton href="https://instagram.com/marinecare" target="_blank" aria-label="Visit Marine Care on Instagram">
+                        <InstagramIcon sx={{ color: '#003554' }} />
+                    </IconButton>
+                    <IconButton href="https://youtube.com/marinecare" target="_blank" aria-label="Visit Marine Care on YouTube">
+                        <YouTubeIcon sx={{ color: '#003554' }} />
+                    </IconButton>
+                </Stack>
+            </Box>
         </FooterContainer>
     );
-}   
+}

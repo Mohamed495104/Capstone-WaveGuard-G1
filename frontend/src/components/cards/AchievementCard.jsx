@@ -40,7 +40,7 @@ const AchievementCard = ({ achievement }) => {
           sx={{
             display: "inline-block",
             backgroundColor: "#e0f7fa",
-            color: "#0077b6",
+            color: "#025074ff",
             borderRadius: "8px",
             px: 1,
             py: 0.5,

@@ -114,12 +114,12 @@ const ProfilePage = () => {
             const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
             if (res?.data) {
                 // Ensure profile image URL is properly formatted
-                const profileImage = res.data.profileImage 
-                    ? (res.data.profileImage.startsWith('http') 
-                        ? res.data.profileImage 
+                const profileImage = res.data.profileImage
+                    ? (res.data.profileImage.startsWith('http')
+                        ? res.data.profileImage
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`)
                     : '';
-                
+
                 setUserProfile({
                     name: res.data.name || '',
                     email: res.data.email || '',
@@ -281,8 +281,8 @@ const ProfilePage = () => {
             if (res?.data?.profileImage) {
                 // Update user profile with new image URL
                 // The backend returns the path, prepend the API URL
-                const imageUrl = res.data.profileImage.startsWith('http') 
-                    ? res.data.profileImage 
+                const imageUrl = res.data.profileImage.startsWith('http')
+                    ? res.data.profileImage
                     : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
                 setUserProfile(prev => ({
                     ...prev,
@@ -327,6 +327,7 @@ const ProfilePage = () => {
             <Box sx={styles.mainContent}>
                 {/* Left Sidebar */}
                 <Box sx={styles.sidebar}>
+
                     {/* Avatar */}
                     <Box sx={styles.avatarSection}>
                         <input
@@ -335,16 +336,21 @@ const ProfilePage = () => {
                             accept="image/*"
                             style={{ display: 'none' }}
                             onChange={handleProfileImageChange}
+                            id="profile-image-upload"
+                            aria-label="Upload profile picture file"
                         />
                         <Box sx={styles.avatarWrapper}>
-                            <Avatar sx={styles.avatar} src={userProfile.profileImage}>
+                            <Avatar sx={styles.avatar} src={userProfile.profileImage} alt="">
                                 <PersonOutline sx={styles.avatarIcon} />
                             </Avatar>
                             <Tooltip title="Upload profile picture" placement="right">
-                                <IconButton 
+                                <IconButton
                                     sx={styles.avatarUploadButton}
                                     onClick={handleProfileImageClick}
                                     disabled={uploadingImage}
+                                    aria-label="Upload profile picture"
+                                    component="label"
+                                    htmlFor="profile-image-upload"
                                 >
                                     {uploadingImage ? (
                                         <CircularProgress size={16} sx={{ color: '#ffffff' }} />
@@ -357,7 +363,7 @@ const ProfilePage = () => {
                         <Typography sx={styles.userName}>{userProfile.name}</Typography>
                         <Typography sx={styles.userLocation}>{userProfile.location || 'Location not set'}</Typography>
                         <Typography sx={styles.userBio}>{userProfile.bio || 'No bio yet'}</Typography>
-                        
+
                         {/* Upload status messages */}
                         {uploadError && (
                             <Alert severity="error" sx={{ mt: 2, fontSize: '13px' }} onClose={() => setUploadError('')}>

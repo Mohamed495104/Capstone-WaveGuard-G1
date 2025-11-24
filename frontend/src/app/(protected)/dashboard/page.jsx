@@ -378,9 +378,9 @@ const DashboardPage = () => {
                     alignItems: 'center',
                     padding: '12px 16px',
                     marginBottom: '10px',
-                    backgroundColor: contributor.rank <= 3 ? '#fef3c7' : '#f8fafc',
+                    backgroundColor: contributor.rank <= 3 ? '#fef3c7' : '#2E2E2E',
                     borderRadius: '12px',
-                    border: contributor.rank <= 3 ? '2px solid #f59e0b' : '1px solid #e5e7eb',
+                    border: contributor.rank <= 3 ? '2px solid #e5ae4fff' : '1px solid #2E2E2E',
                     transition: 'all 0.2s ease',
                     '&:hover': {
                       transform: 'translateX(4px)',
@@ -394,7 +394,7 @@ const DashboardPage = () => {
                         width: 32,
                         height: 32,
                         borderRadius: '50%',
-                        backgroundColor: contributor.rank <= 3 ? '#f59e0b' : '#0ea5e9',
+                        backgroundColor: contributor.rank <= 3 ? '#f59e0b' : '#2E2E2E',
                         color: 'white',
                         display: 'flex',
                         alignItems: 'center',
@@ -409,16 +409,16 @@ const DashboardPage = () => {
                       <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#1a1a1a' }}>
                         {contributor.name}
                       </Typography>
-                      <Typography sx={{ fontSize: '12px', color: '#6b7280' }}>
+                      <Typography sx={{ fontSize: '12px', color: '#34373eff' }}>
                         {contributor.totalCleanups} cleanups
                       </Typography>
                     </Box>
                   </Box>
                   <Box sx={{ textAlign: 'right' }}>
-                    <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#0ea5e9' }}>
+                    <Typography sx={{ fontSize: '16px', fontWeight: 700, color: '#145c7eff' }}>
                       {contributor.totalItems.toLocaleString()}
                     </Typography>
-                    <Typography sx={{ fontSize: '11px', color: '#6b7280' }}>
+                    <Typography sx={{ fontSize: '11px', color: '#34373eff' }}>
                       items
                     </Typography>
                   </Box>
@@ -437,26 +437,26 @@ const DashboardPage = () => {
           <Typography sx={styles.chartTitle}>Community Impact</Typography>
           <Box sx={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#0ea5e9' }}>
+              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#1f79a3ff' }}>
                 {communityStats?.totalItemsCollected?.toLocaleString() || 0}
               </Typography>
-              <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>
+              <Typography sx={{ fontSize: '13px', color: '#333539ff', mt: 0.5 }}>
                 Total items collected
               </Typography>
             </Box>
             <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>
+              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#159b6ee0' }}>
                 {communityStats?.totalVolunteers?.toLocaleString() || 0}
               </Typography>
-              <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>
+              <Typography sx={{ fontSize: '13px', color: '#333539ff', mt: 0.5 }}>
                 Active volunteers
               </Typography>
             </Box>
             <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#f59e0b' }}>
+              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#b4822dff' }}>
                 {communityStats?.activeChallenges || 0}
               </Typography>
-              <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>
+              <Typography sx={{ fontSize: '13px', color: '#333539ff', mt: 0.5 }}>
                 Active challenges
               </Typography>
             </Box>

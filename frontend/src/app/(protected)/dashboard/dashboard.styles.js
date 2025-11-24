@@ -101,7 +101,7 @@ export const styles = {
   },
   chartSubtitle: {
     fontSize: "11px",
-    color: "#9ca3af",
+    color: "#4a4e53ff",
     marginBottom: "20px",
     fontFamily: "Inter, sans-serif",
     fontWeight: 400,
@@ -149,13 +149,13 @@ export const styles = {
   },
   activityDate: {
     fontSize: "12px",
-    color: "#9ca3af",
+    color: "#2c2e31ff",
     fontFamily: "Inter, sans-serif",
     fontWeight: 400,
   },
   activityBadge: {
     backgroundColor: "#e0f2fe",
-    color: "#0284c7",
+    color: "#025074ff",
     fontSize: "12px",
     fontWeight: 600,
     padding: "6px 12px",
@@ -182,11 +182,11 @@ export const styles = {
     width: "42px",
     height: "42px",
     borderRadius: "50%",
-    backgroundColor: "#e0f2fe",
+    backgroundColor: "#ffffffff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#0284c7",
+    color: "#025074ff",
     fontSize: "20px",
   },
   contributorName: {
@@ -198,14 +198,14 @@ export const styles = {
   },
   contributorCount: {
     fontSize: "12px",
-    color: "#9ca3af",
+    color: "#3f4146ff",
     fontFamily: "Inter, sans-serif",
     fontWeight: 400,
   },
   contributorRank: {
     fontSize: "18px",
     fontWeight: 600,
-    color: "#9ca3af",
+    color: "#2E2E2E",
     fontFamily: "Inter, sans-serif",
   },
   youBadge: {

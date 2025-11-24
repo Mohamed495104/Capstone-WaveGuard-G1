@@ -33,80 +33,77 @@ const updateChallengeStatuses = (challenges) => {
 // ---------------------- CREATE CHALLENGE ----------------------
 
 export const createChallenge = async (req, res) => {
-    try {
-        const {
-            title,
-            description,
-            locationName,
-            province,
-            region,
-            goal,
-            startDate,
-            endDate,
-            bannerImage,
-            location
-        } = req.body;
+  try {
+    const {
+      title,
+      description,
+      locationName,
+      province,
+      region,
+      goal,
+      startDate,
+      endDate,
+      bannerImage,
+      location,
+    } = req.body;
 
-        // 1. Validate required text fields
-        if (!title || !locationName || !province || !region || !goal || !startDate || !endDate) {
-            return res.status(400).json({
-                message: "All fields are required"
-            });
-        }
-
-        // 2. Validate banner image (URL)
-        if (!bannerImage) {
-            return res.status(400).json({
-                message: "Banner image URL missing"
-            });
-        }
-
-        // 3. Validate geographic location
-        if (
-            !location ||
-            !Array.isArray(location.coordinates) ||
-            location.coordinates.length !== 2
-        ) {
-            return res.status(400).json({
-                message: "Invalid location coordinates"
-            });
-        }
-
-        // 4. Compute challenge status
-        const status = getChallengeStatus(startDate, endDate);
-
-        // 5. Create challenge
-        const challenge = new Challenge({
-            title,
-            description,
-            locationName,
-            province,
-            region,
-            bannerImage,
-            goal,
-            goalUnit: "items",
-            startDate,
-            endDate,
-            status,
-            totalTrashCollected: 0,
-            totalVolunteers: 0,
-            wasteBreakdown: {},
-            location,
-            createdBy: req.mongoUser?._id || null,
-        });
-
-        await challenge.save();
-
-        return res.json({
-            message: "Challenge created successfully",
-            challenge,
-        });
-
-    } catch (error) {
-        console.error("Error creating challenge:", error);
-        res.status(500).json({ message: "Server Error" });
+    if (!title || !locationName || !province || !region || !goal || !startDate || !endDate) {
+      return res.status(400).json({ message: "All fields are required" });
     }
+
+    // Pick banner from uploaded file OR from bannerImage URL
+    let finalBannerImage = bannerImage || null;
+
+    if (req.file && req.file.buffer) {
+      const fileId = await uploadImageToGridFS(
+        req.file.buffer,
+        req.file.originalname || `challenge-${Date.now()}.jpg`
+      );
+      finalBannerImage = `/api/images/${fileId}`;
+    }
+
+    if (!finalBannerImage) {
+      return res.status(400).json({ message: "Banner image missing" });
+    }
+
+    if (!location || !Array.isArray(location.coordinates) || location.coordinates.length !== 2) {
+      return res.status(400).json({ message: "Invalid location coordinates" });
+    }
+
+    const status = getChallengeStatus(startDate, endDate);
+
+    const challenge = new Challenge({
+      title,
+      description,
+      locationName,
+      province,
+      region,
+      bannerImage: finalBannerImage,
+      goal,
+      goalUnit: "items",
+      startDate,
+      endDate,
+      status,
+      totalTrashCollected: 0,
+      totalVolunteers: 0,
+      wasteBreakdown: {},
+      location,
+      createdBy: req.mongoUser?._id || null,
+    });
+
+    await challenge.save();
+
+    return res.json({
+      message: "Challenge created successfully",
+      challenge,
+    });
+
+  } catch (error) {
+    console.error("Error creating challenge:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
+
 
 // ---------------------- GET ALL CHALLENGES ----------------------
 

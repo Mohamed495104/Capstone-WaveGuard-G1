@@ -20,8 +20,8 @@ export default function Navbar() {
                 const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
                 if (res?.data?.profileImage) {
                     // Ensure profile image URL is properly formatted
-                    const imageUrl = res.data.profileImage.startsWith('http') 
-                        ? res.data.profileImage 
+                    const imageUrl = res.data.profileImage.startsWith('http')
+                        ? res.data.profileImage
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
                     setProfileImage(imageUrl);
                 }
@@ -35,7 +35,6 @@ export default function Navbar() {
     }, []);
 
     return (
-        // Add aria-label to AppBar if it serves as a banner/site header (which it does)
         <AppBar
             position="sticky"
             elevation={0}
@@ -70,15 +69,21 @@ export default function Navbar() {
                         }
                     }}
                     onClick={() => router.push("/home")}
-                    // Add role="link" and aria-label since this stack acts as a click target
-                    role="link" 
-                    aria-label="WaveGuard home"
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Navigate to WaveGuard home"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            router.push("/home");
+                        }
+                    }}
                 >
                     <Box
                         component="img"
                         src="/images/logoblue.png"
-                        // 1. FIXED: Missing alternative text. 
-                        alt="WaveGuard logo - ocean wave icon" 
+                        alt=""
+                        aria-hidden="true"
                         sx={{
                             height: 44,
                             width: 44,
@@ -87,14 +92,12 @@ export default function Navbar() {
                         }}
                     />
                     <Typography
-                        // 2. FIXED: Hierarchy. Use role="heading" with aria-level to declare the site title hierarchy, if you cannot use a native h1.
-                        // However, since this is a global element, using <p> or <span> is often acceptable, but we'll use a role here for clarity.
                         variant="h6"
-                        component="span" // Use span to avoid multiple H tags if H1 is elsewhere
+                        component="span"
                         sx={{
                             fontWeight: 700,
                             fontSize: "1.25rem",
-                            color: "#0f172a",
+                            color: "#003554", // Changed from #0f172a for better contrast
                             letterSpacing: "-0.02em",
                             display: { xs: "none", lg: "block" }
                         }}
@@ -110,10 +113,9 @@ export default function Navbar() {
                     spacing={1.5}
                 >
                     {/* Nav items */}
-                    {/* 3. FIXED: Semantic grouping. Wrap main nav links in a <nav> tag. */}
                     <Stack
-                        component="nav" 
-                        aria-label="Primary site navigation"
+                        component="nav"
+                        aria-label="Primary navigation"
                         direction="row"
                         alignItems="center"
                         spacing={0.5}
@@ -125,28 +127,26 @@ export default function Navbar() {
                         }}
                     >
                         {navItems.map(({ label, path, icon: Icon }) => (
-                            // Buttons should ideally be Link components, but as long as they function as navigation and have text content, they are fine.
                             <Button
                                 key={path}
                                 onClick={() => router.push(path)}
                                 startIcon={<Icon sx={{ fontSize: 20 }} />}
-                                // ... (styles remain the same)
                                 sx={{
                                     textTransform: "none",
                                     fontWeight: isActive(path) ? 600 : 500,
                                     fontSize: "0.9375rem",
-                                    color: isActive(path) ? "#ffffff" : "#64748b",
+                                    color: isActive(path) ? "#ffffff" : "#475569", // Changed from #64748b for better contrast
                                     px: 2.5,
                                     py: 1.1,
                                     borderRadius: 3,
-                                    bgcolor: isActive(path) ? "#0891b2" : "transparent",
+                                    bgcolor: isActive(path) ? "#006d85" : "transparent",
                                     transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                                     position: "relative",
                                     overflow: "hidden",
                                     boxShadow: isActive(path) ? "0 2px 8px rgba(8, 145, 178, 0.3)" : "none",
                                     "&:hover": {
-                                        bgcolor: isActive(path) ? "#0e7490" : "#ffffff",
-                                        color: isActive(path) ? "#ffffff" : "#0f172a",
+                                        bgcolor: isActive(path) ? "#005a70" : "#ffffff",
+                                        color: isActive(path) ? "#ffffff" : "#1e293b", // Darker on hover
                                         transform: "translateY(-1px)",
                                         boxShadow: isActive(path)
                                             ? "0 4px 12px rgba(8, 145, 178, 0.4)"
@@ -166,8 +166,7 @@ export default function Navbar() {
                     <IconButton
                         size="medium"
                         onClick={() => router.push("/profile")}
-                        // 4. FIXED: Explicit Label. Added descriptive aria-label for screen readers.
-                        aria-label="View user profile settings"
+                        aria-label="View your profile and settings"
                         sx={{
                             bgcolor: "#f1f5f9",
                             border: "1px solid #e2e8f0",
@@ -180,17 +179,12 @@ export default function Navbar() {
                                 borderColor: "#0891b2",
                                 transform: "scale(1.05)",
                                 boxShadow: "0 4px 12px rgba(8, 145, 178, 0.3)",
-                                "& .MuiAvatar-root": {
-                                    bgcolor: "#0e7490",
-                                }
                             },
                         }}
                     >
                         <Avatar
                             src={profileImage || undefined}
-                            // 5. FIXED: Image alt text within Avatar component. If profileImage is present, it needs alt text.
-                            // If it's a decorative default icon, alt can be empty, but since profileImage is dynamic, use an aria-label on the Avatar itself.
-                            alt={profileImage ? "User profile picture" : "Default profile icon"} 
+                            alt=""
                             sx={{
                                 width: 40,
                                 height: 40,
@@ -199,9 +193,13 @@ export default function Navbar() {
                                 fontWeight: 600,
                             }}
                         >
-                            {!profileImage && <PersonOutline sx={{ fontSize: 22, color: "#ffffff" }} />}
+                            {/* Show icon ONLY when NO image */}
+                            {!profileImage && (
+                                <PersonOutline sx={{ fontSize: 22, color: "#ffffff" }} />
+                            )}
                         </Avatar>
                     </IconButton>
+
                 </Stack>
             </Toolbar>
         </AppBar>

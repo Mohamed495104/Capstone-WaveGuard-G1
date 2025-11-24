@@ -61,7 +61,7 @@ export const PrimaryButtonStyle = {
     mt: { xs: 1.5, sm: 2 },
     mb: { xs: 1.5, sm: 2 },
     background: "#fff",
-    color: "#0891b2",
+    color: "#046d87ff",
     py: { xs: 1.1, sm: 1.3 },
     fontWeight: 700,
     fontSize: { xs: "0.9rem", sm: "0.9375rem" },

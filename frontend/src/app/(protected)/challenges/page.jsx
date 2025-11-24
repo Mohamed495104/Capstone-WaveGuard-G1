@@ -167,10 +167,16 @@ function ChallengesPage() {
 
                     {!isMobile && (
                         <Box sx={{ display: "flex", gap: 1 }}>
-                            <IconButton onClick={() => scroll(scrollRef, "left")}>
+                            <IconButton 
+                                onClick={() => scroll(scrollRef, "left")}
+                                aria-label={`Scroll ${title} left`}
+                            >
                                 <ChevronLeftIcon />
                             </IconButton>
-                            <IconButton onClick={() => scroll(scrollRef, "right")}>
+                            <IconButton 
+                                onClick={() => scroll(scrollRef, "right")}
+                                aria-label={`Scroll ${title} right`}
+                            >
                                 <ChevronRightIcon />
                             </IconButton>
                         </Box>
@@ -207,7 +213,7 @@ function ChallengesPage() {
             <Container maxWidth="xl">
                 <Box sx={HeaderBoxStyle}>
                     <Typography variant="h4" sx={HeaderTitleStyle}>
-                        🌊 Cleanup Challenges
+                        <span role="img" aria-label="wave">🌊</span> Cleanup Challenges
                     </Typography>
                     <Typography variant="body1" sx={HeaderSubtitleStyle}>
                         Join hands in restoring our coastlines — every cleanup counts!
@@ -235,35 +241,83 @@ function ChallengesPage() {
                                 flexWrap: "wrap",
                             }}
                         >
-                            <FormControl sx={{ minWidth: 200 }}>
-                                <InputLabel>Filter by Region</InputLabel>
-                                <Select
+                            {/* Region Filter */}
+                            <Box sx={{ minWidth: 200 }}>
+                                <label htmlFor="region-filter" style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                                    Filter by Region
+                                </label>
+                                <select
+                                    id="region-filter"
                                     value={selectedRegion}
-                                    label="Filter by Region"
                                     onChange={(e) => setSelectedRegion(e.target.value)}
+                                    aria-label="Filter challenges by region"
+                                    style={{
+                                        width: '100%',
+                                        padding: '16.5px 14px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        border: '1px solid rgba(0, 0, 0, 0.23)',
+                                        borderRadius: '4px',
+                                        outline: 'none',
+                                        backgroundColor: 'white',
+                                        cursor: 'pointer',
+                                        transition: 'border-color 0.2s',
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#1976d2';
+                                        e.target.style.borderWidth = '2px';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.23)';
+                                        e.target.style.borderWidth = '1px';
+                                    }}
                                 >
                                     {uniqueRegions.map((region) => (
-                                        <MenuItem key={region} value={region}>
+                                        <option key={region} value={region}>
                                             {region}
-                                        </MenuItem>
+                                        </option>
                                     ))}
-                                </Select>
-                            </FormControl>
+                                </select>
+                            </Box>
 
-                            <FormControl sx={{ minWidth: 200 }}>
-                                <InputLabel>Filter by Status</InputLabel>
-                                <Select
+                            {/* Status Filter */}
+                            <Box sx={{ minWidth: 200 }}>
+                                <label htmlFor="status-filter" style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                                    Filter by Status
+                                </label>
+                                <select
+                                    id="status-filter"
                                     value={selectedStatus}
-                                    label="Filter by Status"
                                     onChange={(e) => setSelectedStatus(e.target.value)}
+                                    aria-label="Filter challenges by status"
+                                    style={{
+                                        width: '100%',
+                                        padding: '16.5px 14px',
+                                        fontSize: '16px',
+                                        fontFamily: 'inherit',
+                                        border: '1px solid rgba(0, 0, 0, 0.23)',
+                                        borderRadius: '4px',
+                                        outline: 'none',
+                                        backgroundColor: 'white',
+                                        cursor: 'pointer',
+                                        transition: 'border-color 0.2s',
+                                    }}
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#1976d2';
+                                        e.target.style.borderWidth = '2px';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(0, 0, 0, 0.23)';
+                                        e.target.style.borderWidth = '1px';
+                                    }}
                                 >
                                     {["All", "Active", "Upcoming", "Completed"].map((status) => (
-                                        <MenuItem key={status} value={status}>
+                                        <option key={status} value={status}>
                                             {status}
-                                        </MenuItem>
+                                        </option>
                                     ))}
-                                </Select>
-                            </FormControl>
+                                </select>
+                            </Box>
                         </Box>
 
                         {/* ACTIVE */}

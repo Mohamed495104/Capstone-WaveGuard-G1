@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, use } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     Box,
     Container,
@@ -20,7 +20,6 @@ import {
     Tabs,
     Tab,
     TextField,
-    FormControlLabel,
     Dialog,
     DialogTitle,
     DialogContent,
@@ -88,17 +87,17 @@ function UploadPage() {
     const validateFile = (file) => {
         const maxSize = 10 * 1024 * 1024; // 10MB
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        
+
         if (file.size > maxSize) {
             setError(`File is too large. Maximum size is 10MB.`);
             return false;
         }
-        
+
         if (!allowedTypes.includes(file.type)) {
             setError('Only image files (JPEG, PNG, WebP) are allowed.');
             return false;
         }
-        
+
         return true;
     };
 
@@ -106,7 +105,7 @@ function UploadPage() {
         const files = Array.from(e.target.files);
         setError("");
         setSuccess("");
-        
+
         if (files.length > 0 && validateFile(files[0])) {
             setSelectedFiles(files.slice(0, 1)); // Only allow one file
         } else {
@@ -120,7 +119,7 @@ function UploadPage() {
         const files = Array.from(e.dataTransfer.files);
         setError("");
         setSuccess("");
-        
+
         if (files.length > 0 && validateFile(files[0])) {
             setSelectedFiles(files.slice(0, 1)); // Only allow one file
         } else {
@@ -149,7 +148,7 @@ function UploadPage() {
         const files = Array.from(e.target.files);
         setError("");
         setSuccess("");
-        
+
         if (files.length > 0 && validateFile(files[0])) {
             setSelectedFiles(files.slice(0, 1)); // Only allow one file
         } else {
@@ -192,7 +191,6 @@ function UploadPage() {
         }
     };
 
-    // --- FIX: Updated handleSubmit for SYNCHRONOUS flow with location ---
     const handleSubmit = async () => {
         if (!selectedChallenge) {
             setError("Please select a challenge first!");
@@ -237,7 +235,6 @@ function UploadPage() {
                 true // force refresh token
             );
 
-            // The backend now returns a 200 with the result
             const result = res.data.result || { label: 'unknown', confidence: 0 };
             setClassificationResult(result);
             setShowResultDialog(true);
@@ -245,11 +242,10 @@ function UploadPage() {
 
         } catch (err) {
             console.error("AI Upload error:", err);
-            
-            // Handle location verification errors
+
             const errorData = err.response?.data;
             const errorCode = errorData?.error;
-            
+
             if (errorCode === 'LOCATION_TOO_FAR') {
                 const distance = errorData?.distance;
                 const maxDistance = errorData?.maxDistance;
@@ -265,7 +261,6 @@ function UploadPage() {
             setUploading(false);
         }
     };
-    // --- END FIX ---
 
     const handleManualSubmit = async () => {
         if (!selectedChallenge) {
@@ -329,11 +324,10 @@ function UploadPage() {
 
         } catch (err) {
             console.error("Manual Log error:", err);
-            
-            // Handle location verification errors
+
             const errorData = err.response?.data;
             const errorCode = errorData?.error;
-            
+
             if (errorCode === 'LOCATION_TOO_FAR') {
                 const distance = errorData?.distance;
                 const maxDistance = errorData?.maxDistance;
@@ -359,8 +353,9 @@ function UploadPage() {
         >
             <Container maxWidth="xl" sx={{ pt: { xs: 2, sm: 3, md: 4 } }}>
                 {/* Header */}
-                <Box sx={{ textAlign: "center", mb: { xs: 3, sm: 4 } }}>
+                <Box component="header" sx={{ textAlign: "center", mb: { xs: 3, sm: 4 } }}>
                     <Typography
+                        component="h1"
                         variant="h3"
                         sx={{
                             fontWeight: 800,
@@ -372,6 +367,7 @@ function UploadPage() {
                         Log Your Cleanup
                     </Typography>
                     <Typography
+                        component="p"
                         variant="body1"
                         sx={{
                             color: "#64748b",
@@ -400,8 +396,15 @@ function UploadPage() {
                             >
                                 <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
                                     <EmojiEvents sx={{ color: "#f59e0b", fontSize: 28, mr: 1.5 }} />
-                                    <Typography variant="h6" sx={{ fontWeight: 700, color: "#1e293b" }}>
-                                        1. Select Your Challenge
+                                    <Typography
+                                        component="h2"
+                                        sx={{
+                                            fontSize: "1rem",
+                                            fontWeight: 600,
+                                            color: "#1e293b"
+                                        }}
+                                    >
+                                        Select Your Challenge
                                     </Typography>
                                 </Box>
 
@@ -471,11 +474,14 @@ function UploadPage() {
                                 {/* Mobile: Dropdown */}
                                 <Box sx={{ display: { xs: "block", md: "none" } }}>
                                     <FormControl fullWidth>
-                                        <InputLabel>Select Challenge</InputLabel>
+                                        <InputLabel id="challenge-select-label">Select Challenge</InputLabel>
                                         <Select
+                                            labelId="challenge-select-label"
+                                            id="challenge-select"
                                             value={selectedChallenge}
                                             label="Select Challenge"
                                             onChange={(e) => setSelectedChallenge(e.target.value)}
+                                            displayEmpty={false}
                                         >
                                             {activeChallenges.map((challenge) => (
                                                 <MenuItem key={challenge._id} value={challenge._id}>
@@ -557,19 +563,17 @@ function UploadPage() {
                                             <Typography variant="h6" sx={{ fontWeight: 700, color: "#0d1b2a" }}>
                                                 Drop your photo here
                                             </Typography>
-                                            {/* --- FIX: Updated text --- */}
                                             <Typography variant="body2" sx={{ color: "#64748b", mb: 1 }}>
                                                 Upload one photo of a single item or small pile.
                                             </Typography>
-                                            {/* --- END FIX --- */}
-                                            
+
                                             {/* Action Buttons Row */}
                                             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
                                                 <Button
                                                     variant="outlined"
                                                     startIcon={<CloudUpload />}
                                                     onClick={() => fileInputRef.current?.click()}
-                                                    sx={{ borderColor: "#0ea5e9", borderWidth: 2, color: "#0ea5e9", px: 3, py: 1.5, borderRadius: "12px", textTransform: "none", fontWeight: 700, fontSize: "1rem", "&:hover": { borderWidth: 2, borderColor: "#0284c7", backgroundColor: "#f0f9ff" } }}
+                                                    sx={{ borderColor: "#0ea5e9", borderWidth: 2, color: "#0589c7ff", px: 3, py: 1.5, borderRadius: "12px", textTransform: "none", fontWeight: 700, fontSize: "1rem", "&:hover": { borderWidth: 2, borderColor: "#0284c7", backgroundColor: "#f0f9ff" } }}
                                                 >
                                                     Choose File
                                                 </Button>
@@ -577,39 +581,48 @@ function UploadPage() {
                                                     variant="contained"
                                                     startIcon={<PhotoCamera />}
                                                     onClick={handleTakePhoto}
-                                                    sx={{ 
+                                                    sx={{
                                                         background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
                                                         color: "white",
-                                                        px: 3, 
-                                                        py: 1.5, 
-                                                        borderRadius: "12px", 
-                                                        textTransform: "none", 
-                                                        fontWeight: 700, 
+                                                        px: 3,
+                                                        py: 1.5,
+                                                        borderRadius: "12px",
+                                                        textTransform: "none",
+                                                        fontWeight: 700,
                                                         fontSize: "1rem",
                                                         boxShadow: "0 4px 12px rgba(16, 185, 129, 0.3)",
-                                                        "&:hover": { 
+                                                        "&:hover": {
                                                             background: "linear-gradient(135deg, #059669 0%, #047857 100%)",
                                                             boxShadow: "0 6px 16px rgba(16, 185, 129, 0.4)",
-                                                        } 
+                                                        }
                                                     }}
                                                 >
                                                     Take Photo
                                                 </Button>
                                             </Box>
-                                            
-                                            <Typography variant="caption" sx={{ color: "#94a3b8", mt: 1 }}>
+
+                                            <Typography variant="caption" sx={{ color: "#607086ff", mt: 1 }}>
                                                 Supports: JPG, PNG • Max size: 10MB
                                             </Typography>
                                         </Box>
 
+                                        <label htmlFor="upload-file-input" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
+                                            Choose file to upload
+                                        </label>
                                         <input
+                                            id="upload-file-input"
                                             ref={fileInputRef}
                                             type="file"
                                             accept="image/*"
                                             style={{ display: "none" }}
                                             onChange={handleFileSelect}
                                         />
+
+                                        <label htmlFor="camera-file-input" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: '1px', height: '1px', overflow: 'hidden' }}>
+                                            Take photo using device camera
+                                        </label>
                                         <input
+                                            id="camera-file-input"
                                             ref={cameraInputRef}
                                             type="file"
                                             accept="image/*"
@@ -617,6 +630,7 @@ function UploadPage() {
                                             style={{ display: "none" }}
                                             onChange={handleCameraCapture}
                                         />
+
                                     </Paper>
 
                                     {selectedFiles.length > 0 && (
@@ -624,7 +638,7 @@ function UploadPage() {
                                             <Typography variant="h6" sx={{ fontWeight: 700, color: "#0d1b2a", mb: 2 }}>
                                                 Selected Photo
                                             </Typography>
-                                            
+
                                             {/* Display filename */}
                                             <Paper sx={{ p: 2, mb: 2, borderRadius: "12px", backgroundColor: "#f8fafc", border: "1px solid #e2e8f0" }}>
                                                 <List dense>
@@ -633,7 +647,7 @@ function UploadPage() {
                                                             <ListItemIcon>
                                                                 <CheckCircle sx={{ color: "#10b981" }} />
                                                             </ListItemIcon>
-                                                            <ListItemText 
+                                                            <ListItemText
                                                                 primary={file.name}
                                                                 secondary={`${(file.size / 1024).toFixed(2)} KB`}
                                                                 primaryTypographyProps={{ fontWeight: 600, fontSize: "0.95rem" }}
@@ -643,13 +657,13 @@ function UploadPage() {
                                                     ))}
                                                 </List>
                                             </Paper>
-                                            
+
                                             <Grid container spacing={2}>
                                                 {selectedFiles.map((file, index) => (
                                                     <Grid item xs={6} sm={4} key={index}>
                                                         <Box sx={{ position: "relative", paddingTop: "100%", borderRadius: "16px", overflow: "hidden", backgroundColor: "#f1f5f9", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                                                            <img src={URL.createObjectURL(file)} alt={file.name} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                                                            <IconButton onClick={() => removeFile(index)} sx={{ position: "absolute", top: 8, right: 8, backgroundColor: "rgba(239, 68, 68, 0.95)", color: "#fff", width: 32, height: 32, "&:hover": { backgroundColor: "#dc2626" } }}>
+                                                            <img src={URL.createObjectURL(file)} alt={`Selected upload file: ${file.name}`} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                                                            <IconButton onClick={() => removeFile(index)} sx={{ position: "absolute", top: 8, right: 8, backgroundColor: "rgba(239, 68, 68, 0.95)", color: "#fff", width: 32, height: 32, "&:hover": { backgroundColor: "#dc2626" } }} aria-label="Remove selected image">
                                                                 <Close fontSize="small" />
                                                             </IconButton>
                                                         </Box>
@@ -681,8 +695,10 @@ function UploadPage() {
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={8}>
                                             <FormControl fullWidth>
-                                                <InputLabel>Trash Category</InputLabel>
+                                                <InputLabel id="trash-category-label">Trash Category</InputLabel>
                                                 <Select
+                                                    labelId="trash-category-label"
+                                                    id="trash-category-select"
                                                     name="label"
                                                     value={manualForm.label}
                                                     label="Trash Category"
@@ -698,6 +714,7 @@ function UploadPage() {
                                         </Grid>
                                         <Grid item xs={12} sm={4}>
                                             <TextField
+                                                id="manual-item-count"
                                                 name="itemCount"
                                                 label="Item Count"
                                                 type="number"
@@ -740,8 +757,8 @@ function UploadPage() {
             </Container>
 
             {/* Classification Result Dialog */}
-            <Dialog 
-                open={showResultDialog} 
+            <Dialog
+                open={showResultDialog}
                 onClose={handleCloseResultDialog}
                 maxWidth="sm"
                 fullWidth
@@ -754,13 +771,13 @@ function UploadPage() {
             >
                 <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
                     <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                        <Box sx={{ 
-                            width: 80, 
-                            height: 80, 
-                            borderRadius: "50%", 
-                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)", 
-                            display: "flex", 
-                            alignItems: "center", 
+                        <Box sx={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: "50%",
+                            background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+                            display: "flex",
+                            alignItems: "center",
                             justifyContent: "center",
                             boxShadow: "0 8px 24px rgba(16, 185, 129, 0.3)"
                         }}>
@@ -774,18 +791,18 @@ function UploadPage() {
                 <DialogContent>
                     {classificationResult && (
                         <Box sx={{ textAlign: "center", py: 2 }}>
-                            <Typography variant="h2" sx={{ fontSize: "4rem", mb: 2 }}>
+                            <Typography variant="h2" sx={{ fontSize: "4rem", mb: 2 }} role="img" aria-label={getCategoryDisplayName(classificationResult.label)}>
                                 {getCategoryIcon(classificationResult.label)}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: 700, color: "#0ea5e9", mb: 1 }}>
                                 {getCategoryDisplayName(classificationResult.label)}
                             </Typography>
-                            <Chip 
+                            <Chip
                                 icon={<Recycling />}
                                 label={`${(classificationResult.confidence * 100).toFixed(1)}% confident`}
-                                sx={{ 
-                                    backgroundColor: "#e0f2fe", 
-                                    color: "#0369a1", 
+                                sx={{
+                                    backgroundColor: "#e0f2fe",
+                                    color: "#0369a1",
                                     fontWeight: 600,
                                     fontSize: "0.9rem",
                                     py: 2.5,
@@ -801,11 +818,11 @@ function UploadPage() {
                     )}
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
-                    <Button 
+                    <Button
                         onClick={handleCloseResultDialog}
                         variant="contained"
                         size="large"
-                        sx={{ 
+                        sx={{
                             background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
                             color: "white",
                             px: 4,
@@ -828,4 +845,3 @@ function UploadPage() {
 }
 
 export default withAuth(UploadPage);
-

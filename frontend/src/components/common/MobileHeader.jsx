@@ -74,7 +74,8 @@ export default function MobileHeader() {
                 <Box
                     component="img"
                     src="/images/logoblue.png"
-                    alt="WaveGuard"
+                    alt=""
+                    aria-hidden="true"
                     sx={{
                         height: 32,
                         width: 32,
@@ -97,7 +98,7 @@ export default function MobileHeader() {
 
             <IconButton
                 size="large"
-                aria-label="profile menu"
+                aria-label="Open profile menu"
                 onClick={handleMenuOpen}
                 sx={{
                     ml: 1,
@@ -106,6 +107,7 @@ export default function MobileHeader() {
             >
                 <Avatar
                     src={profileImage || undefined}
+                    alt=""
                     sx={{
                         width: 36,
                         height: 36,

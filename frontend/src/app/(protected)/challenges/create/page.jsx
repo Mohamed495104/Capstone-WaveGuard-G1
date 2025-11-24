@@ -192,21 +192,31 @@ function CreateChallengePage() {
 
           {/* ACCESSIBLE IMAGE UPLOAD */}
           <Box sx={{ mb: 3 }}>
-            <Typography sx={{ fontWeight: 600, mb: 1 }}>
+            <Typography 
+              component="label" 
+              htmlFor="banner-upload-input"
+              sx={{ fontWeight: 600, mb: 1, display: 'block' }}
+            >
               Upload Banner Image *
             </Typography>
 
-            <button
+            <Box
+              component="button"
               type="button"
               aria-label="Upload banner image"
               onClick={() => fileInputRef.current?.click()}
-              style={{
+              sx={{
                 border: "1px solid #cbd5e1",
                 borderRadius: "8px",
                 background: "#f8fafc",
                 height: "200px",
                 width: "100%",
                 cursor: "pointer",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                padding: 0,
               }}
             >
               {bannerPreview ? (
@@ -217,26 +227,34 @@ function CreateChallengePage() {
                     width: "100%",
                     height: "100%",
                     objectFit: "cover",
-                    borderRadius: "8px",
                   }}
                 />
               ) : (
-                <Typography sx={{ color: "#94a3b8" }}>
+                <Typography sx={{ color: "#36393eff" }}>
                   Click to upload an image
                 </Typography>
               )}
-            </button>
+            </Box>
 
             {errors.banner && (
               <Typography sx={{ color: "red", mt: 1 }}>{errors.banner}</Typography>
             )}
 
             <input
+              id="banner-upload-input"
               type="file"
               accept="image/*"
               ref={fileInputRef}
               onChange={handleBannerSelect}
-              style={{ display: "none" }}
+              aria-label="Banner image file input"
+              style={{ 
+                position: 'absolute',
+                left: '-10000px',
+                top: 'auto',
+                width: '1px',
+                height: '1px',
+                overflow: 'hidden'
+              }}
             />
           </Box>
 
@@ -256,19 +274,47 @@ function CreateChallengePage() {
             />
 
             {/* Description */}
-            <TextField
-              id="description"
-              label="Description *"
-              name="description"
-              fullWidth
-              multiline
-              rows={3}
-              sx={{ mb: 3 }}
-              value={form.description}
-              onChange={handleChange}
-              error={!!errors.description}
-              helperText={errors.description}
-            />
+            <Box sx={{ mb: 3 }}>
+              <label htmlFor="description-textarea" style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                Description *
+              </label>
+              <textarea
+                id="description-textarea"
+                name="description"
+                rows={3}
+                value={form.description}
+                onChange={handleChange}
+                aria-label="Challenge description"
+                aria-required="true"
+                aria-invalid={!!errors.description}
+                style={{
+                  width: '100%',
+                  padding: '16.5px 14px',
+                  fontSize: '16px',
+                  fontFamily: 'inherit',
+                  border: errors.description ? '1px solid #d32f2f' : '1px solid rgba(0, 0, 0, 0.23)',
+                  borderRadius: '4px',
+                  resize: 'vertical',
+                  outline: 'none',
+                  transition: 'border-color 0.2s',
+                }}
+                onFocus={(e) => {
+                  if (!errors.description) {
+                    e.target.style.borderColor = '#1976d2';
+                    e.target.style.borderWidth = '2px';
+                  }
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.description ? '#d32f2f' : 'rgba(0, 0, 0, 0.23)';
+                  e.target.style.borderWidth = '1px';
+                }}
+              />
+              {errors.description && (
+                <Typography sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>
+                  {errors.description}
+                </Typography>
+              )}
+            </Box>
 
             {/* Location */}
             <TextField
@@ -284,24 +330,54 @@ function CreateChallengePage() {
             />
 
             {/* Province */}
-            <TextField
-              id="province"
-              select
-              label="Province *"
-              name="province"
-              fullWidth
-              sx={{ mb: 3 }}
-              value={form.province}
-              onChange={handleChange}
-              error={!!errors.province}
-              helperText={errors.province}
-            >
-              {PROVINCES.map((p) => (
-                <MenuItem key={p.code} value={p.code}>
-                  {p.name}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Box sx={{ mb: 3 }}>
+              <label htmlFor="province-select" style={{ display: 'block', marginBottom: '8px', fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                Province *
+              </label>
+              <select
+                id="province-select"
+                name="province"
+                value={form.province}
+                onChange={handleChange}
+                aria-label="Select province"
+                aria-required="true"
+                aria-invalid={!!errors.province}
+                style={{
+                  width: '100%',
+                  padding: '16.5px 14px',
+                  fontSize: '16px',
+                  fontFamily: 'inherit',
+                  border: errors.province ? '1px solid #d32f2f' : '1px solid rgba(0, 0, 0, 0.23)',
+                  borderRadius: '4px',
+                  outline: 'none',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s',
+                }}
+                onFocus={(e) => {
+                  if (!errors.province) {
+                    e.target.style.borderColor = '#1976d2';
+                    e.target.style.borderWidth = '2px';
+                  }
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = errors.province ? '#d32f2f' : 'rgba(0, 0, 0, 0.23)';
+                  e.target.style.borderWidth = '1px';
+                }}
+              >
+                <option value="">Select a province</option>
+                {PROVINCES.map((p) => (
+                  <option key={p.code} value={p.code}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+              {errors.province && (
+                <Typography sx={{ color: '#d32f2f', fontSize: '0.75rem', mt: 0.5, ml: 1.75 }}>
+                  {errors.province}
+                </Typography>
+              )}
+            </Box>
 
             {/* Region (read only) */}
             <TextField
@@ -341,6 +417,9 @@ function CreateChallengePage() {
               onChange={handleChange}
               error={!!errors.startDate}
               helperText={errors.startDate}
+              inputProps={{
+                'aria-label': 'Challenge start date'
+              }}
             />
 
             <TextField
@@ -355,6 +434,9 @@ function CreateChallengePage() {
               onChange={handleChange}
               error={!!errors.endDate}
               helperText={errors.endDate}
+              inputProps={{
+                'aria-label': 'Challenge end date'
+              }}
             />
 
             {/* Coordinates */}
@@ -386,7 +468,7 @@ function CreateChallengePage() {
               type="submit"
               variant="contained"
               fullWidth
-              sx={{ py: 1.4, fontWeight: 600, background: "#0284c7", mt: 2 }}
+              sx={{ py: 1.4, fontWeight: 600, background: "#0a5c85ff", mt: 2 }}
             >
               Create Challenge
             </Button>

@@ -224,7 +224,7 @@ export const styles = {
     },
   },
   activeTab: {
-    color: "#0ea5e9",
+    color: "#025074ff",
     backgroundColor: "#ffffff",
     borderBottom: "2px solid #0ea5e9",
   },
@@ -250,7 +250,7 @@ export const styles = {
   sectionTitle: {
     fontSize: "18px",
     fontWeight: 600,
-    color: "#1a1a1a",
+    color: "#171616ff",
     marginBottom: "24px",
   },
 
