@@ -10,8 +10,19 @@ import achievementsRoutes from "./routes/achievementsRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import mongoose from "mongoose";
 
 const PORT = process.env.PORT || 5000;
+
+// Build array of allowed origins for CORS
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://capstone-marinecare.vercel.app",
+    process.env.FRONTEND_URL,
+].filter(Boolean);
+
+// Remove duplicates
+const uniqueOrigins = [...new Set(allowedOrigins)];
 
 // Apply rate limiting to all API routes (100 requests/min)
 app.use("/api", apiRateLimiter);
@@ -36,7 +47,15 @@ app.get("/health", (req, res) => {
         status: "healthy",
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
-        environment: process.env.NODE_ENV || "development"
+        environment: process.env.NODE_ENV || "development",
+        cors: {
+            frontendUrl: process.env.FRONTEND_URL || "not set",
+            allowedOrigins: uniqueOrigins,
+        },
+        mongodb: {
+            connected: mongoose.connection.readyState === 1,
+            state: mongoose.connection.readyState,
+        },
     });
 });
 
