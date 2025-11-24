@@ -81,7 +81,17 @@ export const registerUser = async (req, res) => {
         const sanitizedName = nameValidation.sanitized;
 
         // 1. Check if user already exists in MongoDB
-        const mongoUserExists = await User.findOne({ email: sanitizedEmail });
+        let mongoUserExists;
+        try {
+            mongoUserExists = await User.findOne({ email: sanitizedEmail });
+        } catch (dbError) {
+            console.error("MongoDB query error during registration:", dbError.message);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Database connection error. Please try again later." 
+            });
+        }
+        
         if (mongoUserExists) {
             return res.status(400).json({ success: false, message: "Email is already registered" });
         }
@@ -96,11 +106,18 @@ export const registerUser = async (req, res) => {
             });
 
             // 3. Create user in MongoDB
-            const newUser = await User.create({
-                firebaseUid: firebaseUser.uid,
-                email: sanitizedEmail,
-                name: sanitizedName,
-            });
+            let newUser;
+            try {
+                newUser = await User.create({
+                    firebaseUid: firebaseUser.uid,
+                    email: sanitizedEmail,
+                    name: sanitizedName,
+                });
+            } catch (dbError) {
+                console.error("MongoDB user creation error:", dbError.message);
+                // Re-throw to trigger the outer catch block which handles rollback
+                throw dbError;
+            }
 
             res.status(201).json({
                 success: true,
@@ -125,15 +142,17 @@ export const registerUser = async (req, res) => {
                 }
             }
 
-            console.error("Registration Error:", error);
-            // Log detailed error information (only in development to avoid exposing internals)
-            if (process.env.NODE_ENV !== 'production') {
-                console.error("Error details:", {
-                    code: error.code,
-                    message: error.message,
-                    stack: error.stack
-                });
-            }
+            console.error("Registration Error:", error.message);
+            console.error("Error code:", error.code);
+            // Log detailed error information for debugging production issues
+            // (Sensitive data is not exposed to client, only logged server-side)
+            console.error("Error details:", {
+                code: error.code,
+                message: error.message,
+                name: error.name,
+                // Don't log full stack in production to reduce log size
+                ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
+            });
             
             // Handle Firebase-specific errors
             if (error.code === 'auth/email-already-exists') {
@@ -146,15 +165,17 @@ export const registerUser = async (req, res) => {
             return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
         }
     } catch (error) {
-        console.error("Unexpected registration error:", error);
-        // Log detailed error information (only in development to avoid exposing internals)
-        if (process.env.NODE_ENV !== 'production') {
-            console.error("Unexpected error details:", {
-                code: error.code,
-                message: error.message,
-                stack: error.stack
-            });
-        }
+        console.error("Unexpected registration error:", error.message);
+        console.error("Error code:", error.code);
+        // Log detailed error information for debugging production issues
+        // (Sensitive data is not exposed to client, only logged server-side)
+        console.error("Unexpected error details:", {
+            code: error.code,
+            message: error.message,
+            name: error.name,
+            // Don't log full stack in production to reduce log size
+            ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
+        });
         return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
     }
 };
@@ -189,15 +210,24 @@ export const syncUser = async (req, res) => {
 
         // Find existing user or create a new one (upsert logic)
         // This is safe for login/Google Sign-In as it won't create duplicates
-        let user = await User.findOne({ firebaseUid: uid });
+        let user;
+        try {
+            user = await User.findOne({ firebaseUid: uid });
 
-        if (!user) {
-            console.log(`Sync: User ${uid} not found in MongoDB. Creating...`);
-            user = await User.create({
-                firebaseUid: uid,
-                name: name || (email ? email.split("@")[0] : "Anonymous"),
-                email,
-                profileImage: picture || "",
+            if (!user) {
+                console.log(`Sync: User ${uid} not found in MongoDB. Creating...`);
+                user = await User.create({
+                    firebaseUid: uid,
+                    name: name || (email ? email.split("@")[0] : "Anonymous"),
+                    email,
+                    profileImage: picture || "",
+                });
+            }
+        } catch (dbError) {
+            console.error("MongoDB error during sync:", dbError.message);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Database error during user sync. Please try again." 
             });
         }
 
@@ -214,6 +244,15 @@ export const syncUser = async (req, res) => {
         });
     } catch (error) {
         console.error("Firebase auth/sync error:", error.message);
+        console.error("Error code:", error.code);
+        // Log detailed error information for debugging production issues
+        console.error("Sync error details:", {
+            code: error.code,
+            message: error.message,
+            name: error.name,
+            // Don't log full stack in production to reduce log size
+            ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
+        });
         res.status(401).json({ success: false, message: "Invalid or expired Firebase token" });
     }
 };
@@ -250,10 +289,8 @@ export const createSessionCookie = async (req, res) => {
             path: '/',
         };
 
+        // Set the session cookie
         res.cookie('session', sessionCookie, cookieOptions);
-
-        // Set the cookie
-        res.cookie('session', sessionCookie, options);
 
         // Sync user to MongoDB
         let { uid, name, email, picture } = decodedToken;
@@ -271,15 +308,24 @@ export const createSessionCookie = async (req, res) => {
         }
 
         // Find or create user
-        let user = await User.findOne({ firebaseUid: uid });
+        let user;
+        try {
+            user = await User.findOne({ firebaseUid: uid });
 
-        if (!user) {
-            console.log(`Session: User ${uid} not found in MongoDB. Creating...`);
-            user = await User.create({
-                firebaseUid: uid,
-                name: name || (email ? email.split("@")[0] : "Anonymous"),
-                email,
-                profileImage: picture || "",
+            if (!user) {
+                console.log(`Session: User ${uid} not found in MongoDB. Creating...`);
+                user = await User.create({
+                    firebaseUid: uid,
+                    name: name || (email ? email.split("@")[0] : "Anonymous"),
+                    email,
+                    profileImage: picture || "",
+                });
+            }
+        } catch (dbError) {
+            console.error("MongoDB error during session creation:", dbError.message);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Database error during session creation. Please try again." 
             });
         }
 
@@ -296,6 +342,15 @@ export const createSessionCookie = async (req, res) => {
         });
     } catch (error) {
         console.error("Session creation error:", error.message);
+        console.error("Error code:", error.code);
+        // Log detailed error information for debugging production issues
+        console.error("Session error details:", {
+            code: error.code,
+            message: error.message,
+            name: error.name,
+            // Don't log full stack in production to reduce log size
+            ...(process.env.NODE_ENV !== 'production' && { stack: error.stack })
+        });
         res.status(401).json({ success: false, message: "Failed to create session. Invalid or expired token." });
     }
 };
