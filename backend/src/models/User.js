@@ -11,6 +11,20 @@ const userSchema = new mongoose.Schema(
         location: { type: String, default: "" },
         bio: { type: String, default: "" },
 
+        // Address details (for profile location with autocomplete)
+        address: {
+            fullAddress: { type: String, default: "" },      // Full formatted address
+            streetAddress: { type: String, default: "" },    // House no, street
+            city: { type: String, default: "" },             // City/Town
+            province: { type: String, default: "" },         // Province
+            postalCode: { type: String, default: "" },       // Postal code
+            country: { type: String, default: "Canada" },    // Country
+            coordinates: {                                    // GeoJSON coordinates
+                latitude: { type: Number },
+                longitude: { type: Number }
+            }
+        },
+
         // Live stats
         totalItemsCollected: { type: Number, default: 0 },
         totalCleanups: { type: Number, default: 0 },
