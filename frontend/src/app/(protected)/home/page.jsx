@@ -117,7 +117,7 @@ function HomePage() {
             {/* HERO SECTION */}
             <HeroSection>
                 <HeroOverlay>
-                    <HeroTag>WaveGuard Platform</HeroTag>
+                    <HeroTag>MarineCare Platform</HeroTag>
                     <HeroTitle>
                         {userLoading ? (
                             <>
@@ -127,7 +127,7 @@ function HomePage() {
                         ) : isFirstTimeUser ? (
                             <>
                                 {greeting}, {firstName}! <br />
-                                <span style={{ color: "#67e8c3" }}>Welcome to WaveGuard</span>
+                                <span style={{ color: "#67e8c3" }}>Welcome to MarineCare</span>
                             </>
                         ) : (
                             <>
@@ -199,7 +199,7 @@ function HomePage() {
             <WorkSection>
                 <WorkBadge>Getting Started</WorkBadge>
                 <Typography variant="h4" fontWeight={700} color="#003554" mb={1}>
-                    How to Use WaveGuard
+                    How to Use MarineCare
                 </Typography>
                 <Typography color="#004b63" mb={6} maxWidth="700px" margin="0 auto 48px">
                     Follow these simple steps to start making an impact. Our AI-powered platform 

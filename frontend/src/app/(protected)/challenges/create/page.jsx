@@ -559,7 +559,7 @@ function CreateChallengePage() {
                 />
               </>
             )}
-            />
+
 
             {/* Location Status */}
             <Box sx={{ mb: 3, p: 2, borderRadius: 2, backgroundColor: userLocation ? '#f0fdf4' : '#fef2f2', border: `1px solid ${userLocation ? '#86efac' : '#fecaca'}` }}>
