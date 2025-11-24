@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
     Box,
     Container,
@@ -36,6 +37,7 @@ import { useJoinedChallenges } from "@/context/JoinedChallengesContext";
 import { challenges as mockChallenges, mockStats, regions as regionList } from "@/data/challenges";
 
 function ChallengesPage() {
+    const router = useRouter();
     const [challenges, setChallenges] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -311,7 +313,7 @@ function ChallengesPage() {
                             scrollRef={completedScrollRef}
                         />
 
-                        <CTASection />
+                        <CTASection onCreateClick={() => router.push('/challenges/create')} />
                     </>
                 )}
             </Container>

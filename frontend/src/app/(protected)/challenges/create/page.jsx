@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Container,
@@ -11,6 +11,8 @@ import {
   Snackbar,
   Alert,
   Paper,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/utils/api";
@@ -61,10 +63,12 @@ function CreateChallengePage() {
     goal: "",
     startDate: "",
     endDate: "",
-    latitude: "",
-    longitude: "",
+    startNow: false, // New: instant start option
   });
 
+  const [userLocation, setUserLocation] = useState(null); // Auto-fetched location
+  const [locationError, setLocationError] = useState("");
+  const [fetchingLocation, setFetchingLocation] = useState(false);
   const [errors, setErrors] = useState({});
   const [bannerPreview, setBannerPreview] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
@@ -75,6 +79,55 @@ function CreateChallengePage() {
     message: "",
   });
 
+  // Auto-fetch user location on component mount
+  useEffect(() => {
+    fetchUserLocation();
+  }, []);
+
+  const fetchUserLocation = async () => {
+    setFetchingLocation(true);
+    setLocationError("");
+    
+    try {
+      if (!navigator.geolocation) {
+        throw new Error("Geolocation is not supported by your browser");
+      }
+
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        });
+      });
+
+      setUserLocation({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      });
+      
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Location detected successfully!",
+      });
+    } catch (error) {
+      console.error("Location error:", error);
+      setLocationError(
+        error.code === 1 
+          ? "Location permission denied. Please enable location access to create challenges." 
+          : "Could not fetch location. Please try again."
+      );
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "Failed to get location. You must be within 5km of a shoreline to create challenges.",
+      });
+    } finally {
+      setFetchingLocation(false);
+    }
+  };
+
   const validate = () => {
     const newErrors = {};
 
@@ -84,17 +137,29 @@ function CreateChallengePage() {
     if (!form.locationName.trim()) newErrors.locationName = "Location name required";
     if (!form.province) newErrors.province = "Province is required";
     if (!form.goal) newErrors.goal = "Goal is required";
-    if (!form.startDate) newErrors.startDate = "Start date required";
-    if (!form.endDate) newErrors.endDate = "End date required";
-    if (!form.latitude) newErrors.latitude = "Latitude required";
-    if (!form.longitude) newErrors.longitude = "Longitude required";
+    
+    // Validate dates only if not starting now
+    if (!form.startNow) {
+      if (!form.startDate) newErrors.startDate = "Start date required";
+      if (!form.endDate) newErrors.endDate = "End date required";
+      
+      // Check if end date is after start date
+      if (form.startDate && form.endDate && new Date(form.endDate) <= new Date(form.startDate)) {
+        newErrors.endDate = "End date must be after start date";
+      }
+    }
+    
+    // Check if user location is available
+    if (!userLocation) {
+      newErrors.location = "Location detection required. Please allow location access.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
     if (name === "province") {
       setForm((prev) => ({
@@ -104,8 +169,18 @@ function CreateChallengePage() {
       }));
       return;
     }
+    
+    if (name === "startNow") {
+      setForm((prev) => ({
+        ...prev,
+        startNow: checked,
+        // Clear date fields when switching to instant start
+        ...(checked && { startDate: "", endDate: "" })
+      }));
+      return;
+    }
 
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
   const handleBannerSelect = (e) => {
@@ -147,15 +222,38 @@ function CreateChallengePage() {
 
     const bannerImage = await uploadBanner();
 
+    // Calculate dates based on startNow checkbox
+    let startDate, endDate;
+    if (form.startNow) {
+      // Start now: set start to current time, end to 30 days from now
+      startDate = new Date().toISOString();
+      const end = new Date();
+      end.setDate(end.getDate() + 30); // Default 30-day duration
+      endDate = end.toISOString();
+    } else {
+      startDate = new Date(form.startDate).toISOString();
+      endDate = new Date(form.endDate).toISOString();
+    }
+
     const payload = {
-      ...form,
+      title: form.title,
+      description: form.description,
+      locationName: form.locationName,
+      province: form.province,
+      region: form.region,
       goal: Number(form.goal),
+      startDate,
+      endDate,
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+      userLatitude: userLocation.latitude, // For backend location verification
+      userLongitude: userLocation.longitude,
       bannerImage,
       totalVolunteers: 0,
       totalTrashCollected: 0,
       goalUnit: "items",
       location: {
-        coordinates: [Number(form.longitude), Number(form.latitude)],
+        coordinates: [Number(userLocation.longitude), Number(userLocation.latitude)],
       },
     };
 
@@ -169,11 +267,13 @@ function CreateChallengePage() {
       });
 
       setTimeout(() => router.push("/challenges"), 800);
-    } catch {
+    } catch (error) {
+      console.error("Create challenge error:", error);
+      const errorMsg = error.response?.data?.message || "Failed to create challenge.";
       setSnackbar({
         open: true,
         severity: "error",
-        message: "Failed to create challenge.",
+        message: errorMsg,
       });
     }
   };
@@ -404,73 +504,97 @@ function CreateChallengePage() {
               helperText={errors.goal}
             />
 
-            {/* Dates */}
-            <TextField
-              id="startDate"
-              label="Start Date *"
-              type="date"
-              name="startDate"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ mb: 3 }}
-              value={form.startDate}
-              onChange={handleChange}
-              error={!!errors.startDate}
-              helperText={errors.startDate}
-              inputProps={{
-                'aria-label': 'Challenge start date'
-              }}
+            {/* Start Now Checkbox */}
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={form.startNow}
+                  onChange={handleChange}
+                  name="startNow"
+                  color="primary"
+                />
+              }
+              label="Start challenge now (30-day duration)"
+              sx={{ mb: 2 }}
             />
 
-            <TextField
-              id="endDate"
-              label="End Date *"
-              type="date"
-              name="endDate"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              sx={{ mb: 3 }}
-              value={form.endDate}
-              onChange={handleChange}
-              error={!!errors.endDate}
-              helperText={errors.endDate}
-              inputProps={{
-                'aria-label': 'Challenge end date'
-              }}
+            {/* Dates - Only show if not starting now */}
+            {!form.startNow && (
+              <>
+                <TextField
+                  id="startDate"
+                  label="Start Date *"
+                  type="datetime-local"
+                  name="startDate"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mb: 3 }}
+                  value={form.startDate}
+                  onChange={handleChange}
+                  error={!!errors.startDate}
+                  helperText={errors.startDate}
+                  inputProps={{
+                    'aria-label': 'Challenge start date and time'
+                  }}
+                />
+
+                <TextField
+                  id="endDate"
+                  label="End Date *"
+                  type="datetime-local"
+                  name="endDate"
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                  sx={{ mb: 3 }}
+                  value={form.endDate}
+                  onChange={handleChange}
+                  error={!!errors.endDate}
+                  helperText={errors.endDate}
+                  inputProps={{
+                    'aria-label': 'Challenge end date and time'
+                  }}
+                />
+              </>
+            )}
             />
 
-            {/* Coordinates */}
-            <TextField
-              id="latitude"
-              label="Latitude *"
-              name="latitude"
-              fullWidth
-              sx={{ mb: 3 }}
-              value={form.latitude}
-              onChange={handleChange}
-              error={!!errors.latitude}
-              helperText={errors.latitude}
-            />
-
-            <TextField
-              id="longitude"
-              label="Longitude *"
-              name="longitude"
-              fullWidth
-              sx={{ mb: 3 }}
-              value={form.longitude}
-              onChange={handleChange}
-              error={!!errors.longitude}
-              helperText={errors.longitude}
-            />
+            {/* Location Status */}
+            <Box sx={{ mb: 3, p: 2, borderRadius: 2, backgroundColor: userLocation ? '#f0fdf4' : '#fef2f2', border: `1px solid ${userLocation ? '#86efac' : '#fecaca'}` }}>
+              <Typography sx={{ fontWeight: 600, mb: 1, color: userLocation ? '#166534' : '#991b1b' }}>
+                {fetchingLocation ? '📍 Detecting location...' : userLocation ? '✓ Location Verified' : '⚠️ Location Required'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: userLocation ? '#166534' : '#991b1b' }}>
+                {fetchingLocation 
+                  ? 'Please allow location access when prompted.'
+                  : userLocation
+                    ? `Latitude: ${userLocation.latitude.toFixed(6)}, Longitude: ${userLocation.longitude.toFixed(6)}`
+                    : locationError || 'Location detection is required. You must be within 5km of the challenge location.'
+                }
+              </Typography>
+              {!userLocation && !fetchingLocation && (
+                <Button 
+                  onClick={fetchUserLocation}
+                  size="small"
+                  sx={{ mt: 1, textTransform: 'none' }}
+                >
+                  Try Again
+                </Button>
+              )}
+              {errors.location && (
+                <Typography sx={{ color: 'error.main', mt: 1, fontSize: '0.875rem' }}>
+                  {errors.location}
+                </Typography>
+              )}
+            </Box>
 
             <Button
               type="submit"
               variant="contained"
               fullWidth
+              disabled={!userLocation || fetchingLocation}
               sx={{ py: 1.4, fontWeight: 600, background: "#0a5c85ff", mt: 2 }}
             >
-              Create Challenge
+              {fetchingLocation ? 'Detecting Location...' : 'Create Challenge'}
             </Button>
           </form>
         </Paper>
