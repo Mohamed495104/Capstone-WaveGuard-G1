@@ -52,7 +52,8 @@ function AchievementsPage() {
                 const config = {
                     headers: {
                         'Authorization': `Bearer ${token}` 
-                    }
+                    },
+                    withCredentials: true
                 };
 
                 const [achievementsRes, leaderboardRes, milestonesRes, statsRes] = await Promise.all([
