@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Box,
   Container,
@@ -13,6 +13,12 @@ import {
   Paper,
   FormControlLabel,
   Checkbox,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  CircularProgress,
+  Chip,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { apiCall } from "@/utils/api";
@@ -66,12 +72,21 @@ function CreateChallengePage() {
     startNow: false, // New: instant start option
   });
 
-  const [userLocation, setUserLocation] = useState(null); // Auto-fetched location
+  const [userLocation, setUserLocation] = useState(null); // Auto-fetched user GPS
+  const [selectedLocation, setSelectedLocation] = useState(null); // Selected location from search
   const [locationError, setLocationError] = useState("");
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [errors, setErrors] = useState({});
   const [bannerPreview, setBannerPreview] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
+  
+  // Location search states
+  const [locationSearchQuery, setLocationSearchQuery] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [searchingLocations, setSearchingLocations] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [waterVerified, setWaterVerified] = useState(false);
+  const [verifyingWater, setVerifyingWater] = useState(false);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -83,6 +98,112 @@ function CreateChallengePage() {
   useEffect(() => {
     fetchUserLocation();
   }, []);
+
+  // Debounced location search
+  useEffect(() => {
+    const delaySearch = setTimeout(() => {
+      if (locationSearchQuery.length >= 2) {
+        searchLocations(locationSearchQuery);
+      } else {
+        setLocationSuggestions([]);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(delaySearch);
+  }, [locationSearchQuery]);
+
+  // Search Canadian locations using Nominatim via backend
+  const searchLocations = async (query) => {
+    if (!query || query.length < 2) return;
+    
+    setSearchingLocations(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/location/search?q=${encodeURIComponent(query)}`,
+        { credentials: 'include' }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setLocationSuggestions(data.locations || []);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error("Location search error:", error);
+    } finally {
+      setSearchingLocations(false);
+    }
+  };
+
+  // Verify if location is near water bodies
+  const verifyWaterProximity = async (lat, lon) => {
+    setVerifyingWater(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/location/verify-water?lat=${lat}&lon=${lon}`,
+        { credentials: 'include' }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWaterVerified(data.isNearWater);
+        
+        if (data.isNearWater) {
+          setSnackbar({
+            open: true,
+            severity: "success",
+            message: data.closestWater 
+              ? `✓ Water verified: ${data.closestWater.name} (${data.closestWater.type}) - ${data.closestWater.distance}km away`
+              : "✓ Location is near water bodies",
+          });
+        } else {
+          setSnackbar({
+            open: true,
+            severity: "warning",
+            message: "⚠️ This location may not be near shorelines/lakes. Consider selecting a coastal area.",
+          });
+        }
+        return data.isNearWater;
+      }
+    } catch (error) {
+      console.error("Water verification error:", error);
+      // Allow creation on error (graceful degradation)
+      setWaterVerified(true);
+      return true;
+    } finally {
+      setVerifyingWater(false);
+    }
+  };
+
+  // Handle location selection from suggestions
+  const handleLocationSelect = async (location) => {
+    setSelectedLocation(location);
+    setLocationSearchQuery(location.name);
+    setShowSuggestions(false);
+    setForm(prev => ({
+      ...prev,
+      locationName: location.name.split(',')[0], // First part of address
+    }));
+    
+    // Auto-detect province from location
+    const address = location.address || {};
+    if (address.state || address.province) {
+      const provinceName = address.state || address.province;
+      const provinceCode = PROVINCES.find(p => 
+        p.name.toLowerCase() === provinceName.toLowerCase()
+      )?.code;
+      if (provinceCode) {
+        setForm(prev => ({
+          ...prev,
+          province: provinceCode,
+          region: PROVINCE_TO_REGION[provinceCode] || "",
+        }));
+      }
+    }
+    
+    // Verify water proximity for selected location
+    await verifyWaterProximity(location.latitude, location.longitude);
+  };
 
   const fetchUserLocation = async () => {
     setFetchingLocation(true);
@@ -152,6 +273,11 @@ function CreateChallengePage() {
     // Check if user location is available
     if (!userLocation) {
       newErrors.location = "Location detection required. Please allow location access.";
+    }
+    
+    // Check if a location has been selected from search
+    if (!selectedLocation) {
+      newErrors.selectedLocation = "Please select a location from the search suggestions";
     }
 
     setErrors(newErrors);
@@ -235,6 +361,8 @@ function CreateChallengePage() {
       endDate = new Date(form.endDate).toISOString();
     }
 
+    // Use selected location coordinates (from search) for the challenge
+    // User's GPS location is used for proximity verification
     const payload = {
       title: form.title,
       description: form.description,
@@ -244,17 +372,20 @@ function CreateChallengePage() {
       goal: Number(String(form.goal).trim()),
       startDate,
       endDate,
-      latitude: userLocation.latitude,
-      longitude: userLocation.longitude,
-      userLatitude: userLocation.latitude, // For backend location verification
+      // Challenge location = selected location from search
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
+      // User's current GPS for verification
+      userLatitude: userLocation.latitude,
       userLongitude: userLocation.longitude,
       bannerImage,
       totalVolunteers: 0,
       totalTrashCollected: 0,
       goalUnit: "items",
       location: {
-        coordinates: [Number(userLocation.longitude), Number(userLocation.latitude)],
+        coordinates: [Number(selectedLocation.longitude), Number(selectedLocation.latitude)],
       },
+      waterVerified, // Flag indicating water proximity was checked
     };
 
     // Debug: Log the goal value being sent
@@ -419,17 +550,108 @@ function CreateChallengePage() {
               )}
             </Box>
 
-            {/* Location */}
+            {/* Location Search with Autocomplete */}
+            <Box sx={{ mb: 3, position: 'relative' }}>
+              <TextField
+                id="locationSearch"
+                label="Search Location (City, Beach, Park in Canada) *"
+                fullWidth
+                value={locationSearchQuery}
+                onChange={(e) => {
+                  setLocationSearchQuery(e.target.value);
+                  setSelectedLocation(null);
+                  setWaterVerified(false);
+                }}
+                onFocus={() => locationSuggestions.length > 0 && setShowSuggestions(true)}
+                error={!!errors.selectedLocation}
+                helperText={errors.selectedLocation || "Start typing to search Canadian locations"}
+                InputProps={{
+                  endAdornment: searchingLocations ? <CircularProgress size={20} /> : null
+                }}
+              />
+              
+              {/* Location Suggestions Dropdown */}
+              {showSuggestions && locationSuggestions.length > 0 && (
+                <Paper
+                  sx={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    zIndex: 1000,
+                    maxHeight: 300,
+                    overflow: 'auto',
+                    mt: 0.5,
+                    boxShadow: 3
+                  }}
+                >
+                  <List dense>
+                    {locationSuggestions.map((loc, idx) => (
+                      <ListItem key={loc.placeId || idx} disablePadding>
+                        <ListItemButton 
+                          onClick={() => handleLocationSelect(loc)}
+                          sx={{ py: 1.5 }}
+                        >
+                          <ListItemText 
+                            primary={loc.name.split(',').slice(0, 2).join(', ')}
+                            secondary={loc.name.split(',').slice(2).join(', ')}
+                            primaryTypographyProps={{ fontWeight: 500 }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Paper>
+              )}
+              
+              {/* Selected Location & Water Verification Status */}
+              {selectedLocation && (
+                <Box sx={{ mt: 1 }}>
+                  <Chip
+                    label={`📍 ${selectedLocation.name.split(',')[0]}`}
+                    onDelete={() => {
+                      setSelectedLocation(null);
+                      setLocationSearchQuery("");
+                      setWaterVerified(false);
+                    }}
+                    color="primary"
+                    variant="outlined"
+                    sx={{ mr: 1 }}
+                  />
+                  {verifyingWater ? (
+                    <Chip 
+                      label="Verifying water proximity..." 
+                      icon={<CircularProgress size={16} />}
+                      variant="outlined"
+                    />
+                  ) : waterVerified ? (
+                    <Chip 
+                      label="✓ Near water" 
+                      color="success"
+                      variant="outlined"
+                    />
+                  ) : (
+                    <Chip 
+                      label="⚠️ Not near water" 
+                      color="warning"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
+              )}
+            </Box>
+
+            {/* Location Name (auto-filled or manual override) */}
             <TextField
               id="locationName"
-              label="Location Name (City / Beach / Park) *"
+              label="Location Display Name *"
               name="locationName"
               fullWidth
               sx={{ mb: 3 }}
               value={form.locationName}
               onChange={handleChange}
               error={!!errors.locationName}
-              helperText={errors.locationName}
+              helperText={errors.locationName || "This name will be shown in the challenge"}
             />
 
             {/* Province */}
@@ -594,10 +816,10 @@ function CreateChallengePage() {
               type="submit"
               variant="contained"
               fullWidth
-              disabled={!userLocation || fetchingLocation}
+              disabled={!userLocation || !selectedLocation || fetchingLocation || verifyingWater}
               sx={{ py: 1.4, fontWeight: 600, background: "#0a5c85ff", mt: 2 }}
             >
-              {fetchingLocation ? 'Detecting Location...' : 'Create Challenge'}
+              {fetchingLocation ? 'Detecting Location...' : verifyingWater ? 'Verifying Location...' : 'Create Challenge'}
             </Button>
           </form>
         </Paper>
