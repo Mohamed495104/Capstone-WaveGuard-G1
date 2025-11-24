@@ -126,11 +126,14 @@ export const registerUser = async (req, res) => {
             }
 
             console.error("Registration Error:", error);
-            console.error("Error details:", {
-                code: error.code,
-                message: error.message,
-                stack: error.stack
-            });
+            // Log detailed error information (only in development to avoid exposing internals)
+            if (process.env.NODE_ENV !== 'production') {
+                console.error("Error details:", {
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
+            }
             
             // Handle Firebase-specific errors
             if (error.code === 'auth/email-already-exists') {
@@ -144,11 +147,14 @@ export const registerUser = async (req, res) => {
         }
     } catch (error) {
         console.error("Unexpected registration error:", error);
-        console.error("Unexpected error details:", {
-            code: error.code,
-            message: error.message,
-            stack: error.stack
-        });
+        // Log detailed error information (only in development to avoid exposing internals)
+        if (process.env.NODE_ENV !== 'production') {
+            console.error("Unexpected error details:", {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+        }
         return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
     }
 };
