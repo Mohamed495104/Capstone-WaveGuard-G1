@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { apiCall } from '@/utils/api';
+import { useAuthContext } from '@/context/AuthContext';
 import { Box, Typography, Avatar, Button, TextField, Autocomplete, Switch, IconButton, CircularProgress, Tooltip, Alert } from '@mui/material';
 import {
     EmailOutlined,
@@ -26,6 +27,7 @@ import withAuth from '@/components/auth/withAuth';
 
 const ProfilePage = () => {
     const router = useRouter();
+    const { user: authUser, authVersion } = useAuthContext(); // Get auth context
     const [activeTab, setActiveTab] = useState('profile');
     const [isEditing, setIsEditing] = useState(false);
     const fileInputRef = useRef(null);
@@ -167,11 +169,29 @@ const ProfilePage = () => {
         }
     }
 
-    // Fetch user profile from backend on mount
+    // Fetch user profile from backend on mount and when auth changes
     useEffect(() => {
+        // Clear profile when no auth user
+        if (!authUser?.uid) {
+            setUserProfile({
+                name: '',
+                email: '',
+                location: '',
+                bio: '',
+                profileImage: '',
+                totalItemsCollected: 0,
+                totalChallenges: 0,
+                impactScore: 0,
+                badges: [],
+                joinedChallenges: [],
+                createdAt: null,
+            });
+            return;
+        }
+        
         fetchProfile();
         fetchRecentAchievements();
-    }, []);
+    }, [authUser?.uid, authVersion]); // Re-fetch when auth user changes
 
     // Update editProfile if userProfile changes
     useEffect(() => {
@@ -211,6 +231,14 @@ const ProfilePage = () => {
 
     const handleSignOut = async () => {
         try {
+            // Clear session cookie on backend
+            try {
+                await apiCall('post', `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`);
+            } catch (logoutError) {
+                console.error('Error clearing session cookie:', logoutError);
+                // Continue with logout even if backend call fails
+            }
+            
             // Clear user-specific storage keys before signing out
             const keysToRemove = ['user', 'token', 'authToken', 'userProfile', 'userData'];
             keysToRemove.forEach(key => {
