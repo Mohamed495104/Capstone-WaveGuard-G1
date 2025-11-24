@@ -15,6 +15,8 @@ app.use(
         origin: ["http://localhost:3000", "https://capstone-marinecare.vercel.app", process.env.FRONTEND_URL].filter(Boolean),
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true, // Required for cookies
+        allowedHeaders: ["Content-Type", "Authorization"],
+        exposedHeaders: ["Set-Cookie"],
     })
 );
 app.use(express.json());

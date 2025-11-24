@@ -7,10 +7,31 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
-// Helper: Sync user with backend
+// Helper: Create session cookie (HttpOnly, XSS-safe)
+async function createSession(idToken, retries = 2) {
+    try {
+        await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-session`,
+            { idToken },
+            { withCredentials: true }
+        );
+    } catch (err) {
+        if (retries > 0) {
+            await new Promise((res) => setTimeout(res, 500));
+            return createSession(idToken, retries - 1);
+        }
+        throw new Error("Failed to create session. Please check your connection and try again.");
+    }
+}
+
+// Helper: Sync user with backend (legacy support)
 async function syncUser(idToken, retries = 2) {
     try {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken });
+        await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, 
+            { idToken },
+            { withCredentials: true }
+        );
     } catch (err) {
         if (retries > 0) {
             await new Promise((res) => setTimeout(res, 500));
@@ -31,8 +52,9 @@ export function AuthProvider({ children }) {
             try {
                 const result = await getRedirectResult(auth);
                 if (result && result.user) {
-                    // User signed in via redirect, sync with backend
+                    // User signed in via redirect, create session cookie and sync with backend
                     const idToken = await result.user.getIdToken(true);
+                    await createSession(idToken);
                     await syncUser(idToken);
                     setAuthVersion(prev => prev + 1); // Increment version on auth change
                 }

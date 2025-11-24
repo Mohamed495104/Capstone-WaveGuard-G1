@@ -126,6 +126,12 @@ export const registerUser = async (req, res) => {
             }
 
             console.error("Registration Error:", error);
+            console.error("Error details:", {
+                code: error.code,
+                message: error.message,
+                stack: error.stack
+            });
+            
             // Handle Firebase-specific errors
             if (error.code === 'auth/email-already-exists') {
                 return res.status(400).json({ success: false, message: "Email is already registered" });
@@ -134,11 +140,16 @@ export const registerUser = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
             }
 
-            return res.status(500).json({ success: false, message: "Server error during registration" });
+            return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
         }
     } catch (error) {
         console.error("Unexpected registration error:", error);
-        return res.status(500).json({ success: false, message: "Server error during registration" });
+        console.error("Unexpected error details:", {
+            code: error.code,
+            message: error.message,
+            stack: error.stack
+        });
+        return res.status(500).json({ success: false, message: "Server error during registration. Please try again." });
     }
 };
 
