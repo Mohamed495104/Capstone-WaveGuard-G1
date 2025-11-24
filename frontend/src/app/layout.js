@@ -2,6 +2,7 @@ import "./globals.css";
 import AppLayoutWrapper from "@/components/AppLayoutWrapper";
 import { AuthProvider } from "@/context/AuthContext";
 import { JoinedChallengesProvider } from "@/context/JoinedChallengesContext";
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata = {
     title: "WaveGuard - Ocean Conservation Platform",
@@ -62,6 +63,7 @@ export default function RootLayout({ children }) {
                 <AppLayoutWrapper>{children}</AppLayoutWrapper>
             </JoinedChallengesProvider>
         </AuthProvider>
+        <Analytics />
         </body>
         </html>
     );
