@@ -10,6 +10,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 
 /* Styled Components */
 const FooterContainer = styled("footer")(() => ({
@@ -208,6 +209,50 @@ const LinkItem = styled("li")(() => ({
     },
 }));
 
+const DonationBanner = styled("div")(() => ({
+    background: "linear-gradient(135deg, #0891B2 0%, #0077A3 100%)",
+    borderRadius: 12,
+    padding: "24px 32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 20,
+    maxWidth: "1400px",
+    margin: "0 auto 40px",
+    boxShadow: "0 4px 20px rgba(8, 145, 178, 0.25)",
+    "@media (max-width: 768px)": {
+        flexDirection: "column",
+        textAlign: "center",
+        padding: "20px",
+    },
+}));
+
+const DonationText = styled("div")(() => ({
+    flex: 1,
+    minWidth: "250px",
+}));
+
+const DonationButton = styled(Button)(() => ({
+    background: "#ffffff",
+    color: "#0891B2",
+    fontWeight: 600,
+    padding: "12px 28px",
+    borderRadius: 8,
+    textTransform: "none",
+    fontSize: 15,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+        background: "#f0f9ff",
+        transform: "translateY(-2px)",
+        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15)",
+    },
+}));
+
 
 /* Component */
 export default function Footer() {
@@ -273,6 +318,7 @@ export default function Footer() {
         { label: "Dashboard", href: "/dashboard" },
         { label: "Achievements", href: "/achievements" },
         { label: "Profile", href: "/profile" },
+        { label: "Donate", href: "/donation" },
     ];
 
     const navigationGroup = [
@@ -380,6 +426,39 @@ export default function Footer() {
                     ))}
                 </LinksSection>
             </TopSection>
+
+            {/* Donation Banner */}
+            <DonationBanner>
+                <DonationText>
+                    <Typography 
+                        variant="h6" 
+                        sx={{ 
+                            color: '#fff', 
+                            fontWeight: 700, 
+                            mb: 0.5,
+                            fontSize: { xs: '1.1rem', md: '1.25rem' }
+                        }}
+                    >
+                        🌊 Help Protect Our Oceans
+                    </Typography>
+                    <Typography 
+                        variant="body2" 
+                        sx={{ 
+                            color: 'rgba(255, 255, 255, 0.9)', 
+                            fontSize: { xs: '0.875rem', md: '0.95rem' },
+                            lineHeight: 1.5
+                        }}
+                    >
+                        Your donation powers AI-driven coastal cleanup and helps protect marine life across Canada's coastlines.
+                    </Typography>
+                </DonationText>
+                <Link href="/donation" passHref style={{ textDecoration: 'none' }}>
+                    <DonationButton>
+                        <VolunteerActivismIcon sx={{ fontSize: 20 }} />
+                        Donate Now
+                    </DonationButton>
+                </Link>
+            </DonationBanner>
 
             {/* --- FINAL SOCIAL AND LEGAL BAR --- */}
             <Box sx={{
