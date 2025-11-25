@@ -12,10 +12,11 @@ Marine Care is a mobile-first Progressive Web App designed to help volunteers pa
 
 - 📸 **AI Photo Classification** - Upload photos of collected trash and let AI identify waste types
 - 📍 **Location Verification** - Verify cleanup locations for data accuracy
-- 🏆 **Challenges & Events** - Join community cleanup challenges and events
+- 🏆 **Challenges & Events** - Join or create community cleanup challenges and events
 - 📊 **Impact Tracking** - Track personal and community cleanup impact
 - 🎖️ **Achievements** - Earn badges and rewards for participation
 - 📈 **Analytics Dashboard** - View detailed statistics and progress charts
+- 💚 **Donations** - Support ocean cleanup initiatives via secure PayPal integration
 
 ---
 
@@ -72,6 +73,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
 ```
 
 **Backend** (`backend/.env`):
@@ -137,7 +139,10 @@ Marine-Care/
 | `/api/auth/register` | POST | User registration |
 | `/api/auth/sync` | POST | Sync Firebase user |
 | `/api/challenges` | GET | List challenges |
+| `/api/challenges` | POST | Create a new challenge |
 | `/api/challenges/:id/join` | POST | Join challenge |
+| `/api/location/search` | GET | Search Canadian locations |
+| `/api/location/verify-water` | GET | Verify water proximity |
 | `/api/cleanups/upload` | POST | Upload photo (AI) |
 | `/api/cleanups/manual` | POST | Manual cleanup log |
 | `/api/dashboard/stats` | GET | User analytics |

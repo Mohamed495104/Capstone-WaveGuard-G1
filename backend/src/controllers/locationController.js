@@ -220,13 +220,7 @@ export const verifyLocation = async (req, res) => {
 
         const isUserNearLocation = userDistance <= maxDistanceKm;
 
-        // Check if location is near water (call internal function)
-        const waterCheckUrl = new URL(`${process.env.BACKEND_URL || 'http://localhost:5000'}/api/location/verify-water`);
-        waterCheckUrl.searchParams.append('lat', locationLat);
-        waterCheckUrl.searchParams.append('lon', locationLon);
-        
-        // Note: In production, you'd call verifyWaterProximity directly or make internal request
-        // For simplicity, we'll do inline water check
+        // Check if location is near water (inline check)
         let isNearWater = true; // Default to true for graceful degradation
         
         try {
