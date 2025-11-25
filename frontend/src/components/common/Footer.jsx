@@ -1,8 +1,9 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { styled } from "@mui/material/styles";
-import { Box, Stack, Typography, IconButton, Button } from "@mui/material";
+import { Box, Stack, Typography, IconButton, Button, Alert, CircularProgress } from "@mui/material";
 
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -210,6 +211,60 @@ const LinkItem = styled("li")(() => ({
 
 /* Component */
 export default function Footer() {
+    const [email, setEmail] = useState('');
+    const [newsletterStatus, setNewsletterStatus] = useState(''); // 'success', 'error', 'loading', ''
+    const [newsletterMessage, setNewsletterMessage] = useState('');
+
+    const handleNewsletterSubmit = async (e) => {
+        e.preventDefault();
+        
+        if (!email || !email.trim()) {
+            setNewsletterStatus('error');
+            setNewsletterMessage('Please enter your email address');
+            return;
+        }
+
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.trim())) {
+            setNewsletterStatus('error');
+            setNewsletterMessage('Please enter a valid email address');
+            return;
+        }
+
+        setNewsletterStatus('loading');
+        setNewsletterMessage('');
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/newsletter/subscribe`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setNewsletterStatus('success');
+                setNewsletterMessage(data.message || 'Successfully subscribed to our newsletter!');
+                setEmail(''); // Clear the input
+                // Clear success message after 5 seconds
+                setTimeout(() => {
+                    setNewsletterStatus('');
+                    setNewsletterMessage('');
+                }, 5000);
+            } else {
+                setNewsletterStatus('error');
+                setNewsletterMessage(data.message || 'Failed to subscribe. Please try again.');
+            }
+        } catch (error) {
+            console.error('Newsletter subscription error:', error);
+            setNewsletterStatus('error');
+            setNewsletterMessage('Failed to subscribe. Please try again later.');
+        }
+    };
 
     const coreNavigationLinks = [
         { label: "Home", href: "/home" },
@@ -256,20 +311,54 @@ export default function Footer() {
                     <NewsletterSection>
                         <NewsletterTitle>Subscribe to our newsletter</NewsletterTitle>
 
-                        <NewsletterForm action="#" method="POST">
+                        <NewsletterForm onSubmit={handleNewsletterSubmit}>
                             <label htmlFor="newsletter-email" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden' }}>Email address for newsletter</label>
                             <EmailInput
                                 id="newsletter-email"
                                 type="email"
                                 placeholder="your@email.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={newsletterStatus === 'loading'}
                             />
-                            <SubmitButton aria-label="Subscribe to newsletter">
-                                →
+                            <SubmitButton 
+                                type="submit" 
+                                aria-label="Subscribe to newsletter"
+                                disabled={newsletterStatus === 'loading'}
+                            >
+                                {newsletterStatus === 'loading' ? (
+                                    <CircularProgress size={16} sx={{ color: '#fff' }} />
+                                ) : (
+                                    '→'
+                                )}
                             </SubmitButton>
                         </NewsletterForm>
-                        <NewsletterHint>
-                            Get updates on cleanup challenges and impact reports.
-                        </NewsletterHint>
+                        
+                        {/* Newsletter Status Messages */}
+                        {newsletterStatus === 'success' && (
+                            <Alert 
+                                severity="success" 
+                                sx={{ mt: 1, fontSize: '13px', py: 0.5 }}
+                                onClose={() => { setNewsletterStatus(''); setNewsletterMessage(''); }}
+                            >
+                                {newsletterMessage}
+                            </Alert>
+                        )}
+                        {newsletterStatus === 'error' && (
+                            <Alert 
+                                severity="error" 
+                                sx={{ mt: 1, fontSize: '13px', py: 0.5 }}
+                                onClose={() => { setNewsletterStatus(''); setNewsletterMessage(''); }}
+                            >
+                                {newsletterMessage}
+                            </Alert>
+                        )}
+                        
+                        {!newsletterStatus && (
+                            <NewsletterHint>
+                                Get updates on cleanup challenges and impact reports.
+                            </NewsletterHint>
+                        )}
                     </NewsletterSection>
                 </About>
 
