@@ -294,7 +294,7 @@ const DonationPage = () => {
                 <Card sx={styles.testimonialCard} elevation={0}>
                   <Rating value={5} readOnly size="small" sx={styles.rating} />
                   <Typography variant="body2" sx={styles.testimonialText}>
-                    "WaveGuard transformed the way we approach coastal cleanup. The AI technology 
+                    "MarineCare transformed the way we approach coastal cleanup. The AI technology
                     and dedicated volunteers are making a real difference in our community."
                   </Typography>
                   <Box sx={styles.testimonialAuthor}>
@@ -322,7 +322,7 @@ const DonationPage = () => {
             Frequently Asked Questions
           </Typography>
           <Typography variant="body1" sx={styles.sectionDescription}>
-            Everything you need to know about how to donate to WaveGuard.
+            Everything you need to know about how to donate to MarineCare.
           </Typography>
 
           <Box sx={styles.faqContainer}>
@@ -333,7 +333,7 @@ const DonationPage = () => {
               },
               {
                 question: 'Are donations tax-deductible?',
-                answer: 'Yes, donations to WaveGuard Canada are tax-deductible. You\'ll receive a tax receipt via email that you can use for your tax filing.'
+                answer: 'Yes, donations to MarineCare Canada are tax-deductible. You\'ll receive a tax receipt via email that you can use for your tax filing.'
               },
               {
                 question: 'Can I donate on a specific campaign?',

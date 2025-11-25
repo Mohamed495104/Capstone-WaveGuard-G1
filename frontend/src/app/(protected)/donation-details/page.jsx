@@ -38,7 +38,7 @@ import { styles } from './donationDetails.styles';
 const CHARITY_CONFIG = {
   registrationNumber: '123456789 RR0001',
   businessNumber: '123456789',
-  name: 'WaveGuard',
+  name: 'MarineCare',
   directImpactPercentage: 87
 };
 
@@ -158,8 +158,8 @@ const DonationDetailsPage = () => {
     doc.setFillColor(0, 171, 145);
     doc.rect(0, 50, pageWidth, 10, 'F');
 
-    // Add WaveGuard Logo (optional - continues without logo if unavailable)
-    const logoImg = '/images/logowhite.png';
+    // Add MarineCare Logo (optional - continues without logo if unavailable)
+    const logoImg = '/images/1.png';
     try {
       doc.addImage(logoImg, 'PNG', pageWidth / 2 - 12, 10, 24, 24);
     } catch (error) {
@@ -171,7 +171,7 @@ const DonationDetailsPage = () => {
     doc.setFontSize(24);
     doc.setTextColor(255, 255, 255);
     doc.setFont(undefined, 'bold');
-    doc.text('WAVEGUARD', pageWidth / 2, 42, { align: 'center' });
+    doc.text('MarineCare', pageWidth / 2, 42, { align: 'center' });
     
     doc.setFontSize(9);
     doc.setFont(undefined, 'normal');
@@ -374,7 +374,7 @@ const DonationDetailsPage = () => {
     doc.setFontSize(9);
     doc.setTextColor(brandColor[0], brandColor[1], brandColor[2]);
     doc.setFont(undefined, 'bold');
-    doc.text('WAVEGUARD', pageWidth / 2, y, { align: 'center' });
+    doc.text('MarineCare', pageWidth / 2, y, { align: 'center' });
     
     y += 4;
     doc.setFontSize(7.5);
@@ -384,14 +384,14 @@ const DonationDetailsPage = () => {
     
     y += 4;
     doc.setFontSize(7);
-    doc.text('donations@waveguard.org  |  Phone: 1-800-WAVE-GUARD', pageWidth / 2, y, { align: 'center' });
+    doc.text('donations@marinecare.org  |  Phone: 1-800-MARINE-CARE', pageWidth / 2, y, { align: 'center' });
     
     y += 3.5;
     doc.setFontSize(6.5);
-    doc.text(`Copyright ${new Date().getFullYear()} WaveGuard. All rights reserved.  |  www.waveguard.org`, pageWidth / 2, y, { align: 'center' });
+    doc.text(`Copyright ${new Date().getFullYear()} MarineCare. All rights reserved.  |  www.MarineCare.org`, pageWidth / 2, y, { align: 'center' });
 
     // Save PDF
-    doc.save(`WaveGuard_Receipt_${transactionId}.pdf`);
+    doc.save(`MarineCare_Receipt_${transactionId}.pdf`);
   };
 
   // Validation functions
@@ -488,10 +488,10 @@ const DonationDetailsPage = () => {
                 value: amount,
                 currency_code: 'CAD'
               },
-              description: `WaveGuard Donation (${donationType === 'monthly' ? 'monthly' : 'one-time'})`
+              description: `MarineCare Donation (${donationType === 'monthly' ? 'monthly' : 'one-time'})`
             }],
             application_context: {
-              brand_name: 'WaveGuard',
+              brand_name: 'MarineCare',
               landing_page: 'NO_PREFERENCE'
             }
           });
