@@ -6,9 +6,42 @@ export const styles = {
     fontFamily: "Inter, sans-serif",
     maxWidth: "1400px",
     margin: "0 auto",
+    position: "relative",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      height: "400px",
+      background:
+        "radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.08) 0%, transparent 50%)",
+      pointerEvents: "none",
+      animation: "pulse 8s ease-in-out infinite",
+      "@keyframes pulse": {
+        "0%, 100%": {
+          opacity: 1,
+        },
+        "50%": {
+          opacity: 0.6,
+        },
+      },
+    },
   },
   header: {
     marginBottom: "32px",
+    opacity: 0,
+    animation: "fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s forwards",
+    "@keyframes fadeInDown": {
+      from: {
+        opacity: 0,
+        transform: "translateY(-30px)",
+      },
+      to: {
+        opacity: 1,
+        transform: "translateY(0)",
+      },
+    },
   },
   title: {
     fontSize: { xs: "24px", md: "28px" },
@@ -16,6 +49,24 @@ export const styles = {
     color: "#1a1a1a",
     marginBottom: "6px",
     fontFamily: "Inter, sans-serif",
+    position: "relative",
+    display: "inline-block",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      bottom: "-4px",
+      left: 0,
+      width: "0",
+      height: "3px",
+      background: "linear-gradient(90deg, #0ea5e9, #10b981)",
+      borderRadius: "2px",
+      animation: "expandWidth 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards",
+      "@keyframes expandWidth": {
+        to: {
+          width: "60%",
+        },
+      },
+    },
   },
   subtitle: {
     fontSize: "14px",
@@ -32,6 +83,8 @@ export const styles = {
     },
     gap: "20px",
     marginBottom: "32px",
+    position: "relative",
+    zIndex: 1,
   },
   statCard: {
     backgroundColor: "#ffffff",
@@ -39,12 +92,50 @@ export const styles = {
     padding: "20px",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
     position: "relative",
-    transition: "transform 0.2s, box-shadow 0.2s",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     border: "1px solid #f0f0f0",
     minWidth: "0",
+    overflow: "hidden",
+    opacity: 0,
+    transform: "translateY(30px) scale(0.95)",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: "-100%",
+      width: "100%",
+      height: "100%",
+      background:
+        "linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.1), transparent)",
+      transition: "left 0.6s",
+    },
+    "&:nth-of-type(1)": {
+      animation: "slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards",
+    },
+    "&:nth-of-type(2)": {
+      animation: "slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s forwards",
+    },
+    "&:nth-of-type(3)": {
+      animation: "slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards",
+    },
+    "&:nth-of-type(4)": {
+      animation: "slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.6s forwards",
+    },
+    "@keyframes slideInUp": {
+      to: {
+        opacity: 1,
+        transform: "translateY(0) scale(1)",
+      },
+    },
     "&:hover": {
-      transform: "translateY(-2px)",
-      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+      transform: "translateY(-8px) scale(1.02)",
+      boxShadow: "0 12px 28px rgba(14, 165, 233, 0.15)",
+      "& $statIcon": {
+        transform: "scale(1.1) rotate(5deg)",
+      },
+      "&::before": {
+        left: "100%",
+      },
     },
   },
   statIcon: {
@@ -55,6 +146,27 @@ export const styles = {
     alignItems: "center",
     justifyContent: "center",
     marginBottom: "16px",
+    transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    position: "relative",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      inset: "-4px",
+      borderRadius: "12px",
+      opacity: 0,
+      transition: "opacity 0.3s",
+      animation: "iconPulse 2s ease-in-out infinite",
+      "@keyframes iconPulse": {
+        "0%, 100%": {
+          transform: "scale(1)",
+          opacity: 0,
+        },
+        "50%": {
+          transform: "scale(1.2)",
+          opacity: 0.3,
+        },
+      },
+    },
   },
   statValue: {
     fontSize: "32px",
@@ -63,6 +175,7 @@ export const styles = {
     marginBottom: "4px",
     fontFamily: "Inter, sans-serif",
     lineHeight: 1.2,
+    transition: "all 0.3s ease",
   },
   statLabel: {
     fontSize: "12px",
@@ -91,6 +204,34 @@ export const styles = {
     padding: "24px",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
     border: "1px solid #f0f0f0",
+    position: "relative",
+    overflow: "hidden",
+    opacity: 0,
+    transform: "translateX(-50px)",
+    animation:
+      "slideInFromLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.7s forwards",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@keyframes slideInFromLeft": {
+      to: {
+        opacity: 1,
+        transform: "translateX(0)",
+      },
+    },
+    "&:nth-of-type(2)": {
+      transform: "translateX(50px)",
+      animation:
+        "slideInFromRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.7s forwards",
+      "@keyframes slideInFromRight": {
+        to: {
+          opacity: 1,
+          transform: "translateX(0)",
+        },
+      },
+    },
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1)",
+    },
   },
   chartTitle: {
     fontSize: "15px",
@@ -113,6 +254,37 @@ export const styles = {
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
     marginBottom: "32px",
     border: "1px solid #f0f0f0",
+    opacity: 0,
+    transform: "translateY(40px) scale(0.98)",
+    animation: "scaleInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.9s forwards",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    position: "relative",
+    overflow: "hidden",
+    "@keyframes scaleInUp": {
+      to: {
+        opacity: 1,
+        transform: "translateY(0) scale(1)",
+      },
+    },
+    "&:hover": {
+      transform: "translateY(-4px)",
+      boxShadow: "0 12px 32px rgba(0, 0, 0, 0.12)",
+    },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: "4px",
+      background: "linear-gradient(90deg, #0ea5e9, #10b981, #f59e0b)",
+      transform: "scaleX(0)",
+      transformOrigin: "left",
+      transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
+    },
+    "&:hover::after": {
+      transform: "scaleX(1)",
+    },
   },
   bottomRow: {
     display: "grid",
@@ -126,6 +298,44 @@ export const styles = {
     padding: "24px",
     boxShadow: "0 1px 3px rgba(0, 0, 0, 0.06)",
     border: "1px solid #f0f0f0",
+    opacity: 0,
+    transform: "translateY(40px)",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    position: "relative",
+    overflow: "hidden",
+    "&:nth-of-type(1)": {
+      animation: "fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1s forwards",
+    },
+    "&:nth-of-type(2)": {
+      animation: "fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.1s forwards",
+    },
+    "&:nth-of-type(3)": {
+      animation: "fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 1.2s forwards",
+    },
+    "@keyframes fadeInUp": {
+      to: {
+        opacity: 1,
+        transform: "translateY(0)",
+      },
+    },
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: "-100%",
+      width: "100%",
+      height: "100%",
+      background:
+        "linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.05), transparent)",
+      transition: "left 0.8s",
+    },
+    "&:hover": {
+      transform: "translateY(-6px)",
+      boxShadow: "0 12px 28px rgba(0, 0, 0, 0.1)",
+    },
+    "&:hover::before": {
+      left: "100%",
+    },
   },
   activityItem: {
     display: "flex",
@@ -133,8 +343,29 @@ export const styles = {
     alignItems: "center",
     padding: "14px 0",
     borderBottom: "1px solid #f3f4f6",
+    opacity: 0,
+    transform: "translateX(-20px)",
+    animation: "slideInItem 0.4s ease-out forwards",
+    "@keyframes slideInItem": {
+      to: {
+        opacity: 1,
+        transform: "translateX(0)",
+      },
+    },
+    "&:nth-of-type(1)": { animationDelay: "1.3s" },
+    "&:nth-of-type(2)": { animationDelay: "1.4s" },
+    "&:nth-of-type(3)": { animationDelay: "1.5s" },
+    "&:nth-of-type(4)": { animationDelay: "1.6s" },
+    "&:nth-of-type(5)": { animationDelay: "1.7s" },
     "&:last-child": {
       borderBottom: "none",
+    },
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "translateX(8px)",
+      backgroundColor: "rgba(14, 165, 233, 0.03)",
+      paddingLeft: "8px",
+      borderRadius: "8px",
     },
   },
   activityInfo: {
@@ -162,6 +393,29 @@ export const styles = {
     borderRadius: "6px",
     marginLeft: "12px",
     fontFamily: "Inter, sans-serif",
+    transition: "all 0.3s ease",
+    position: "relative",
+    overflow: "hidden",
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      width: "0",
+      height: "0",
+      background: "rgba(2, 132, 199, 0.2)",
+      borderRadius: "50%",
+      transform: "translate(-50%, -50%)",
+      transition: "width 0.4s, height 0.4s",
+    },
+    "&:hover": {
+      transform: "scale(1.1)",
+      boxShadow: "0 4px 12px rgba(2, 132, 199, 0.3)",
+    },
+    "&:hover::before": {
+      width: "200px",
+      height: "200px",
+    },
   },
   contributorItem: {
     display: "flex",
@@ -188,6 +442,23 @@ export const styles = {
     justifyContent: "center",
     color: "#0284c7",
     fontSize: "20px",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    position: "relative",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      inset: "-3px",
+      borderRadius: "50%",
+      border: "2px solid transparent",
+      transition: "all 0.3s",
+    },
+    "&:hover": {
+      transform: "scale(1.15) rotate(360deg)",
+    },
+    "&:hover::after": {
+      border: "2px solid #0284c7",
+      inset: "-6px",
+    },
   },
   contributorName: {
     fontSize: "14px",
@@ -217,6 +488,15 @@ export const styles = {
     borderRadius: "4px",
     marginLeft: "8px",
     fontFamily: "Inter, sans-serif",
+    animation: "shimmer 2s infinite",
+    "@keyframes shimmer": {
+      "0%, 100%": {
+        boxShadow: "0 0 8px rgba(14, 165, 233, 0.4)",
+      },
+      "50%": {
+        boxShadow: "0 0 16px rgba(14, 165, 233, 0.8)",
+      },
+    },
   },
   communityCard: {
     backgroundColor: "#f0f9ff",

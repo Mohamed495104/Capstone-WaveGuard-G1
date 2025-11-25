@@ -10,6 +10,7 @@ import achievementsRoutes from "./routes/achievementsRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import locationRoutes from "./routes/locationRoutes.js";
 import mongoose from "mongoose";
 
 const PORT = process.env.PORT || 5000;
@@ -36,6 +37,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/achievements", achievementsRoutes);
 app.use("/api/images", imageRoutes);
 app.use("/api/home", homeRoutes);
+app.use("/api/location", locationRoutes);
 
 app.get("/", (req, res) => {
     res.status(200).send("Server is running 🚀");

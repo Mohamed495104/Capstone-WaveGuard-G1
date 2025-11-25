@@ -4,7 +4,7 @@ import { Box, Typography, Button, useMediaQuery, useTheme } from "@mui/material"
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AddIcon from "@mui/icons-material/Add";
 
-const CTASection = () => {
+const CTASection = ({ onCreateClick }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -76,6 +76,7 @@ const CTASection = () => {
                 variant="contained"
                 size="large"
                 startIcon={<AddIcon />}
+                onClick={onCreateClick}
                 sx={{
                     backgroundColor: "white",
                     color: "#0ea5e9",

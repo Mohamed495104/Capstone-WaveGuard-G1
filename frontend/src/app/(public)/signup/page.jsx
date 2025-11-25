@@ -245,8 +245,8 @@ export default function SignupPage() {
                             >
                                 {/* LOGO PATH */}
                                 <Image
-                                    src="/images/logoblue-optimized.webp"
-                                    alt="WaveGuard Logo"
+                                    src="/images/2.png"
+                                    alt="MarineCare Logo"
                                     width={36} // Changed from fill
                                     height={36} // Changed from fill
                                     style={{
@@ -262,7 +262,7 @@ export default function SignupPage() {
                                     fontSize: { xs: "1.75rem", sm: "2rem", md: "2.125rem" },
                                 }}
                             >
-                                WaveGuard
+                                MarineCare
                             </Typography>
                         </Box>
 

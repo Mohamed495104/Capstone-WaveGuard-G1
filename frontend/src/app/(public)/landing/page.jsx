@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Typography, Grid, Card, CardContent, LinearProgress, Container } from "@mui/material";
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import {
     HeroSection,
     HeroOverlay,
@@ -23,6 +24,13 @@ import {
 
 function Page() {
     const router = useRouter();
+    const whyMattersRef = useRef(null);
+
+    const scrollToWhyMatters = () => {
+        if (whyMattersRef.current) {
+            whyMattersRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
 
     const ecosystemStats = [
         {
@@ -58,7 +66,7 @@ function Page() {
         { label: "Food Wrappers", count: "12%", percentage: 60, desc: "Frequently found in Canadian coastal cleanup efforts" },
     ];
 
-    const whyWaveGuard = [
+    const whyMarineCare = [
         {
             emoji: "🌊",
             title: "Combat Marine Pollution",
@@ -111,7 +119,7 @@ function Page() {
                         <PrimaryButton onClick={() => router.push('/signup')}>
                             Get Started Free
                         </PrimaryButton>
-                        <OutlineButton onClick={() => router.push('/signup')}>
+                        <OutlineButton onClick={scrollToWhyMatters}>
                             Watch How It Works
                         </OutlineButton>
                     </HeroButtons>
@@ -410,10 +418,10 @@ function Page() {
             </Section>
 
             {/* HOW IT CREATES IMPACT */}
-            <Section sx={{ background: "#fff" }}>
+            <Section ref={whyMattersRef} sx={{ background: "#fff" }}>
                 <Container maxWidth="lg">
                     <Box sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
-                        <SectionBadge>Why WaveGuard?</SectionBadge>
+                        <SectionBadge>Why MarineCare?</SectionBadge>
                         <Typography
                             variant="h3"
                             sx={{
@@ -438,13 +446,13 @@ function Page() {
                             }}
                         >
                             Individual actions alone can't solve the ocean plastic crisis - but organized,
-                            data-driven collective action can. WaveGuard transforms scattered cleanup efforts into
+                            data-driven collective action can. MarineCare transforms scattered cleanup efforts into
                             a coordinated movement with measurable impact.
                         </Typography>
                     </Box>
 
                     <FeatureGrid>
-                        {whyWaveGuard.map((feature, i) => (
+                        {whyMarineCare.map((feature, i) => (
                             <FeatureCard key={i} elevation={0}>
                                 <Box sx={{
                                     display: "flex",
@@ -505,7 +513,7 @@ function Page() {
                                     mb: 3
                                 }}
                             >
-                                WaveGuard exists to bridge the gap between individual concern and collective action.
+                                MarineCare exists to bridge the gap between individual concern and collective action.
                                 We provide the tools, community, and data infrastructure needed to turn beach cleanups
                                 into a powerful force for environmental change across Canada.
                             </Typography>
@@ -584,19 +592,39 @@ function Page() {
                             beaches, and marine life. Your contribution - no matter how small - creates real,
                             measurable change for our environment.
                         </Typography>
-                        <PrimaryButton
-                            onClick={() => router.push('/signup')}
-                            sx={{
-                                background: "#003554 !important",
-                                color: "#67e8c3 !important",
-                                fontSize: { xs: "1rem", md: "1.125rem" },
-                                padding: { xs: "14px 35px", md: "18px 50px" },
-                                boxShadow: "0 4px 20px rgba(0, 53, 84, 0.3)",
-                                mb: 2.5
-                            }}
-                        >
-                            Start Making an Impact
-                        </PrimaryButton>
+                        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'center', mb: 2.5 }}>
+                            <PrimaryButton
+                                onClick={() => router.push('/signup')}
+                                sx={{
+                                    background: "#003554 !important",
+                                    color: "#67e8c3 !important",
+                                    fontSize: { xs: "1rem", md: "1.125rem" },
+                                    padding: { xs: "14px 35px", md: "18px 50px" },
+                                    boxShadow: "0 4px 20px rgba(0, 53, 84, 0.3)",
+                                }}
+                            >
+                                Start Making an Impact
+                            </PrimaryButton>
+                            <OutlineButton
+                                onClick={() => router.push('/donation')}
+                                sx={{
+                                    borderColor: "#0077b6 !important",
+                                    color: "#003554 !important",
+                                    fontSize: { xs: "1rem", md: "1.125rem" },
+                                    padding: { xs: "14px 35px", md: "18px 50px" },
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                    "&:hover": {
+                                        background: "rgba(0, 119, 182, 0.1) !important",
+                                        borderColor: "#003554 !important",
+                                    }
+                                }}
+                            >
+                                <VolunteerActivismIcon sx={{ fontSize: '1.2rem' }} />
+                                Support Our Mission
+                            </OutlineButton>
+                        </Box>
                         <Typography
                             variant="body2"
                             sx={{

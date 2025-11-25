@@ -8,18 +8,18 @@ const blockedIPs = new Map();
 
 // Configuration
 const CONFIG = {
-    // Maximum requests per window for general endpoints
-    MAX_REQUESTS: 30,
+    // Maximum requests per window for general endpoints (more lenient)
+    MAX_REQUESTS: 100,
     // Time window in milliseconds (1 minute)
     WINDOW_MS: 60 * 1000,
-    // Block duration in milliseconds (15 minutes)
-    BLOCK_DURATION_MS: 15 * 60 * 1000,
+    // Block duration in milliseconds (5 minutes - reduced from 15)
+    BLOCK_DURATION_MS: 5 * 60 * 1000,
     // Cleanup interval (5 minutes)
     CLEANUP_INTERVAL_MS: 5 * 60 * 1000,
     // Auth-specific limits (stricter)
-    AUTH_MAX_REQUESTS: 5,
-    // API-specific limits (moderate for protected routes)
-    API_MAX_REQUESTS: 100, // 100 requests per minute for API routes
+    AUTH_MAX_REQUESTS: 10,
+    // API-specific limits (very lenient for API routes)
+    API_MAX_REQUESTS: 200, // 200 requests per minute for API routes
 };
 
 /**

@@ -17,14 +17,46 @@ export const updateProfile = async (req, res) => {
         const updates = req.body;
         
         // Whitelist allowed fields to prevent unauthorized updates
-        const allowedUpdates = ['name', 'location', 'bio'];
+        const allowedUpdates = ['name', 'location', 'bio', 'address'];
         const filteredUpdates = {};
         
         // Only allow updating specific fields
         for (const key of allowedUpdates) {
             if (updates[key] !== undefined) {
-                // Sanitize string inputs to prevent XSS
-                if (typeof updates[key] === 'string') {
+                // Handle address object separately
+                if (key === 'address' && typeof updates[key] === 'object') {
+                    const addressFields = ['fullAddress', 'streetAddress', 'city', 'province', 'postalCode', 'country', 'coordinates'];
+                    const sanitizedAddress = {};
+                    
+                    for (const addrKey of addressFields) {
+                        if (updates.address[addrKey] !== undefined) {
+                            if (addrKey === 'coordinates') {
+                                // Handle coordinates object
+                                if (typeof updates.address.coordinates === 'object') {
+                                    sanitizedAddress.coordinates = {
+                                        latitude: parseFloat(updates.address.coordinates.latitude) || null,
+                                        longitude: parseFloat(updates.address.coordinates.longitude) || null
+                                    };
+                                }
+                            } else if (typeof updates.address[addrKey] === 'string') {
+                                // Sanitize string inputs
+                                const sanitized = updates.address[addrKey]
+                                    .replace(/[<>{}[\]\\/"';`]/g, '')
+                                    .trim()
+                                    .substring(0, 200); // Max 200 chars per field
+                                sanitizedAddress[addrKey] = sanitized;
+                            }
+                        }
+                    }
+                    
+                    filteredUpdates.address = sanitizedAddress;
+                    
+                    // Also update the legacy location field with formatted address
+                    if (sanitizedAddress.city && sanitizedAddress.province) {
+                        filteredUpdates.location = `${sanitizedAddress.city}, ${sanitizedAddress.province}`;
+                    }
+                } else if (typeof updates[key] === 'string') {
+                    // Sanitize string inputs to prevent XSS
                     // Remove potentially dangerous characters
                     const sanitized = updates[key]
                         .replace(/[<>{}[\]\\/"';`]/g, '')

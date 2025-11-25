@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { apiCall } from '@/utils/api';
+import { useAuthContext } from '@/context/AuthContext';
 import { Box, Typography, Avatar, Button, TextField, Autocomplete, Switch, IconButton, CircularProgress, Tooltip, Alert } from '@mui/material';
 import {
     EmailOutlined,
@@ -26,12 +27,18 @@ import withAuth from '@/components/auth/withAuth';
 
 const ProfilePage = () => {
     const router = useRouter();
+    const { user: authUser, authVersion } = useAuthContext(); // Get auth context
     const [activeTab, setActiveTab] = useState('profile');
     const [isEditing, setIsEditing] = useState(false);
     const fileInputRef = useRef(null);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [uploadSuccess, setUploadSuccess] = useState('');
+    
+    // Profile update state
+    const [profileUpdateSuccess, setProfileUpdateSuccess] = useState('');
+    const [profileUpdateError, setProfileUpdateError] = useState('');
+    const [savingProfile, setSavingProfile] = useState(false);
 
     // User profile state
     const [userProfile, setUserProfile] = useState({
@@ -46,6 +53,16 @@ const ProfilePage = () => {
         badges: [],
         joinedChallenges: [],
         createdAt: null,
+        // Address fields
+        address: {
+            fullAddress: '',
+            streetAddress: '',
+            city: '',
+            province: '',
+            postalCode: '',
+            country: 'Canada',
+            coordinates: { latitude: null, longitude: null }
+        }
     });
 
     // Recent achievements state
@@ -53,10 +70,11 @@ const ProfilePage = () => {
     const [achievementsLoading, setAchievementsLoading] = useState(true);
     const [hasAchievements, setHasAchievements] = useState(false);
 
-    // Location autocomplete state
-    const [locationOptions, setLocationOptions] = useState([]);
-    const [locationInputValue, setLocationInputValue] = useState('');
-    const autocompleteService = useRef(null);
+    // Address autocomplete state (Nominatim)
+    const [addressOptions, setAddressOptions] = useState([]);
+    const [addressInputValue, setAddressInputValue] = useState('');
+    const [addressSearching, setAddressSearching] = useState(false);
+    const addressSearchTimeout = useRef(null);
 
     // Temporary edit state
     const [editProfile, setEditProfile] = useState({ ...userProfile });
@@ -82,16 +100,87 @@ const ProfilePage = () => {
     // Check if settings have changed
     const hasSettingsChanged = JSON.stringify(settings) !== JSON.stringify(originalSettings);
 
-    // Initialize Google Places Autocomplete
-    useEffect(() => {
-        if (typeof window !== 'undefined' && window.google) {
-            autocompleteService.current = new window.google.maps.places.AutocompleteService();
+    // Search addresses using Nominatim API (debounced)
+    const searchAddresses = async (query) => {
+        if (!query || query.trim().length < 3) {
+            setAddressOptions([]);
+            return;
         }
-    }, []);
+
+        setAddressSearching(true);
+        try {
+            // Use our backend proxy for Nominatim to avoid CORS issues
+            const response = await apiCall(
+                'get',
+                `${process.env.NEXT_PUBLIC_API_URL}/api/location/search?q=${encodeURIComponent(query)}`,
+                {},
+                false
+            );
+
+            if (response?.data?.locations) {
+                setAddressOptions(response.data.locations);
+            } else {
+                setAddressOptions([]);
+            }
+        } catch (error) {
+            console.error('Address search failed:', error);
+            setAddressOptions([]);
+        } finally {
+            setAddressSearching(false);
+        }
+    };
+
+    // Handle address input change with debounce
+    const handleAddressInputChange = (event, newInputValue) => {
+        setAddressInputValue(newInputValue);
+        
+        // Clear previous timeout
+        if (addressSearchTimeout.current) {
+            clearTimeout(addressSearchTimeout.current);
+        }
+        
+        // Debounce search by 500ms (Nominatim rate limit is 1 req/sec)
+        addressSearchTimeout.current = setTimeout(() => {
+            searchAddresses(newInputValue);
+        }, 500);
+    };
+
+    // Handle address selection from autocomplete
+    const handleAddressSelect = (event, selectedLocation) => {
+        if (!selectedLocation) return;
+
+        // Parse address components from Nominatim result
+        const address = selectedLocation.address || {};
+        
+        const newAddress = {
+            fullAddress: selectedLocation.name || '',
+            streetAddress: [address.house_number, address.road].filter(Boolean).join(' ') || '',
+            city: address.city || address.town || address.village || address.municipality || '',
+            province: address.state || address.province || '',
+            postalCode: address.postcode || '',
+            country: address.country || 'Canada',
+            coordinates: {
+                latitude: selectedLocation.latitude,
+                longitude: selectedLocation.longitude
+            }
+        };
+
+        setEditProfile(prev => ({
+            ...prev,
+            address: newAddress,
+            location: newAddress.city && newAddress.province 
+                ? `${newAddress.city}, ${newAddress.province}` 
+                : newAddress.fullAddress
+        }));
+
+        // Update input to show formatted address
+        setAddressInputValue(selectedLocation.name || '');
+    };
 
     async function fetchProfile() {
         try {
-            const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+            // Disable cache to always get fresh profile data (important for user switching)
+            const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
             if (res?.data) {
                 // Ensure profile image URL is properly formatted
                 const profileImage = res.data.profileImage 
@@ -99,6 +188,17 @@ const ProfilePage = () => {
                         ? res.data.profileImage 
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`)
                     : '';
+                
+                // Handle address data
+                const address = res.data.address || {
+                    fullAddress: '',
+                    streetAddress: '',
+                    city: '',
+                    province: '',
+                    postalCode: '',
+                    country: 'Canada',
+                    coordinates: { latitude: null, longitude: null }
+                };
                 
                 setUserProfile({
                     name: res.data.name || '',
@@ -112,7 +212,13 @@ const ProfilePage = () => {
                     badges: res.data.badges || [],
                     joinedChallenges: res.data.joinedChallenges || [],
                     createdAt: res.data.createdAt || null,
+                    address: address,
                 });
+                
+                // Set address input value for autocomplete
+                if (address.fullAddress) {
+                    setAddressInputValue(address.fullAddress);
+                }
             }
         } catch (error) {
             console.error('Failed to load profile:', error);
@@ -167,41 +273,47 @@ const ProfilePage = () => {
         }
     }
 
-    // Fetch user profile from backend on mount
+    // Fetch user profile from backend on mount and when auth changes
     useEffect(() => {
+        // Clear profile when no auth user
+        if (!authUser?.uid) {
+            setUserProfile({
+                name: '',
+                email: '',
+                location: '',
+                bio: '',
+                profileImage: '',
+                totalItemsCollected: 0,
+                totalChallenges: 0,
+                impactScore: 0,
+                badges: [],
+                joinedChallenges: [],
+                createdAt: null,
+                address: {
+                    fullAddress: '',
+                    streetAddress: '',
+                    city: '',
+                    province: '',
+                    postalCode: '',
+                    country: 'Canada',
+                    coordinates: { latitude: null, longitude: null }
+                }
+            });
+            setAddressInputValue('');
+            return;
+        }
+        
         fetchProfile();
         fetchRecentAchievements();
-    }, []);
+    }, [authUser?.uid, authVersion]); // Re-fetch when auth user changes
 
     // Update editProfile if userProfile changes
     useEffect(() => {
         setEditProfile({ ...userProfile });
-        setLocationInputValue(userProfile.location);
+        if (userProfile.address?.fullAddress) {
+            setAddressInputValue(userProfile.address.fullAddress);
+        }
     }, [userProfile]);
-
-    // Handle location search
-    useEffect(() => {
-        if (!locationInputValue || locationInputValue.length < 2) {
-            setLocationOptions([]);
-            return;
-        }
-
-        if (autocompleteService.current) {
-            autocompleteService.current.getPlacePredictions(
-                {
-                    input: locationInputValue,
-                    types: ['(cities)'],
-                },
-                (predictions, status) => {
-                    if (status === window.google.maps.places.PlacesServiceStatus.OK && predictions) {
-                        setLocationOptions(predictions.map(prediction => prediction.description));
-                    } else {
-                        setLocationOptions([]);
-                    }
-                }
-            );
-        }
-    }, [locationInputValue]);
 
     // Format join date
     const formatJoinDate = (date) => {
@@ -211,6 +323,14 @@ const ProfilePage = () => {
 
     const handleSignOut = async () => {
         try {
+            // Clear session cookie on backend
+            try {
+                await apiCall('post', `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`);
+            } catch (logoutError) {
+                console.error('Error clearing session cookie:', logoutError);
+                // Continue with logout even if backend call fails
+            }
+            
             // Clear user-specific storage keys before signing out
             const keysToRemove = ['user', 'token', 'authToken', 'userProfile', 'userData'];
             keysToRemove.forEach(key => {
@@ -235,23 +355,36 @@ const ProfilePage = () => {
     const handleEditProfile = () => {
         if (isEditing) {
             setEditProfile({ ...userProfile });
-            setLocationInputValue(userProfile.location);
+            if (userProfile.address?.fullAddress) {
+                setAddressInputValue(userProfile.address.fullAddress);
+            }
         }
         setIsEditing(!isEditing);
     };
 
     const handleSaveProfile = async () => {
         try {
+            setSavingProfile(true);
+            setProfileUpdateError('');
+            setProfileUpdateSuccess('');
+            
             const updateData = {
                 name: editProfile.name,
                 location: editProfile.location,
                 bio: editProfile.bio,
+                address: editProfile.address,
             };
             await apiCall('patch', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, updateData);
             await fetchProfile(); // Refetch profile to sync latest data
             setIsEditing(false);
+            setProfileUpdateSuccess('Profile updated successfully!');
+            // Clear success message after 5 seconds
+            setTimeout(() => setProfileUpdateSuccess(''), 5000);
         } catch (error) {
             console.error('Failed to update profile:', error);
+            setProfileUpdateError('Failed to update profile. Please try again.');
+        } finally {
+            setSavingProfile(false);
         }
     };
 
@@ -262,10 +395,14 @@ const ProfilePage = () => {
         }));
     };
 
-    const handleLocationChange = (event, newValue) => {
+    // Handle individual address field changes
+    const handleAddressFieldChange = (field, value) => {
         setEditProfile(prev => ({
             ...prev,
-            location: newValue || ''
+            address: {
+                ...prev.address,
+                [field]: value
+            }
         }));
     };
 
@@ -489,6 +626,18 @@ const ProfilePage = () => {
                     {/* Tab Content */}
                     {activeTab === 'profile' && (
                         <Box sx={styles.tabContent}>
+                            {/* Profile Update Success/Error Messages */}
+                            {profileUpdateSuccess && (
+                                <Alert severity="success" sx={{ mb: 3, fontSize: '14px' }} onClose={() => setProfileUpdateSuccess('')}>
+                                    {profileUpdateSuccess}
+                                </Alert>
+                            )}
+                            {profileUpdateError && (
+                                <Alert severity="error" sx={{ mb: 3, fontSize: '14px' }} onClose={() => setProfileUpdateError('')}>
+                                    {profileUpdateError}
+                                </Alert>
+                            )}
+                            
                             {/* Personal Information */}
                             <Box sx={styles.section}>
                                 <Box sx={styles.sectionHeader}>
@@ -519,33 +668,58 @@ const ProfilePage = () => {
                                         <Typography sx={styles.value}>{userProfile.email}</Typography>
                                     </Box>
 
-                                    <Box sx={styles.formGroup}>
-                                        <Typography sx={styles.label}>Location</Typography>
+                                    {/* Address Section with Autocomplete */}
+                                    <Box sx={{ ...styles.formGroup, gridColumn: '1 / -1' }}>
+                                        <Typography sx={styles.label}>Address (Search & Select)</Typography>
                                         {isEditing ? (
                                             <Autocomplete
                                                 freeSolo
-                                                options={locationOptions}
-                                                value={editProfile.location}
-                                                onChange={handleLocationChange}
-                                                inputValue={locationInputValue}
-                                                onInputChange={(event, newInputValue) => {
-                                                    setLocationInputValue(newInputValue);
-                                                    handleProfileInputChange('location', newInputValue);
-                                                }}
+                                                options={addressOptions}
+                                                getOptionLabel={(option) => 
+                                                    typeof option === 'string' ? option : option.name || ''
+                                                }
+                                                value={null}
+                                                inputValue={addressInputValue}
+                                                onInputChange={handleAddressInputChange}
+                                                onChange={handleAddressSelect}
+                                                loading={addressSearching}
+                                                filterOptions={(x) => x} // Don't filter, we use backend search
+                                                renderOption={(props, option) => (
+                                                    <li {...props} key={option.placeId || option.name}>
+                                                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                                            <LocationOnOutlined sx={{ color: '#64748b', mt: 0.5 }} />
+                                                            <Box>
+                                                                <Typography sx={{ fontWeight: 500, fontSize: '14px' }}>
+                                                                    {option.address?.city || option.address?.town || option.address?.village || option.name?.split(',')[0]}
+                                                                </Typography>
+                                                                <Typography sx={{ color: '#64748b', fontSize: '12px' }}>
+                                                                    {option.name}
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </li>
+                                                )}
                                                 renderInput={(params) => (
                                                     <TextField
                                                         {...params}
                                                         fullWidth
-                                                        placeholder="Enter your city or province"
+                                                        placeholder="Start typing your address (e.g., 123 Main Street, Toronto)"
                                                         sx={styles.input}
                                                         InputProps={{
                                                             ...params.InputProps,
                                                             startAdornment: (
                                                                 <LocationOnOutlined sx={{ color: '#64748b', mr: 1, fontSize: 20 }} />
                                                             ),
+                                                            endAdornment: (
+                                                                <>
+                                                                    {addressSearching ? <CircularProgress color="inherit" size={20} /> : null}
+                                                                    {params.InputProps.endAdornment}
+                                                                </>
+                                                            ),
                                                         }}
                                                     />
                                                 )}
+                                                noOptionsText={addressInputValue.length < 3 ? "Type at least 3 characters" : "No addresses found"}
                                                 sx={{
                                                     '& .MuiAutocomplete-inputRoot': {
                                                         paddingLeft: '8px',
@@ -553,9 +727,79 @@ const ProfilePage = () => {
                                                 }}
                                             />
                                         ) : (
-                                            <Typography sx={styles.value}>{userProfile.location || 'Not set'}</Typography>
+                                            <Typography sx={styles.value}>
+                                                {userProfile.address?.fullAddress || userProfile.location || 'Not set'}
+                                            </Typography>
                                         )}
                                     </Box>
+
+                                    {/* Auto-filled address fields (read-only when editing, show after selection) */}
+                                    {isEditing && editProfile.address?.city && (
+                                        <>
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>City</Typography>
+                                                <TextField
+                                                    fullWidth
+                                                    value={editProfile.address?.city || ''}
+                                                    onChange={(e) => handleAddressFieldChange('city', e.target.value)}
+                                                    sx={styles.input}
+                                                    placeholder="City"
+                                                />
+                                            </Box>
+
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>Province</Typography>
+                                                <TextField
+                                                    fullWidth
+                                                    value={editProfile.address?.province || ''}
+                                                    onChange={(e) => handleAddressFieldChange('province', e.target.value)}
+                                                    sx={styles.input}
+                                                    placeholder="Province"
+                                                />
+                                            </Box>
+
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>Postal Code</Typography>
+                                                <TextField
+                                                    fullWidth
+                                                    value={editProfile.address?.postalCode || ''}
+                                                    onChange={(e) => handleAddressFieldChange('postalCode', e.target.value)}
+                                                    sx={styles.input}
+                                                    placeholder="Postal Code"
+                                                />
+                                            </Box>
+
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>Country</Typography>
+                                                <TextField
+                                                    fullWidth
+                                                    value={editProfile.address?.country || 'Canada'}
+                                                    disabled
+                                                    sx={styles.input}
+                                                />
+                                            </Box>
+                                        </>
+                                    )}
+
+                                    {/* Display address when not editing */}
+                                    {!isEditing && userProfile.address?.city && (
+                                        <>
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>City</Typography>
+                                                <Typography sx={styles.value}>{userProfile.address?.city || 'Not set'}</Typography>
+                                            </Box>
+
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>Province</Typography>
+                                                <Typography sx={styles.value}>{userProfile.address?.province || 'Not set'}</Typography>
+                                            </Box>
+
+                                            <Box sx={styles.formGroup}>
+                                                <Typography sx={styles.label}>Postal Code</Typography>
+                                                <Typography sx={styles.value}>{userProfile.address?.postalCode || 'Not set'}</Typography>
+                                            </Box>
+                                        </>
+                                    )}
 
                                     <Box sx={styles.formGroup}>
                                         <Typography sx={styles.label}>Joined</Typography>
@@ -582,11 +826,18 @@ const ProfilePage = () => {
 
                                 {isEditing && (
                                     <Box sx={styles.buttonGroup}>
-                                        <Button sx={styles.cancelButton} onClick={handleEditProfile}>
+                                        <Button sx={styles.cancelButton} onClick={handleEditProfile} disabled={savingProfile}>
                                             Cancel
                                         </Button>
-                                        <Button sx={styles.saveButton} onClick={handleSaveProfile}>
-                                            Save Changes
+                                        <Button sx={styles.saveButton} onClick={handleSaveProfile} disabled={savingProfile}>
+                                            {savingProfile ? (
+                                                <>
+                                                    <CircularProgress size={16} sx={{ color: '#ffffff', mr: 1 }} />
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                'Save Changes'
+                                            )}
                                         </Button>
                                     </Box>
                                 )}

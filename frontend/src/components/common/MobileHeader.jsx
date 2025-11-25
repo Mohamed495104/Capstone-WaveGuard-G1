@@ -77,8 +77,8 @@ export default function MobileHeader() {
             <Box display="flex" alignItems="center">
                 <Box
                     component="img"
-                    src="/images/logoblue.png"
-                    alt="WaveGuard"
+                    src="/images/2.png"
+                    alt="MarineCare"
                     sx={{
                         height: 32,
                         width: 32,
@@ -95,7 +95,7 @@ export default function MobileHeader() {
                         color: "#0891b2",
                     }}
                 >
-                    WaveGuard
+                    MarineCare
                 </Typography>
             </Box>
 

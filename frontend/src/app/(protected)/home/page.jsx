@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import withAuth from '@/components/auth/withAuth';
@@ -43,6 +43,22 @@ function HomePage() {
     const [loading, setLoading] = useState(true);
     const [userLoading, setUserLoading] = useState(true);
 
+    // Fetch stats function - memoized for reuse
+    const fetchStats = useCallback(async (showLoading = false) => {
+        if (showLoading) setLoading(true);
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/home/stats`);
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error("Error fetching home stats:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     // Fetch user profile - re-runs when authenticated user changes
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -51,7 +67,8 @@ function HomePage() {
             setUser(null);
             
             try {
-                const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                // Disable cache to always get fresh profile data (important for user switching)
+                const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
                 if (response?.data) {
                     setUser(response.data);
                 }
@@ -72,23 +89,31 @@ function HomePage() {
         }
     }, [authUser?.uid, authVersion]); // Re-fetch when auth user UID or version changes
 
+    // Fetch stats on mount and when page becomes visible
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/home/stats`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setStats(data);
-                }
-            } catch (error) {
-                console.error("Error fetching home stats:", error);
-            } finally {
-                setLoading(false);
+        // Initial fetch
+        fetchStats(true);
+
+        // Refetch when page becomes visible (e.g., user returns from creating a challenge)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchStats(false); // Don't show loading spinner on visibility change
             }
         };
 
-        fetchStats();
-    }, []);
+        // Refetch when window regains focus
+        const handleFocus = () => {
+            fetchStats(false);
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [fetchStats]);
 
     // Determine if user is first-time (no cleanups) or returning user
     const isFirstTimeUser = user && user.totalCleanups === 0;
@@ -116,7 +141,7 @@ function HomePage() {
             {/* HERO SECTION */}
             <HeroSection>
                 <HeroOverlay>
-                    <HeroTag>WaveGuard Platform</HeroTag>
+                    <HeroTag>MarineCare Platform</HeroTag>
                     <HeroTitle>
                         {userLoading ? (
                             <>
@@ -126,7 +151,7 @@ function HomePage() {
                         ) : isFirstTimeUser ? (
                             <>
                                 {greeting}, {firstName}! <br />
-                                <span style={{ color: "#67e8c3" }}>Welcome to WaveGuard</span>
+                                <span style={{ color: "#67e8c3" }}>Welcome to MarineCare</span>
                             </>
                         ) : (
                             <>
@@ -198,7 +223,7 @@ function HomePage() {
             <WorkSection>
                 <WorkBadge>Getting Started</WorkBadge>
                 <Typography variant="h4" fontWeight={700} color="#003554" mb={1}>
-                    How to Use WaveGuard
+                    How to Use MarineCare
                 </Typography>
                 <Typography color="#004b63" mb={6} maxWidth="700px" margin="0 auto 48px">
                     Follow these simple steps to start making an impact. Our AI-powered platform 

@@ -47,6 +47,36 @@ const ChallengeCard = ({ challenge }) => {
     const [isJoining, setIsJoining] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
+    // Helper: Get proper banner image URL
+    const getBannerImageUrl = (img) => {
+        if (!img) return "/images/placeholder-challenge.jpg";
+        
+        // Already full URL
+        if (img.startsWith("http://") || img.startsWith("https://")) {
+            return img;
+        }
+        
+        // Static files from /public (e.g., /challangeimg/img1.jpg)
+        if (img.startsWith("/challangeimg/")) {
+            return img; // Served directly by Next.js from public folder
+        }
+        
+        // API routes for GridFS images (e.g., /api/images/123)
+        if (img.startsWith("/api/")) {
+            return `${process.env.NEXT_PUBLIC_API_URL}${img}`;
+        }
+        
+        // Any other path that doesn't start with / - likely a relative API path
+        if (!img.startsWith("/")) {
+            return `${process.env.NEXT_PUBLIC_API_URL}/${img}`;
+        }
+        
+        // Default: assume it's an API path
+        return `${process.env.NEXT_PUBLIC_API_URL}${img}`;
+    };
+
+    const bannerUrl = getBannerImageUrl(bannerImage);
+
     const handleCardClick = () => {
         router.push(`/challenges/${_id}`);
     };
@@ -198,7 +228,7 @@ const ChallengeCard = ({ challenge }) => {
                 <Box sx={{ position: "relative", height: 180 }}>
                     <CardMedia
                         component="img"
-                        image={bannerImage}
+                        image={bannerUrl}
                         alt={title}
                         sx={{
                             width: "100%",
