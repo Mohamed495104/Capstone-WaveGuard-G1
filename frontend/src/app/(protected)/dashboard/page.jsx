@@ -32,6 +32,7 @@ import { apiCall } from '@/utils/api';
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // Fetch dashboard data from backend
   useEffect(() => {
@@ -53,8 +54,17 @@ const DashboardPage = () => {
   // Show loading state
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
-        <CircularProgress />
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '80vh',
+        '@keyframes spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+      }}>
+        <CircularProgress sx={{ animation: 'spin 1s linear infinite' }} />
       </Box>
     );
   }
@@ -103,6 +113,11 @@ const DashboardPage = () => {
             border: '1px solid #e5e7eb',
             borderRadius: '6px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            animation: 'tooltipFadeIn 0.3s ease-out',
+            '@keyframes tooltipFadeIn': {
+              from: { opacity: 0, transform: 'scale(0.9)' },
+              to: { opacity: 1, transform: 'scale(1)' },
+            },
           }}
         >
           <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
@@ -130,6 +145,11 @@ const DashboardPage = () => {
             border: '1px solid #e5e7eb',
             borderRadius: '6px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            animation: 'tooltipFadeIn 0.3s ease-out',
+            '@keyframes tooltipFadeIn': {
+              from: { opacity: 0, transform: 'scale(0.9)' },
+              to: { opacity: 1, transform: 'scale(1)' },
+            },
           }}
         >
           <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#1a1a1a', margin: 0 }}>
@@ -149,6 +169,10 @@ const DashboardPage = () => {
       );
     }
     return null;
+  };
+
+  const onPieEnter = (_, index) => {
+    setActiveIndex(index);
   };
 
   return (
@@ -381,9 +405,22 @@ const DashboardPage = () => {
                     backgroundColor: contributor.rank <= 3 ? '#fef3c7' : '#f8fafc',
                     borderRadius: '12px',
                     border: contributor.rank <= 3 ? '2px solid #f59e0b' : '1px solid #e5e7eb',
-                    transition: 'all 0.2s ease',
+                    opacity: 0,
+                    animation: 'contributorSlideIn 0.5s ease-out forwards',
+                    animationDelay: `${1.3 + (index * 0.1)}s`,
+                    '@keyframes contributorSlideIn': {
+                      from: {
+                        opacity: 0,
+                        transform: 'translateX(-30px)',
+                      },
+                      to: {
+                        opacity: 1,
+                        transform: 'translateX(0)',
+                      },
+                    },
+                    transition: 'all 0.3s ease',
                     '&:hover': {
-                      transform: 'translateX(4px)',
+                      transform: 'translateX(8px) scale(1.02)',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                     }
                   }}
@@ -401,6 +438,10 @@ const DashboardPage = () => {
                         justifyContent: 'center',
                         fontWeight: 700,
                         fontSize: '14px',
+                        transition: 'transform 0.3s ease',
+                        '&:hover': {
+                          transform: 'scale(1.2) rotate(360deg)',
+                        }
                       }}
                     >
                       {contributor.rank}
@@ -432,28 +473,70 @@ const DashboardPage = () => {
           </Box>
         </Box>
 
-        {/* Community Stats - moved from bottom */}
+        {/* Community Stats */}
         <Box sx={styles.activityCard}>
           <Typography sx={styles.chartTitle}>Community Impact</Typography>
           <Box sx={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#0ea5e9' }}>
+            <Box sx={{
+              opacity: 0,
+              animation: 'statFadeIn 0.6s ease-out 1.3s forwards',
+              '@keyframes statFadeIn': {
+                to: { opacity: 1 }
+              }
+            }}>
+              <Typography sx={{ 
+                fontSize: '28px', 
+                fontWeight: 700, 
+                color: '#0ea5e9',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                }
+              }}>
                 {communityStats?.totalItemsCollected?.toLocaleString() || 0}
               </Typography>
               <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>
                 Total items collected
               </Typography>
             </Box>
-            <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#10b981' }}>
+            <Box sx={{
+              opacity: 0,
+              animation: 'statFadeIn 0.6s ease-out 1.5s forwards',
+              '@keyframes statFadeIn': {
+                to: { opacity: 1 }
+              }
+            }}>
+              <Typography sx={{ 
+                fontSize: '28px', 
+                fontWeight: 700, 
+                color: '#10b981',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                }
+              }}>
                 {communityStats?.totalVolunteers?.toLocaleString() || 0}
               </Typography>
               <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>
                 Active volunteers
               </Typography>
             </Box>
-            <Box>
-              <Typography sx={{ fontSize: '28px', fontWeight: 700, color: '#f59e0b' }}>
+            <Box sx={{
+              opacity: 0,
+              animation: 'statFadeIn 0.6s ease-out 1.7s forwards',
+              '@keyframes statFadeIn': {
+                to: { opacity: 1 }
+              }
+            }}>
+              <Typography sx={{ 
+                fontSize: '28px', 
+                fontWeight: 700, 
+                color: '#f59e0b',
+                transition: 'transform 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.1)',
+                }
+              }}>
                 {communityStats?.activeChallenges || 0}
               </Typography>
               <Typography sx={{ fontSize: '13px', color: '#6b7280', mt: 0.5 }}>

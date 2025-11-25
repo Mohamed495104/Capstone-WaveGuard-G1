@@ -12,7 +12,6 @@ const CATEGORY_COLORS = {
     cigarette_butt: "#ef4444",
     glass_bottle: "#8b5cf6",
 };
-
 const CATEGORY_DISPLAY_NAMES = {
     plastic_bottle: "Plastic Bottles",
     metal_can: "Metal Cans",
