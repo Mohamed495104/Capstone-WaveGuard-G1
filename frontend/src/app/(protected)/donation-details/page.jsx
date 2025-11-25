@@ -34,6 +34,14 @@ import {
 } from '@mui/icons-material';
 import { styles } from './donationDetails.styles';
 
+// Charity configuration constants
+const CHARITY_CONFIG = {
+  registrationNumber: '123456789 RR0001',
+  businessNumber: '123456789',
+  name: 'WaveGuard',
+  directImpactPercentage: 87
+};
+
 const DonationDetailsPage = () => {
   const router = useRouter();
   const [selectedAmount, setSelectedAmount] = useState('50');
@@ -116,9 +124,12 @@ const DonationDetailsPage = () => {
     return donationType === 'monthly' ? (amount * 12).toFixed(0) : amount.toFixed(0);
   };
 
-  // Generate transaction ID
+  // Generate transaction ID using crypto for better uniqueness
   const generateTransactionId = () => {
-    return 'WG' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+    const randomPart = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase()
+      : Date.now().toString(36) + Math.random().toString(36).substring(2, 11).toUpperCase();
+    return 'WG' + randomPart;
   };
 
   // Generate PDF Receipt with jsPDF - Enhanced Design
@@ -147,12 +158,13 @@ const DonationDetailsPage = () => {
     doc.setFillColor(0, 171, 145);
     doc.rect(0, 50, pageWidth, 10, 'F');
 
-    // Add WaveGuard Logo
-    const logoImg = '/images/logowhite.png'; // Path to your logo
+    // Add WaveGuard Logo (optional - continues without logo if unavailable)
+    const logoImg = '/images/logowhite.png';
     try {
       doc.addImage(logoImg, 'PNG', pageWidth / 2 - 12, 10, 24, 24);
     } catch (error) {
-      console.error('Logo loading error:', error);
+      // Logo is optional - PDF generation continues without it
+      console.warn('PDF logo not available, generating receipt without logo');
     }
     
     // Brand name
@@ -341,15 +353,15 @@ const DonationDetailsPage = () => {
     doc.text('This is an official receipt for income tax purposes.', margin + 5, y);
     
     y += 4;
-    doc.text('Charity Registration Number: 123456789 RR0001', margin + 5, y);
+    doc.text(`Charity Registration Number: ${CHARITY_CONFIG.registrationNumber}`, margin + 5, y);
     
     y += 4;
-    doc.text('Business Number: 123456789', margin + 5, y);
+    doc.text(`Business Number: ${CHARITY_CONFIG.businessNumber}`, margin + 5, y);
     
     y += 5;
     doc.setFont(undefined, 'italic');
     doc.setFontSize(7.5);
-    doc.text('87% of your donation directly supports ocean cleanup initiatives', margin + 5, y);
+    doc.text(`${CHARITY_CONFIG.directImpactPercentage}% of your donation directly supports ocean cleanup initiatives`, margin + 5, y);
 
     // === FOOTER ===
     y = pageHeight - 25;
@@ -445,8 +457,16 @@ const DonationDetailsPage = () => {
   React.useEffect(() => {
     if (!showPaypalDialog) return;
 
-    // IMPORTANT:sandbox client id for testing
-    const CLIENT_ID = 'AZXqiIHBK0SurdYGVsPKsUUMueIYszfozpnjTnXoWjVXa07Wh9Pd2yap1wSfOI9s5aiZENU0O5QfAfHh';
+    // PayPal Client ID from environment variable
+    const CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+    
+    if (!CLIENT_ID) {
+      console.error('PayPal Client ID not configured');
+      setErrors({ ...errors, paypal: 'Payment service not configured. Please try again later.' });
+      setShowPaypalDialog(false);
+      setIsProcessing(false);
+      return;
+    }
 
     let paypalButtons;
     let isMounted = true;
@@ -1140,9 +1160,9 @@ const DonationDetailsPage = () => {
           </Button>
 
           <Typography variant="caption" sx={{ color: '#999', display: 'block' }}>
-            WaveGuard is a registered Canadian charity
+            {CHARITY_CONFIG.name} is a registered Canadian charity
             <br />
-            Registration #: 123456789 RR0001
+            Registration #: {CHARITY_CONFIG.registrationNumber}
           </Typography>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
