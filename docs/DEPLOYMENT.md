@@ -35,8 +35,8 @@
    └────┬────┘
         │
    ┌────▼─────────┐
-   │   Railway/   │ ← Backend (Express API)
-   │   Render     │
+   │ DigitalOcean │ ← Backend (Express API)
+   │ App Platform │
    └────┬─────────┘
         │
    ┌────▼──────┐
@@ -47,14 +47,13 @@
 
 ### Hosting Services
 
-| Component | Recommended Service | Cost |
-|-----------|-------------------|------|
+| Component | Service | Cost |
+|-----------|---------|------|
 | Frontend | Vercel | Free tier |
-| Backend | Railway or Render | Free tier |
+| Backend | DigitalOcean App Platform | Free with GitHub Student Pack ($200 credit) |
 | Database | MongoDB Atlas | Free tier (512MB) |
 | Auth | Firebase | Free tier |
 
-**Total Cost:** $0 (using free tiers)  
 **Setup Time:** 30-45 minutes
 
 ---
@@ -65,7 +64,7 @@ Before deploying, ensure you have:
 
 - [ ] GitHub account with repository access
 - [ ] Vercel account (sign up at [vercel.com](https://vercel.com))
-- [ ] Railway or Render account
+- [ ] DigitalOcean account ([digitalocean.com](https://www.digitalocean.com)) - Free $200 credit with GitHub Student Pack
 - [ ] MongoDB Atlas account ([mongodb.com/atlas](https://www.mongodb.com/atlas))
 - [ ] Firebase project configured
 
@@ -111,7 +110,7 @@ frontend/
    - Go to **Security → Network Access**
    - Click **"Add IP Address"**
    - Click **"Allow Access from Anywhere"** (0.0.0.0/0)
-   - This is required for Railway/Render deployment
+   - This is required for DigitalOcean deployment
 
 ### Step 3: Get Connection String
 
@@ -127,49 +126,48 @@ frontend/
 
 ## Backend Deployment
 
-### Option A: Railway (Recommended)
+### DigitalOcean App Platform
 
-1. Go to [Railway.app](https://railway.app)
-2. Sign up with GitHub
-3. Click **"New Project"** → **"Deploy from GitHub repo"**
-4. Select your repository
-5. Configure the service:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
+DigitalOcean App Platform is the recommended hosting solution, especially for students with GitHub Student Pack ($200 credit).
 
-6. Add environment variables:
-   - `MONGO_URI` = Your MongoDB connection string
-   - `FRONTEND_URL` = Your Vercel frontend URL
-   - `PORT` = 5000
-   - `NODE_ENV` = production
-
-7. Deploy and note your backend URL (e.g., `https://your-app.railway.app`)
-
-### Option B: Render
-
-1. Go to [Render.com](https://render.com)
-2. Sign up with GitHub
-3. Click **"New +"** → **"Web Service"**
-4. Connect your repository
-5. Configure:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Plan:** Free
-
-6. Add environment variables (same as Railway)
-7. Deploy and note your backend URL
-
-### Option C: DigitalOcean (For Students)
-
-If you have GitHub Student Pack ($200 credit):
+#### Step 1: Create DigitalOcean Account
 
 1. Go to [DigitalOcean](https://www.digitalocean.com)
-2. Create App Platform application
-3. Connect your GitHub repository
-4. Configure environment variables
-5. Deploy
+2. Sign up (use GitHub Student Pack for $200 free credit)
+3. Complete account verification
+
+#### Step 2: Create App
+
+1. Go to **Apps** in the DigitalOcean dashboard
+2. Click **"Create App"**
+3. Select **"GitHub"** as the source
+4. Authorize DigitalOcean to access your repository
+5. Select your repository and branch
+
+#### Step 3: Configure App Settings
+
+1. **Source Directory:** `/backend`
+2. **Build Command:** `npm install`
+3. **Run Command:** `npm start`
+4. **HTTP Port:** `5000`
+
+#### Step 4: Add Environment Variables
+
+Add the following environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `MONGO_URI` | Your MongoDB connection string |
+| `FRONTEND_URL` | Your Vercel frontend URL |
+| `PORT` | `5000` |
+| `NODE_ENV` | `production` |
+
+#### Step 5: Deploy
+
+1. Review your configuration
+2. Click **"Create Resources"**
+3. Wait for deployment to complete
+4. Note your backend URL (e.g., `https://your-app.ondigitalocean.app`)
 
 ---
 
@@ -187,7 +185,7 @@ If you have GitHub Student Pack ($200 credit):
 
 6. Add environment variables:
    ```
-   NEXT_PUBLIC_API_URL=https://your-backend.railway.app
+   NEXT_PUBLIC_API_URL=https://your-backend.ondigitalocean.app
    NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
@@ -302,11 +300,12 @@ After frontend deployment, update your backend's `FRONTEND_URL` environment vari
 2. Verify `next.config.mjs` exists
 3. Ensure all dependencies are in `package.json`
 
-#### "Railway/Render deployment failed"
+#### "DigitalOcean deployment failed"
 
-1. Verify root directory is set to `backend`
+1. Verify source directory is set to `/backend`
 2. Check if `start` script exists in `package.json`
-3. Review deployment logs for specific errors
+3. Review deployment logs in DigitalOcean dashboard
+4. Ensure HTTP port is set to `5000`
 
 ### Getting Help
 
@@ -329,7 +328,7 @@ Backend:  http://localhost:5000
 
 ```
 Frontend: https://marine-care.vercel.app
-Backend:  https://marine-care-api.railway.app
+Backend:  https://marine-care-api.ondigitalocean.app
 Database: mongodb+srv://...@cluster.mongodb.net/marine-care
 ```
 
@@ -339,8 +338,8 @@ Database: mongodb+srv://...@cluster.mongodb.net/marine-care
 # Frontend (Vercel deploys automatically from GitHub)
 # Manual deploy: npx vercel --prod
 
-# Backend (Railway/Render deploy automatically from GitHub)
-# Manual build: npm run build
+# Backend (DigitalOcean deploys automatically from GitHub)
+# Trigger manual deploy from DigitalOcean dashboard
 ```
 
 ---

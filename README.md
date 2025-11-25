@@ -28,7 +28,7 @@ Marine Care is a mobile-first Progressive Web App designed to help volunteers pa
 | **Database** | MongoDB Atlas, GridFS (image storage) |
 | **Authentication** | Firebase Authentication (Email/Password, Google OAuth) |
 | **AI** | Hugging Face Transformers (@xenova/transformers) |
-| **Deployment** | Vercel (frontend), Railway/Render (backend) |
+| **Deployment** | Vercel (frontend), DigitalOcean (backend) |
 
 ---
 

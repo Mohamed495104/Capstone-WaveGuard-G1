@@ -34,7 +34,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 | Database | MongoDB Atlas | Data persistence |
 | Auth | Firebase Authentication | User management |
 | AI | Hugging Face Transformers | Trash classification |
-| Hosting | Vercel / Railway / Render | Cloud deployment |
+| Hosting | Vercel (frontend) / DigitalOcean (backend) | Cloud deployment |
 
 ---
 
@@ -353,16 +353,14 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 
 | Service | Purpose |
 |---------|---------|
-| **Railway** | Node.js hosting |
-| **Render** | Node.js hosting (alternative) |
-| **DigitalOcean** | VM/App Platform (student credits) |
+| **DigitalOcean App Platform** | Node.js hosting (primary) |
 
-**Railway Features:**
+**DigitalOcean Features:**
 - GitHub integration
 - Automatic deployments
 - Environment variables
 - Logs and monitoring
-- Free tier available
+- $200 free credit with GitHub Student Pack
 
 ### Database Hosting
 
@@ -380,7 +378,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 | Environment | Frontend URL | Backend URL |
 |-------------|--------------|-------------|
 | Development | localhost:3000 | localhost:5000 |
-| Production | your-app.vercel.app | your-api.railway.app |
+| Production | your-app.vercel.app | your-app.ondigitalocean.app |
 
 ---
 
