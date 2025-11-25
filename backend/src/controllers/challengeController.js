@@ -89,7 +89,7 @@ export const getChallengeById = async (req, res) => {
             return res.status(400).json({ message: "Invalid challenge ID" });
         }
 
-        const challenge = await Challenge.findById(id).populate('createdBy', 'name email profileImage');
+        const challenge = await Challenge.findById(id).populate('createdBy', 'name email profileImage firebaseUid');
         
         if (!challenge) {
             return res.status(404).json({ message: "Challenge not found" });
@@ -471,6 +471,75 @@ export const uploadBanner = async (req, res) => {
         });
     } catch (error) {
         console.error("Error uploading banner:", error);
+        res.status(500).json({ message: "Server Error", error: error.message });
+    }
+};
+
+// @desc    Delete a challenge (only by creator)
+// @route   DELETE /api/challenges/:id
+// @access  Private (only challenge creator)
+export const deleteChallenge = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.mongoUser._id;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ message: "Invalid challenge ID" });
+        }
+
+        // Find the challenge
+        const challenge = await Challenge.findById(id);
+        if (!challenge) {
+            return res.status(404).json({ message: "Challenge not found" });
+        }
+
+        // Check if the current user is the creator
+        if (!challenge.createdBy || challenge.createdBy.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "Only the challenge creator can delete this challenge" });
+        }
+
+        // Get challenge stats before deletion (for logging)
+        const challengeStats = {
+            totalVolunteers: challenge.totalVolunteers || 0,
+            totalTrashCollected: challenge.totalTrashCollected || 0,
+            wasteBreakdown: challenge.wasteBreakdown || {}
+        };
+
+        // Remove this challenge from all users' joinedChallenges arrays
+        // and decrement their totalChallenges count
+        const usersWithChallenge = await User.find({ joinedChallenges: id });
+        
+        for (const user of usersWithChallenge) {
+            await User.findByIdAndUpdate(
+                user._id,
+                {
+                    $pull: { joinedChallenges: id },
+                    $inc: { totalChallenges: -1 }
+                }
+            );
+        }
+
+        // Ensure totalChallenges doesn't go negative
+        await User.updateMany(
+            { totalChallenges: { $lt: 0 } },
+            { $set: { totalChallenges: 0 } }
+        );
+
+        // Delete the challenge
+        await Challenge.findByIdAndDelete(id);
+
+        console.log(`[Challenge] Deleted challenge ${id} by user ${userId}. Stats removed: ${JSON.stringify(challengeStats)}`);
+
+        res.json({
+            message: "Challenge deleted successfully",
+            deletedChallenge: {
+                id: id,
+                title: challenge.title,
+                stats: challengeStats
+            }
+        });
+    } catch (error) {
+        console.error("Error deleting challenge:", error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 };

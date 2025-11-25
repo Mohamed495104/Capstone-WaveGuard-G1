@@ -9,6 +9,7 @@ import {
     getJoinedChallenges,
     createChallenge,
     uploadBanner,
+    deleteChallenge,
 } from '../controllers/challengeController.js';
 
 import { verifyAuth } from '../middleware/authMiddleware.js';
@@ -54,5 +55,8 @@ router.post('/:id/join', verifyAuth, ensureUserExists, joinChallenge);
 
 // Leave a challenge - already has auth which provides rate limiting
 router.post('/:id/leave', verifyAuth, ensureUserExists, leaveChallenge);
+
+// Delete a challenge (only creator can delete)
+router.delete('/:id', verifyAuth, ensureUserExists, deleteChallenge);
 
 export default router;
