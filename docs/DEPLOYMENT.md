@@ -192,6 +192,7 @@ Add the following environment variables:
    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
    NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+   NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
    ```
 
 7. Click **"Deploy"**
@@ -225,6 +226,7 @@ After frontend deployment, update your backend's `FRONTEND_URL` environment vari
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase sender ID |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase app ID |
+| `NEXT_PUBLIC_PAYPAL_CLIENT_ID` | PayPal Client ID (for donation feature) |
 
 ### Firebase Configuration
 

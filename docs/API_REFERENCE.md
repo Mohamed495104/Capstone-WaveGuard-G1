@@ -4,7 +4,8 @@
 
 **Last Updated:** November 2024  
 **Version:** 1.0  
-**Base URL:** `http://localhost:5000/api`
+**Base URL (Development):** `http://localhost:5000/api`  
+**Base URL (Production):** `https://your-backend-url.ondigitalocean.app/api`
 
 ---
 
@@ -20,7 +21,8 @@
 8. [Achievement Endpoints](#achievement-endpoints)
 9. [Home Endpoints](#home-endpoints)
 10. [Image Endpoints](#image-endpoints)
-11. [Error Responses](#error-responses)
+11. [Location Endpoints](#location-endpoints)
+12. [Error Responses](#error-responses)
 
 ---
 
@@ -853,6 +855,130 @@ curl -X POST http://localhost:5000/api/cleanups/upload \
   -F "challengeId=65c2a..." \
   -F "latitude=43.6532" \
   -F "longitude=-79.3832"
+```
+
+---
+
+## Location Endpoints
+
+These endpoints provide location search and verification features for challenge creation.
+
+### Search Locations
+
+Search for Canadian locations using Nominatim geocoding.
+
+```
+GET /api/location/search
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `q` | string | Yes | Search query (min 2 characters) |
+
+**Example Request:**
+
+```bash
+curl "http://localhost:5000/api/location/search?q=Vancouver%20Beach"
+```
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "count": 5,
+    "locations": [
+        {
+            "placeId": 12345678,
+            "name": "English Bay Beach, Vancouver, British Columbia, Canada",
+            "latitude": 49.2860,
+            "longitude": -123.1435,
+            "type": "beach",
+            "category": "natural",
+            "address": {
+                "name": "English Bay Beach",
+                "city": "Vancouver",
+                "state": "British Columbia",
+                "country": "Canada"
+            }
+        }
+    ]
+}
+```
+
+### Verify Water Proximity
+
+Check if a location is near water bodies (shoreline, lake, beach, river).
+
+```
+GET /api/location/verify-water
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `lat` | number | Yes | - | Latitude |
+| `lon` | number | Yes | - | Longitude |
+| `radius` | number | No | 5000 | Search radius in meters |
+
+**Example Request:**
+
+```bash
+curl "http://localhost:5000/api/location/verify-water?lat=49.2860&lon=-123.1435"
+```
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "isNearWater": true,
+    "waterFeaturesCount": 3,
+    "closestWater": {
+        "type": "coastline",
+        "name": "English Bay",
+        "distance": 0.45
+    },
+    "searchRadius": 5,
+    "message": "Found 3 water feature(s) within 5km"
+}
+```
+
+### Combined Location Verification
+
+Verify both user proximity to location AND water proximity in one call.
+
+```
+POST /api/location/verify
+```
+
+**Request Body:**
+
+```json
+{
+    "userLat": 49.2850,
+    "userLon": -123.1430,
+    "locationLat": 49.2860,
+    "locationLon": -123.1435,
+    "maxDistanceKm": 5
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "isValid": true,
+    "userDistance": 0.12,
+    "isUserNearLocation": true,
+    "isNearWater": true,
+    "maxDistanceKm": 5,
+    "message": "Location verified successfully"
+}
 ```
 
 ---
