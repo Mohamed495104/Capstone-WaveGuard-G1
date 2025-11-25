@@ -4,7 +4,8 @@
 
 **Last Updated:** November 2024  
 **Version:** 1.0  
-**Base URL:** `http://localhost:5000/api`
+**Base URL (Development):** `http://localhost:5000/api`  
+**Base URL (Production):** `https://your-backend-url.ondigitalocean.app/api`
 
 ---
 
