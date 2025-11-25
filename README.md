@@ -96,6 +96,7 @@ All documentation is organized in the `docs/` folder:
 | [Database](./docs/DATABASE.md) | Database models, relationships, indexing |
 | [API Reference](./docs/API_REFERENCE.md) | Complete API endpoint documentation |
 | [Technical Stack](./docs/TECHNICAL_STACK.md) | Technologies and services summary |
+| [Deployment](./docs/DEPLOYMENT.md) | Deployment and hosting guide |
 
 ---
 
