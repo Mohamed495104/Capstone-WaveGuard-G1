@@ -70,13 +70,11 @@ function ChallengeDetailsPage({ params }) {
       setDeleteDialogOpen(false);
       setSnackbar({
         open: true,
-        message: "Challenge deleted successfully",
+        message: "Challenge deleted successfully. Redirecting...",
         severity: "success",
       });
-      // Redirect to challenges list after successful deletion
-      setTimeout(() => {
-        router.push("/challenges");
-      }, 1500);
+      // Redirect immediately after successful deletion
+      router.push("/challenges");
     } catch (error) {
       console.error("Error deleting challenge:", error);
       setSnackbar({
@@ -1030,7 +1028,7 @@ function ChallengeDetailsPage({ params }) {
           <DialogContentText id="delete-dialog-description">
             Are you sure you want to permanently delete "{challenge?.title}"? This action cannot be undone.
             <br /><br />
-            <strong>Warning:</strong> All volunteers will be removed from this challenge, and the challenge statistics will be removed from the overall platform stats.
+            <strong>Note:</strong> All volunteers will be removed from this challenge and redirected. The challenge&apos;s contribution to platform-wide statistics (items collected, volunteer counts) will no longer be included in aggregated totals.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

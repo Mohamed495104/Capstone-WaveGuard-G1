@@ -506,18 +506,14 @@ export const deleteChallenge = async (req, res) => {
         };
 
         // Remove this challenge from all users' joinedChallenges arrays
-        // and decrement their totalChallenges count
-        const usersWithChallenge = await User.find({ joinedChallenges: id });
-        
-        for (const user of usersWithChallenge) {
-            await User.findByIdAndUpdate(
-                user._id,
-                {
-                    $pull: { joinedChallenges: id },
-                    $inc: { totalChallenges: -1 }
-                }
-            );
-        }
+        // and decrement their totalChallenges count using bulk update
+        await User.updateMany(
+            { joinedChallenges: id },
+            {
+                $pull: { joinedChallenges: id },
+                $inc: { totalChallenges: -1 }
+            }
+        );
 
         // Ensure totalChallenges doesn't go negative
         await User.updateMany(
