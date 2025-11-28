@@ -11,6 +11,7 @@ import {
     signInWithRedirect,
     getRedirectResult,
 } from "firebase/auth";
+import { requestCache } from "@/utils/requestCache";
 
 // Detect mobile device
 function isMobileDevice() {
@@ -101,6 +102,9 @@ export default function useAuth() {
     };
 
     const logout = async () => {
+        // Clear the API request cache to prevent stale profile data
+        requestCache.clear();
+        
         try {
             await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
