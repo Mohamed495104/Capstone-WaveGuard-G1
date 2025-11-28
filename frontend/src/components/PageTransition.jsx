@@ -17,7 +17,6 @@ export default function SmoothPageTransition({ children }) {
                     ease: "easeInOut",
                 }}
                 style={{
-                    height: "100%",
                     width: "100%",
                     transition: "all 1.2s ease-in-out", // smooth layout & color changes
                 }}
