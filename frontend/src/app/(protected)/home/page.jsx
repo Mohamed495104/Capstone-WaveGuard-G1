@@ -31,7 +31,7 @@ import {
 
 function HomePage() {
     const router = useRouter();
-    const { user: authUser, authVersion, sessionReady } = useAuthContext(); // Get Firebase auth user, version, and session state
+    const { user: authUser, authVersion } = useAuthContext(); // Get Firebase auth user and version
     const [user, setUser] = useState(null);
     const [stats, setStats] = useState({
         totalItemsCollected: 0,
@@ -59,18 +59,12 @@ function HomePage() {
         }
     }, []);
 
-    // Fetch user profile - re-runs when authenticated user changes and session is ready
+    // Fetch user profile - re-runs when authenticated user changes
     useEffect(() => {
         const fetchUserProfile = async () => {
             // Reset user state when starting fetch
             setUserLoading(true);
             setUser(null);
-            
-            // Wait for session to be ready before making authenticated API calls
-            if (!sessionReady) {
-                setUserLoading(false);
-                return;
-            }
             
             try {
                 // Disable cache to always get fresh profile data (important for user switching)
@@ -79,26 +73,21 @@ function HomePage() {
                     setUser(response.data);
                 }
             } catch (error) {
-                if (error.response?.status === 401) {
-                    // Silently handle 401 errors during auth setup
-                    console.debug('Session not ready yet for profile fetch');
-                } else {
-                    console.error("Error fetching user profile:", error);
-                }
+                console.error("Error fetching user profile:", error);
             } finally {
                 setUserLoading(false);
             }
         };
 
-        // Only fetch if we have an authenticated user and session is ready
-        if (authUser?.uid && sessionReady) {
+        // Only fetch if we have an authenticated user
+        if (authUser?.uid) {
             fetchUserProfile();
         } else {
-            // Clear user data if no auth user or session not ready
+            // Clear user data if no auth user
             setUser(null);
             setUserLoading(false);
         }
-    }, [authUser?.uid, authVersion, sessionReady]); // Re-fetch when auth user UID, version, or session ready changes
+    }, [authUser?.uid, authVersion]); // Re-fetch when auth user UID or version changes
 
     // Fetch stats on mount and when page becomes visible
     useEffect(() => {
