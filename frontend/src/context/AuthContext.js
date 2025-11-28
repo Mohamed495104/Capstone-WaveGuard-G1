@@ -1,9 +1,10 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Box, CircularProgress } from "@mui/material";
 import axios from "axios";
+import { requestCache } from "@/utils/requestCache";
 
 const AuthContext = createContext();
 
@@ -47,6 +48,7 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [authVersion, setAuthVersion] = useState(0); // Track auth state changes
+    const previousUserUid = useRef(null); // Track previous user to detect user switches
 
     useEffect(() => {
         // Check for redirect result first (for mobile Google sign-in)
@@ -70,6 +72,12 @@ export function AuthProvider({ children }) {
         // This is the primary listener for Firebase authentication state changes.
         // It will fire automatically after signInWithPopup/signInWithRedirect is successful.
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            // Clear cache when user changes (logout or different user login)
+            if (previousUserUid.current !== currentUser?.uid) {
+                requestCache.clear();
+            }
+            previousUserUid.current = currentUser?.uid || null;
+            
             setUser(currentUser);
             setLoading(false);
             setAuthVersion(prev => prev + 1); // Increment version on every auth state change

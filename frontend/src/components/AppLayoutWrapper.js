@@ -44,23 +44,38 @@ export default function AppLayoutWrapper({ children }) {
         <ThemeProvider theme={theme}>
             <CssBaseline />
 
-            {/* Mobile header and Navbar only render when showLayout is true */}
-            {showLayout && <MobileHeader />}
-            {showLayout && <Navbar />}
-
+            {/* Main wrapper to prevent scrolling past page content */}
             <Box
-                component="main"
                 sx={{
-                    minHeight: "100dvh",
-                    pb: showLayout ? { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 } : 0,
-                    pt: showLayout ? { xs: "56px", md: 0 } : 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    minHeight: "100vh",
+                    backgroundColor: "#f9fafb",
+                    overflow: "hidden",
                 }}
             >
-                <SmoothPageTransition>{children}</SmoothPageTransition>
-            </Box>
+                {/* Mobile header and Navbar only render when showLayout is true */}
+                {showLayout && <MobileHeader />}
+                {showLayout && <Navbar />}
 
-            {showLayout && <Footer />}
-            {showLayout && <MobileBottomNav />}
+                <Box
+                    component="main"
+                    sx={{
+                        flex: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        pb: showLayout ? { xs: "calc(64px + env(safe-area-inset-bottom))", md: 0 } : 0,
+                        pt: showLayout ? { xs: "56px", md: 0 } : 0,
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                    }}
+                >
+                    <SmoothPageTransition>{children}</SmoothPageTransition>
+                </Box>
+
+                {showLayout && <Footer />}
+                {showLayout && <MobileBottomNav />}
+            </Box>
         </ThemeProvider>
     );
 }

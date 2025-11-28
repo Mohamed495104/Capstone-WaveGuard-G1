@@ -8,6 +8,16 @@ html, body {
     background-color: #f9fafb; /* Light gray fallback matching page backgrounds */
 }
 
+/* Prevent scrolling past page content */
+html {
+    overflow-y: auto;
+}
+
+body {
+    min-height: 100%;
+    overflow-y: auto;
+}
+
 /* Performance optimizations */
 img, picture, video {
     max-width: 100%;
