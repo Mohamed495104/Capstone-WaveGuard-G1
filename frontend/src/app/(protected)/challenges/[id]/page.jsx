@@ -29,6 +29,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ShieldIcon from "@mui/icons-material/Shield";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import { useRouter } from "next/navigation";
 import { use } from "react";
@@ -50,11 +51,41 @@ function ChallengeDetailsPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [leaveDialogOpen, setLeaveDialogOpen] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
+
+  // Check if current user is the creator of this challenge
+  const isCreator = challenge?.createdBy?.firebaseUid === user?.uid;
+
+  // Handle delete challenge
+  const handleDeleteChallenge = async () => {
+    try {
+      setIsDeleting(true);
+      await apiCall('delete', `${process.env.NEXT_PUBLIC_API_URL}/api/challenges/${challenge._id}`);
+      setDeleteDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: "Challenge deleted successfully. Redirecting...",
+        severity: "success",
+      });
+      // Redirect immediately after successful deletion
+      router.push("/challenges");
+    } catch (error) {
+      console.error("Error deleting challenge:", error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || "Failed to delete challenge",
+        severity: "error",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Handle leave challenge
   const handleLeaveChallenge = async () => {
@@ -553,6 +584,34 @@ function ChallengeDetailsPage({ params }) {
               </Button>
             )}
           </Stack>
+
+          {/* Delete button for challenge creator */}
+          {isCreator && (
+            <Box sx={{ mt: 2 }}>
+              <Button
+                variant="outlined"
+                startIcon={<DeleteIcon />}
+                onClick={() => setDeleteDialogOpen(true)}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  fontSize: "0.9rem",
+                  borderRadius: 2,
+                  py: 1.2,
+                  px: 3,
+                  borderColor: "rgba(239, 68, 68, 0.8)",
+                  color: "#ef4444",
+                  bgcolor: "rgba(239, 68, 68, 0.15)",
+                  "&:hover": { 
+                    bgcolor: "rgba(239, 68, 68, 0.3)",
+                    borderColor: "#ef4444",
+                  },
+                }}
+              >
+                Delete Challenge
+              </Button>
+            </Box>
+          )}
         </Container>
       </Box>
 
@@ -951,6 +1010,39 @@ function ChallengeDetailsPage({ params }) {
             disabled={isLeaving}
           >
             {isLeaving ? "Leaving..." : "Leave Challenge"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Challenge Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title" sx={{ color: "#ef4444" }}>
+          Delete Challenge?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to permanently delete "{challenge?.title}"? This action cannot be undone.
+            <br /><br />
+            <strong>Note:</strong> All volunteers will be removed from this challenge and redirected. The challenge&apos;s contribution to platform-wide statistics (items collected, volunteer counts) will no longer be included in aggregated totals.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogOpen(false)} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteChallenge} 
+            color="error" 
+            variant="contained"
+            disabled={isDeleting}
+            startIcon={<DeleteIcon />}
+          >
+            {isDeleting ? "Deleting..." : "Delete Challenge"}
           </Button>
         </DialogActions>
       </Dialog>

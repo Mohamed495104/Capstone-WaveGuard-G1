@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { apiCall } from '@/utils/api';
+import { apiCall, requestCache } from '@/utils/api';
 import { useAuthContext } from '@/context/AuthContext';
 import { Box, Typography, Avatar, Button, TextField, Autocomplete, Switch, IconButton, CircularProgress, Tooltip, Alert } from '@mui/material';
 import {
@@ -323,6 +323,9 @@ const ProfilePage = () => {
 
     const handleSignOut = async () => {
         try {
+            // Clear the API request cache to prevent stale profile data
+            requestCache.clear();
+            
             // Clear session cookie on backend
             try {
                 await apiCall('post', `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`);
@@ -342,6 +345,8 @@ const ProfilePage = () => {
             router.push('/landing');
         } catch (error) {
             console.error('Error signing out:', error);
+            // Clear cache even on error
+            requestCache.clear();
             // Even if signout fails, clear storage and redirect
             const keysToRemove = ['user', 'token', 'authToken', 'userProfile', 'userData'];
             keysToRemove.forEach(key => {
