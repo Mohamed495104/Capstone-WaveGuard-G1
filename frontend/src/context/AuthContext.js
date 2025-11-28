@@ -73,10 +73,13 @@ export function AuthProvider({ children }) {
         // It will fire automatically after signInWithPopup/signInWithRedirect is successful.
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             // Clear cache when user changes (logout or different user login)
-            if (previousUserUid.current !== currentUser?.uid) {
+            // Only clear if previous user existed and is different from current user
+            const currentUid = currentUser?.uid || null;
+            const prevUid = previousUserUid.current;
+            if (prevUid !== null && prevUid !== currentUid) {
                 requestCache.clear();
             }
-            previousUserUid.current = currentUser?.uid || null;
+            previousUserUid.current = currentUid;
             
             setUser(currentUser);
             setLoading(false);
