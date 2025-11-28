@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Box, CircularProgress } from "@mui/material";
@@ -47,8 +47,15 @@ async function syncUser(idToken, retries = 2) {
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sessionReady, setSessionReady] = useState(false); // Track when session cookie is set
     const [authVersion, setAuthVersion] = useState(0); // Track auth state changes
     const previousUserUid = useRef(null); // Track previous user to detect user switches
+
+    // Function to mark session as ready (called by useAuth hook after session creation)
+    const markSessionReady = useCallback(() => {
+        setSessionReady(true);
+        setAuthVersion(prev => prev + 1);
+    }, []);
 
     useEffect(() => {
         // Check for redirect result first (for mobile Google sign-in)
@@ -60,6 +67,7 @@ export function AuthProvider({ children }) {
                     // Create session cookie (this also syncs user to MongoDB on backend)
                     const idToken = await result.user.getIdToken(true);
                     await createSession(idToken);
+                    setSessionReady(true);
                     setAuthVersion(prev => prev + 1); // Increment version on auth change
                 }
             } catch (error) {
@@ -78,12 +86,20 @@ export function AuthProvider({ children }) {
             const prevUid = previousUserUid.current;
             if (prevUid !== null && prevUid !== currentUid) {
                 requestCache.clear();
+                // Reset session ready when user changes
+                setSessionReady(false);
             }
             previousUserUid.current = currentUid;
             
             setUser(currentUser);
             setLoading(false);
-            setAuthVersion(prev => prev + 1); // Increment version on every auth state change
+            
+            // Handle logout: reset session ready and increment auth version
+            // Note: For new logins, authVersion is incremented by markSessionReady after session is created
+            if (!currentUser) {
+                setSessionReady(false);
+                setAuthVersion(prev => prev + 1);
+            }
         });
 
         // Cleanup the listener when the component unmounts
@@ -93,8 +109,10 @@ export function AuthProvider({ children }) {
     const value = {
         user,
         isAuthenticated: !!user,
+        sessionReady, // Indicates if the session cookie has been set
         loading,
         authVersion, // Expose version for components that need to react to auth changes
+        markSessionReady, // Function to mark session as ready
     };
 
     if (loading) {
