@@ -11,15 +11,15 @@ import { useAuthContext } from "@/context/AuthContext";
 export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
-    const { user: authUser, authVersion } = useAuthContext(); // Get auth context for profile sync
+    const { user: authUser, authVersion, sessionReady } = useAuthContext(); // Get auth context for profile sync
     const [profileImage, setProfileImage] = useState('');
     const isActive = (path) => (path === "/" ? pathname === "/" : pathname?.startsWith(path));
 
-    // Fetch user profile to get profile image - re-fetch when auth changes
+    // Fetch user profile to get profile image - re-fetch when auth changes and session is ready
     useEffect(() => {
         const fetchUserProfile = async () => {
-            // Clear profile image if no user
-            if (!authUser?.uid) {
+            // Clear profile image if no user or session not ready
+            if (!authUser?.uid || !sessionReady) {
                 setProfileImage('');
                 return;
             }
@@ -39,6 +39,9 @@ export default function Navbar() {
             } catch (error) {
                 if (error.isRateLimitError) {
                     console.warn('Rate limit reached when fetching profile:', error.message);
+                } else if (error.response?.status === 401) {
+                    // Silently handle 401 errors during auth setup
+                    console.debug('Session not ready yet for profile fetch');
                 } else {
                     console.error('Failed to fetch profile:', error);
                 }
@@ -48,7 +51,7 @@ export default function Navbar() {
         };
 
         fetchUserProfile();
-    }, [authUser?.uid, authVersion]); // Re-fetch when auth user or version changes
+    }, [authUser?.uid, authVersion, sessionReady]); // Re-fetch when auth user, version, or session ready changes
 
     return (
         <AppBar

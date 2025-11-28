@@ -8,16 +8,23 @@ import PersonOutline from "@mui/icons-material/PersonOutline";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { apiCall } from "@/utils/api";
+import { useAuthContext } from "@/context/AuthContext";
 
 export default function MobileHeader() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [profileImage, setProfileImage] = useState('');
     const router = useRouter();
     const { logout } = useAuth();
+    const { sessionReady } = useAuthContext();
 
-    // Fetch user profile to get profile image
+    // Fetch user profile to get profile image - only when session is ready
     useEffect(() => {
         const fetchUserProfile = async () => {
+            // Don't fetch if session is not ready yet
+            if (!sessionReady) {
+                return;
+            }
+            
             try {
                 const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
                 if (res?.data?.profileImage) {
@@ -30,6 +37,9 @@ export default function MobileHeader() {
             } catch (error) {
                 if (error.isRateLimitError) {
                     console.warn('Rate limit reached when fetching profile:', error.message);
+                } else if (error.response?.status === 401) {
+                    // Silently handle 401 errors during auth setup
+                    console.debug('Session not ready yet for profile fetch');
                 } else {
                     console.error('Failed to fetch profile:', error);
                 }
@@ -38,7 +48,7 @@ export default function MobileHeader() {
         };
 
         fetchUserProfile();
-    }, []);
+    }, [sessionReady]);
 
     const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);

@@ -28,27 +28,39 @@ import {
 import { styles } from './dashboard.styles';
 import withAuth from '@/components/auth/withAuth';
 import { apiCall } from '@/utils/api';
+import { useAuthContext } from '@/context/AuthContext';
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const { sessionReady } = useAuthContext();
 
-  // Fetch dashboard data from backend
+  // Fetch dashboard data from backend - wait for session to be ready
   useEffect(() => {
     const fetchDashboardData = async () => {
+      // Wait for session to be ready before making authenticated API calls
+      if (!sessionReady) {
+        return;
+      }
+      
       try {
         setLoading(true);
         const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/stats`);
         setDashboardData(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        if (error.response?.status === 401) {
+          // Silently handle 401 errors during auth setup
+          console.debug('Session not ready yet for dashboard fetch');
+        } else {
+          console.error('Error fetching dashboard data:', error);
+        }
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [sessionReady]);
 
   // Show loading state
   if (loading) {
