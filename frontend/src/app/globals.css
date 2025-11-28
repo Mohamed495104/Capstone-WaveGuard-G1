@@ -1,6 +1,6 @@
 /* Global reset & font setup */
 html, body {
-    height: 100%;
+    min-height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -8,17 +8,17 @@ html, body {
     background-color: #f9fafb; /* Light gray fallback matching page backgrounds */
 }
 
+body {
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
 /* Performance optimizations */
 img, picture, video {
     max-width: 100%;
     height: auto;
-}
-
-/* Improve font rendering */
-body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
 }
 
 /* Reduce layout shift */
