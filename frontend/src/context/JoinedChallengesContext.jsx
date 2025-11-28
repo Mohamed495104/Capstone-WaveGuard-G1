@@ -10,13 +10,12 @@ const JoinedChallengesContext = createContext();
 export const JoinedChallengesProvider = ({ children }) => {
     const [joinedChallenges, setJoinedChallenges] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { user, isAuthenticated, sessionReady } = useAuthContext();
+    const { user, isAuthenticated } = useAuthContext();
     const userUid = user?.uid;
 
     // Fetch joined challenges from backend on mount
     const fetchJoinedChallenges = useCallback(async () => {
-        // Wait for both authentication AND session to be ready
-        if (!isAuthenticated || !sessionReady || !userUid) {
+        if (!isAuthenticated || !userUid) {
             setJoinedChallenges([]);
             setLoading(false);
             return;
@@ -29,9 +28,6 @@ export const JoinedChallengesProvider = ({ children }) => {
         } catch (error) {
             if (error.isRateLimitError) {
                 console.warn('Rate limit reached when fetching joined challenges:', error.message);
-            } else if (error.response?.status === 401) {
-                // Silently handle 401 errors during auth setup - session may not be ready yet
-                console.debug('Session not ready yet for joined challenges fetch');
             } else {
                 console.error('Error fetching joined challenges:', error);
             }
@@ -39,7 +35,7 @@ export const JoinedChallengesProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [isAuthenticated, sessionReady, userUid]);
+    }, [isAuthenticated, userUid]);
 
     // Fetch on mount and when auth status changes
     useEffect(() => {

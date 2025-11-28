@@ -12,7 +12,6 @@ import {
     getRedirectResult,
 } from "firebase/auth";
 import { requestCache } from "@/utils/requestCache";
-import { useAuthContext } from "@/context/AuthContext";
 
 // Detect mobile device
 function isMobileDevice() {
@@ -35,7 +34,6 @@ async function syncUser(idToken, retries = 2) {
 }
 
 export default function useAuth() {
-    const { markSessionReady } = useAuthContext();
 
     const ensureSessionPersistence = async () => {
         await setPersistence(auth, browserSessionPersistence);
@@ -61,8 +59,6 @@ export default function useAuth() {
         const idToken = await userCred.user.getIdToken(true);
 
         await createSession(idToken);
-        // Mark session as ready after session cookie is set
-        markSessionReady();
     };
 
     const signup = async (email, password, name) => {
@@ -101,8 +97,6 @@ export default function useAuth() {
                 const idToken = await result.user.getIdToken(true);
                 await createSession(idToken);
                 await syncUser(idToken);
-                // Mark session as ready after session cookie is set
-                markSessionReady();
             }
         }
     };
@@ -134,8 +128,6 @@ export default function useAuth() {
                 const idToken = await result.user.getIdToken(true);
                 await createSession(idToken);
                 await syncUser(idToken);
-                // Mark session as ready after session cookie is set
-                markSessionReady();
                 return result.user;
             }
 
