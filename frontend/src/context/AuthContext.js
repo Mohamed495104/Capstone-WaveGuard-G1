@@ -94,14 +94,10 @@ export function AuthProvider({ children }) {
             setUser(currentUser);
             setLoading(false);
             
-            // If user is logging out (currentUser is null), reset session ready
+            // Handle logout: reset session ready and increment auth version
+            // Note: For new logins, authVersion is incremented by markSessionReady after session is created
             if (!currentUser) {
                 setSessionReady(false);
-            }
-            // Note: We don't increment authVersion here anymore for new logins
-            // The version is incremented by markSessionReady after session is created
-            // But we still need to track auth state changes for logout
-            if (!currentUser) {
                 setAuthVersion(prev => prev + 1);
             }
         });

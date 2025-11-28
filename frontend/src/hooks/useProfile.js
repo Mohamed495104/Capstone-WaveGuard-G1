@@ -9,9 +9,8 @@ export default function useProfile() {
     const { sessionReady } = useAuthContext();
 
     const fetchProfile = useCallback(async () => {
-        // Don't fetch if session is not ready yet
+        // Don't fetch if session is not ready yet - keep loading true to indicate waiting
         if (!sessionReady) {
-            setLoading(false);
             return;
         }
         
