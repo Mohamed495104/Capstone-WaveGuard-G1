@@ -27,7 +27,7 @@ import withAuth from '@/components/auth/withAuth';
 
 const ProfilePage = () => {
     const router = useRouter();
-    const { user: authUser, authVersion } = useAuthContext(); // Get auth context
+    const { user: authUser, authVersion, sessionReady } = useAuthContext(); // Get auth context with sessionReady
     const [activeTab, setActiveTab] = useState('profile');
     const [isEditing, setIsEditing] = useState(false);
     const fileInputRef = useRef(null);
@@ -303,9 +303,14 @@ const ProfilePage = () => {
             return;
         }
         
+        // Wait for session to be ready before making API calls
+        if (!sessionReady) {
+            return;
+        }
+        
         fetchProfile();
         fetchRecentAchievements();
-    }, [authUser?.uid, authVersion]); // Re-fetch when auth user changes
+    }, [authUser?.uid, authVersion, sessionReady]); // Re-fetch when auth user changes or session becomes ready
 
     // Update editProfile if userProfile changes
     useEffect(() => {

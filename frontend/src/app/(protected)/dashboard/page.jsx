@@ -28,27 +28,38 @@ import {
 import { styles } from './dashboard.styles';
 import withAuth from '@/components/auth/withAuth';
 import { apiCall } from '@/utils/api';
+import { useAuthContext } from '@/context/AuthContext';
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
+  const { sessionReady, authVersion } = useAuthContext();
 
-  // Fetch dashboard data from backend
+  // Fetch dashboard data from backend - only when session is ready
   useEffect(() => {
     const fetchDashboardData = async () => {
+      // Wait for session to be ready
+      if (!sessionReady) {
+        return;
+      }
+      
       try {
         setLoading(true);
         const response = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/stats`);
         setDashboardData(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        if (error.response?.status === 401) {
+          console.warn('Session expired when fetching dashboard data');
+        } else {
+          console.error('Error fetching dashboard data:', error);
+        }
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [sessionReady, authVersion]);
 
   // Show loading state
   if (loading) {

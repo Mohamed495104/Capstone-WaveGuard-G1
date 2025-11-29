@@ -4,7 +4,6 @@ import {
     setPersistence,
     browserSessionPersistence,
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
     signOut,
     GoogleAuthProvider,
     signInWithPopup,
@@ -12,6 +11,7 @@ import {
     getRedirectResult,
 } from "firebase/auth";
 import { requestCache } from "@/utils/requestCache";
+import { useAuthContext } from "@/context/AuthContext";
 
 // Detect mobile device
 function isMobileDevice() {
@@ -23,7 +23,7 @@ function isMobileDevice() {
 // Sync user with backend (used for popup login)
 async function syncUser(idToken, retries = 2) {
     try {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken });
+        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken }, { withCredentials: true });
     } catch (err) {
         if (retries > 0) {
             await new Promise((res) => setTimeout(res, 500));
@@ -34,6 +34,7 @@ async function syncUser(idToken, retries = 2) {
 }
 
 export default function useAuth() {
+    const { markSessionReady, markSessionNotReady } = useAuthContext();
 
     const ensureSessionPersistence = async () => {
         await setPersistence(auth, browserSessionPersistence);
@@ -46,6 +47,8 @@ export default function useAuth() {
                 { idToken },
                 { withCredentials: true }
             );
+            // Signal to AuthContext that session is ready
+            markSessionReady();
         } catch (err) {
             console.error("Session creation failed:", err);
             throw new Error("Failed to create secure session. Please try again.");
@@ -104,6 +107,9 @@ export default function useAuth() {
     const logout = async () => {
         // Clear the API request cache to prevent stale profile data
         requestCache.clear();
+        
+        // Signal that session is no longer ready
+        markSessionNotReady();
         
         try {
             await axios.post(
