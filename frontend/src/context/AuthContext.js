@@ -47,6 +47,7 @@ export function AuthProvider({ children }) {
     const [authVersion, setAuthVersion] = useState(0); // Track auth state changes
     const previousUserUid = useRef(null); // Track previous user to detect user switches
     const sessionCreationInProgress = useRef(false); // Prevent duplicate session creation
+    const sessionVerifiedForUser = useRef(null); // Track which user's session we've verified
 
     // Callback to mark session as ready (called by useAuth after session creation)
     const markSessionReady = useCallback(() => {
@@ -57,6 +58,7 @@ export function AuthProvider({ children }) {
     // Callback to mark session as not ready (called during logout)
     const markSessionNotReady = useCallback(() => {
         setSessionReady(false);
+        sessionVerifiedForUser.current = null; // Reset verification tracking
     }, []);
 
     useEffect(() => {
@@ -70,6 +72,7 @@ export function AuthProvider({ children }) {
                     const idToken = await result.user.getIdToken(true);
                     await createSession(idToken);
                     setSessionReady(true);
+                    sessionVerifiedForUser.current = result.user.uid;
                     setAuthVersion(prev => prev + 1); // Increment version on auth change
                 }
             } catch (error) {
@@ -89,6 +92,7 @@ export function AuthProvider({ children }) {
             if (prevUid !== null && prevUid !== currentUid) {
                 requestCache.clear();
                 setSessionReady(false); // Reset session state when user changes
+                sessionVerifiedForUser.current = null; // Reset verification tracking
             }
             previousUserUid.current = currentUid;
             
@@ -97,25 +101,29 @@ export function AuthProvider({ children }) {
             // If user is logged out, reset session state
             if (!currentUser) {
                 setSessionReady(false);
+                sessionVerifiedForUser.current = null;
                 setLoading(false);
                 return;
             }
 
             // For page refresh: Check if session is still valid
             // This handles the case where the page is refreshed and Firebase auth state is restored
-            if (currentUser && !sessionReady && !sessionCreationInProgress.current) {
+            // Only verify if we haven't already verified for this user
+            if (currentUser && sessionVerifiedForUser.current !== currentUser.uid && !sessionCreationInProgress.current) {
                 sessionCreationInProgress.current = true;
                 try {
                     // First, verify if existing session is valid
                     const isValid = await verifySession();
                     if (isValid) {
                         setSessionReady(true);
+                        sessionVerifiedForUser.current = currentUser.uid;
                     } else {
                         // Session is invalid or expired, create new session
                         try {
                             const idToken = await currentUser.getIdToken(true);
                             await createSession(idToken);
                             setSessionReady(true);
+                            sessionVerifiedForUser.current = currentUser.uid;
                         } catch (sessionError) {
                             console.error("Failed to create session on auth state change:", sessionError);
                             // Don't set sessionReady to true if session creation failed
@@ -134,7 +142,7 @@ export function AuthProvider({ children }) {
 
         // Cleanup the listener when the component unmounts
         return () => unsubscribe();
-    }, [sessionReady]);
+    }, []); // Empty dependency array - no circular dependency
 
     const value = {
         user,
