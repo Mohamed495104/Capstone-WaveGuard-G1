@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, useRef } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { Box, CircularProgress } from "@mui/material";
@@ -17,6 +17,7 @@ async function createSession(idToken, retries = 2) {
             { idToken },
             { withCredentials: true }
         );
+        return true;
     } catch (err) {
         if (retries > 0) {
             await new Promise((res) => setTimeout(res, 500));
@@ -26,29 +27,37 @@ async function createSession(idToken, retries = 2) {
     }
 }
 
-// Helper: Sync user with backend (for backward compatibility with old auth flow)
-// Note: This is kept for compatibility but may be deprecated in favor of createSession
-async function syncUser(idToken, retries = 2) {
+// Helper: Verify session is valid by making a test API call
+async function verifySession() {
     try {
-        await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, 
-            { idToken },
+        await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/profile`,
             { withCredentials: true }
         );
-    } catch (err) {
-        if (retries > 0) {
-            await new Promise((res) => setTimeout(res, 500));
-            return syncUser(idToken, retries - 1);
-        }
-        throw new Error("Failed to sync user. Please check your connection and try again.");
+        return true;
+    } catch {
+        return false;
     }
 }
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [sessionReady, setSessionReady] = useState(false); // Track when session cookie is set
     const [authVersion, setAuthVersion] = useState(0); // Track auth state changes
     const previousUserUid = useRef(null); // Track previous user to detect user switches
+    const sessionCreationInProgress = useRef(false); // Prevent duplicate session creation
+
+    // Callback to mark session as ready (called by useAuth after session creation)
+    const markSessionReady = useCallback(() => {
+        setSessionReady(true);
+        setAuthVersion(prev => prev + 1);
+    }, []);
+
+    // Callback to mark session as not ready (called during logout)
+    const markSessionNotReady = useCallback(() => {
+        setSessionReady(false);
+    }, []);
 
     useEffect(() => {
         // Check for redirect result first (for mobile Google sign-in)
@@ -60,6 +69,7 @@ export function AuthProvider({ children }) {
                     // Create session cookie (this also syncs user to MongoDB on backend)
                     const idToken = await result.user.getIdToken(true);
                     await createSession(idToken);
+                    setSessionReady(true);
                     setAuthVersion(prev => prev + 1); // Increment version on auth change
                 }
             } catch (error) {
@@ -78,23 +88,62 @@ export function AuthProvider({ children }) {
             const prevUid = previousUserUid.current;
             if (prevUid !== null && prevUid !== currentUid) {
                 requestCache.clear();
+                setSessionReady(false); // Reset session state when user changes
             }
             previousUserUid.current = currentUid;
             
             setUser(currentUser);
+            
+            // If user is logged out, reset session state
+            if (!currentUser) {
+                setSessionReady(false);
+                setLoading(false);
+                return;
+            }
+
+            // For page refresh: Check if session is still valid
+            // This handles the case where the page is refreshed and Firebase auth state is restored
+            if (currentUser && !sessionReady && !sessionCreationInProgress.current) {
+                sessionCreationInProgress.current = true;
+                try {
+                    // First, verify if existing session is valid
+                    const isValid = await verifySession();
+                    if (isValid) {
+                        setSessionReady(true);
+                    } else {
+                        // Session is invalid or expired, create new session
+                        try {
+                            const idToken = await currentUser.getIdToken(true);
+                            await createSession(idToken);
+                            setSessionReady(true);
+                        } catch (sessionError) {
+                            console.error("Failed to create session on auth state change:", sessionError);
+                            // Don't set sessionReady to true if session creation failed
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error verifying/creating session:", error);
+                } finally {
+                    sessionCreationInProgress.current = false;
+                }
+            }
+            
             setLoading(false);
             setAuthVersion(prev => prev + 1); // Increment version on every auth state change
         });
 
         // Cleanup the listener when the component unmounts
         return () => unsubscribe();
-    }, []);
+    }, [sessionReady]);
 
     const value = {
         user,
         isAuthenticated: !!user,
+        sessionReady, // Expose sessionReady state for components to wait on
         loading,
         authVersion, // Expose version for components that need to react to auth changes
+        markSessionReady, // Expose callback for useAuth to signal session creation
+        markSessionNotReady, // Expose callback for logout
     };
 
     if (loading) {

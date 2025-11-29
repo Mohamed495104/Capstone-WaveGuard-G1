@@ -7,6 +7,7 @@ import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonOutline from "@mui/icons-material/PersonOutline";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
+import { useAuthContext } from "@/context/AuthContext";
 import { apiCall } from "@/utils/api";
 
 export default function MobileHeader() {
@@ -14,22 +15,33 @@ export default function MobileHeader() {
     const [profileImage, setProfileImage] = useState('');
     const router = useRouter();
     const { logout } = useAuth();
+    const { sessionReady, authVersion } = useAuthContext();
 
-    // Fetch user profile to get profile image
+    // Fetch user profile to get profile image - only when session is ready
     useEffect(() => {
         const fetchUserProfile = async () => {
+            // Wait for session to be ready before making API calls
+            if (!sessionReady) {
+                return;
+            }
+            
             try {
-                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
                 if (res?.data?.profileImage) {
                     // Ensure profile image URL is properly formatted
                     const imageUrl = res.data.profileImage.startsWith('http') 
                         ? res.data.profileImage 
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
                     setProfileImage(imageUrl);
+                } else {
+                    setProfileImage('');
                 }
             } catch (error) {
                 if (error.isRateLimitError) {
                     console.warn('Rate limit reached when fetching profile:', error.message);
+                } else if (error.response?.status === 401) {
+                    // Session expired or invalid, don't log as error
+                    console.warn('Session expired when fetching profile');
                 } else {
                     console.error('Failed to fetch profile:', error);
                 }
@@ -38,7 +50,7 @@ export default function MobileHeader() {
         };
 
         fetchUserProfile();
-    }, []);
+    }, [sessionReady, authVersion]);
 
     const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
