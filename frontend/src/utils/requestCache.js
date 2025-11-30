@@ -1,12 +1,145 @@
 /**
- * Simple in-memory cache for API requests to reduce redundant calls
- * and help avoid rate limiting issues
+ * Simple in-memory cache for API requests with IndexedDB persistence.
+ * Reduces redundant calls, helps avoid rate limiting, and supports offline access.
  */
+
+const DB_NAME = 'MarineCareCache';
+const DB_VERSION = 1;
+const STORE_NAME = 'requests';
+
+/**
+ * Initialize IndexedDB for cache persistence
+ * Note: Returns null instead of rejecting on error to gracefully handle
+ * environments where IndexedDB is not available.
+ */
+function openDatabase() {
+    return new Promise((resolve) => {
+        if (typeof window === 'undefined' || !window.indexedDB) {
+            resolve(null);
+            return;
+        }
+
+        const request = window.indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onerror = () => {
+            console.warn('IndexedDB not available for cache persistence');
+            resolve(null);
+        };
+
+        request.onsuccess = () => {
+            resolve(request.result);
+        };
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME, { keyPath: 'key' });
+            }
+        };
+    });
+}
 
 class RequestCache {
     constructor() {
         this.cache = new Map();
         this.defaultTTL = 60000; // 1 minute default TTL
+        this.db = null;
+        // Initialize database asynchronously - operations will gracefully
+        // fall back to in-memory only if DB isn't ready yet
+        this.dbReady = this.initDB();
+    }
+
+    /**
+     * Initialize database connection
+     */
+    async initDB() {
+        this.db = await openDatabase();
+        if (this.db) {
+            await this.loadFromIndexedDB();
+        }
+    }
+
+    /**
+     * Load cached data from IndexedDB into memory
+     */
+    async loadFromIndexedDB() {
+        if (!this.db) return;
+
+        try {
+            const transaction = this.db.transaction(STORE_NAME, 'readonly');
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.getAll();
+
+            await new Promise((resolve) => {
+                request.onsuccess = () => {
+                    const now = Date.now();
+                    const entries = request.result || [];
+                    entries.forEach(entry => {
+                        if (now <= entry.expiresAt) {
+                            this.cache.set(entry.key, {
+                                data: entry.data,
+                                expiresAt: entry.expiresAt,
+                            });
+                        }
+                    });
+                    resolve();
+                };
+                request.onerror = () => {
+                    console.warn('Failed to load cache from IndexedDB');
+                    resolve();
+                };
+            });
+        } catch (err) {
+            console.warn('Error loading from IndexedDB:', err);
+        }
+    }
+
+    /**
+     * Save a cache entry to IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
+     */
+    saveToIndexedDB(key, data, expiresAt) {
+        if (!this.db) return;
+
+        try {
+            const transaction = this.db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.put({ key, data, expiresAt });
+        } catch (err) {
+            console.warn('Error saving to IndexedDB:', err);
+        }
+    }
+
+    /**
+     * Remove a cache entry from IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
+     */
+    removeFromIndexedDB(key) {
+        if (!this.db) return;
+
+        try {
+            const transaction = this.db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.delete(key);
+        } catch (err) {
+            console.warn('Error removing from IndexedDB:', err);
+        }
+    }
+
+    /**
+     * Clear all entries from IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
+     */
+    clearIndexedDB() {
+        if (!this.db) return;
+
+        try {
+            const transaction = this.db.transaction(STORE_NAME, 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.clear();
+        } catch (err) {
+            console.warn('Error clearing IndexedDB:', err);
+        }
     }
 
     /**
@@ -31,6 +164,7 @@ class RequestCache {
         if (now > cached.expiresAt) {
             // Cache expired, remove it
             this.cache.delete(key);
+            this.removeFromIndexedDB(key);
             return null;
         }
 
@@ -42,10 +176,12 @@ class RequestCache {
      */
     set(method, url, data, ttl = this.defaultTTL) {
         const key = this.generateKey(method, url);
+        const expiresAt = Date.now() + ttl;
         this.cache.set(key, {
             data,
-            expiresAt: Date.now() + ttl,
+            expiresAt,
         });
+        this.saveToIndexedDB(key, data, expiresAt);
     }
 
     /**
@@ -54,6 +190,7 @@ class RequestCache {
     invalidate(method, url) {
         const key = this.generateKey(method, url);
         this.cache.delete(key);
+        this.removeFromIndexedDB(key);
     }
 
     /**
@@ -63,6 +200,7 @@ class RequestCache {
         for (const key of this.cache.keys()) {
             if (key.includes(pattern)) {
                 this.cache.delete(key);
+                this.removeFromIndexedDB(key);
             }
         }
     }
@@ -72,6 +210,7 @@ class RequestCache {
      */
     clear() {
         this.cache.clear();
+        this.clearIndexedDB();
     }
 
     /**
@@ -82,6 +221,7 @@ class RequestCache {
         for (const [key, value] of this.cache.entries()) {
             if (now > value.expiresAt) {
                 this.cache.delete(key);
+                this.removeFromIndexedDB(key);
             }
         }
     }
