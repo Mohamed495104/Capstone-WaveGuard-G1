@@ -138,9 +138,11 @@
   </div>
 
   <script>
-    // Auto-reload when connection is restored
+    // Auto-reload when connection is restored (with small delay for stability)
     window.addEventListener('online', function() {
-      window.location.reload();
+      setTimeout(function() {
+        window.location.reload();
+      }, 1000);
     });
   </script>
 </body>

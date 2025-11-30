@@ -9,9 +9,11 @@ const STORE_NAME = 'requests';
 
 /**
  * Initialize IndexedDB for cache persistence
+ * Note: Returns null instead of rejecting on error to gracefully handle
+ * environments where IndexedDB is not available.
  */
 function openDatabase() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         if (typeof window === 'undefined' || !window.indexedDB) {
             resolve(null);
             return;
@@ -42,6 +44,8 @@ class RequestCache {
         this.cache = new Map();
         this.defaultTTL = 60000; // 1 minute default TTL
         this.db = null;
+        // Initialize database asynchronously - operations will gracefully
+        // fall back to in-memory only if DB isn't ready yet
         this.dbReady = this.initDB();
     }
 
@@ -66,7 +70,7 @@ class RequestCache {
             const store = transaction.objectStore(STORE_NAME);
             const request = store.getAll();
 
-            await new Promise((resolve, reject) => {
+            await new Promise((resolve) => {
                 request.onsuccess = () => {
                     const now = Date.now();
                     const entries = request.result || [];
@@ -91,9 +95,10 @@ class RequestCache {
     }
 
     /**
-     * Save a cache entry to IndexedDB
+     * Save a cache entry to IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
      */
-    async saveToIndexedDB(key, data, expiresAt) {
+    saveToIndexedDB(key, data, expiresAt) {
         if (!this.db) return;
 
         try {
@@ -106,9 +111,10 @@ class RequestCache {
     }
 
     /**
-     * Remove a cache entry from IndexedDB
+     * Remove a cache entry from IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
      */
-    async removeFromIndexedDB(key) {
+    removeFromIndexedDB(key) {
         if (!this.db) return;
 
         try {
@@ -121,9 +127,10 @@ class RequestCache {
     }
 
     /**
-     * Clear all entries from IndexedDB
+     * Clear all entries from IndexedDB (fire-and-forget).
+     * The in-memory cache is the source of truth; IndexedDB provides persistence.
      */
-    async clearIndexedDB() {
+    clearIndexedDB() {
         if (!this.db) return;
 
         try {
