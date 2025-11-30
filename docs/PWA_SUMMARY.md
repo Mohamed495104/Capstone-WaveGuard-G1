@@ -104,7 +104,7 @@ runtimeCaching: [
         handler: "StaleWhileRevalidate",
         options: {
             cacheName: "challenges-cache",
-            expiration: { maxEntries: 50, maxAgeSeconds: 86400 }, // 24 hours
+            expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 }, // 24 hours
         },
     },
     // Similar for profile and achievements
@@ -129,7 +129,7 @@ runtimeCaching: [
     handler: "CacheFirst",
     options: {
         cacheName: "images-cache",
-        expiration: { maxEntries: 100, maxAgeSeconds: 2592000 }, // 30 days
+        expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 }, // 30 days
     },
 }
 ```
