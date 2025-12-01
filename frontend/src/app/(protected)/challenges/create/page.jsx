@@ -153,23 +153,31 @@ function CreateChallengePage() {
             open: true,
             severity: "success",
             message: data.closestWater 
-              ? `✓ Water verified: ${data.closestWater.name} (${data.closestWater.type}) - ${data.closestWater.distance}km away`
-              : "✓ Location is near water bodies",
+              ? `✓ Water verified: ${data.closestWater.name} (${data.closestWater.typeLabel || data.closestWater.type}) - ${data.closestWater.distance}km away`
+              : "✓ Location is near a valid water body",
           });
         } else {
+          // More specific error message for locations not near valid water bodies
           setSnackbar({
             open: true,
             severity: "warning",
-            message: "⚠️ This location may not be near shorelines/lakes. Consider selecting a coastal area.",
+            message: data.retryable 
+              ? "⚠️ Water verification failed. Please try selecting the location again."
+              : "⚠️ This location is not near suitable water bodies (beaches, lakes, coastlines, or rivers). Small ponds and streams are not allowed for cleanup challenges.",
           });
         }
         return data.isNearWater;
       }
     } catch (error) {
       console.error("Water verification error:", error);
-      // Allow creation on error (graceful degradation)
-      setWaterVerified(true);
-      return true;
+      // Don't allow creation on error - require retry
+      setWaterVerified(false);
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message: "⚠️ Could not verify water proximity. Please try again.",
+      });
+      return false;
     } finally {
       setVerifyingWater(false);
     }
@@ -626,15 +634,16 @@ function CreateChallengePage() {
                     />
                   ) : waterVerified ? (
                     <Chip 
-                      label="✓ Near water" 
+                      label="✓ Near valid water body" 
                       color="success"
                       variant="outlined"
                     />
                   ) : (
                     <Chip 
-                      label="⚠️ Not near water" 
-                      color="warning"
+                      label="⚠️ Not near beach/lake/river" 
+                      color="error"
                       variant="outlined"
+                      title="This location is not near suitable water bodies for cleanup activities"
                     />
                   )}
                 </Box>
