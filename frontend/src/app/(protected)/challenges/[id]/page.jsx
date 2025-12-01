@@ -114,16 +114,24 @@ function ChallengeDetailsPage({ params }) {
 
   // Helper: Get proper banner image URL
   const getBannerImageUrl = (bannerImage) => {
-    if (!bannerImage) return "/images/placeholder-challenge.jpg";
+    if (!bannerImage) return "/images/coast-optimized.webp";
     
     // Already full URL
     if (bannerImage.startsWith("http://") || bannerImage.startsWith("https://")) {
       return bannerImage;
     }
     
-    // Static files from /public (e.g., /challangeimg/img1.jpg)
+    // Static files from /public - convert jpg to webp if available
     if (bannerImage.startsWith("/challangeimg/")) {
-      return bannerImage; // Served directly by Next.js from public folder
+      // If it's already a webp, use as-is
+      if (bannerImage.endsWith(".webp")) {
+        return bannerImage;
+      }
+      // Convert old jpg paths to optimized webp
+      if (bannerImage.endsWith(".jpg")) {
+        return bannerImage.replace(".jpg", "-optimized.webp");
+      }
+      return bannerImage;
     }
     
     // API routes for GridFS images (e.g., /api/images/123)

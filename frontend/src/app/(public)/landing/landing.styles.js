@@ -16,7 +16,7 @@ export const HeroSection = styled(Box)(({ theme }) => ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundImage: "url('/images/ocean-bg.jpg')",
+        backgroundImage: "url('/images/hero1-optimized.webp')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         opacity: 0.15,

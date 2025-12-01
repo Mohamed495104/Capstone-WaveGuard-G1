@@ -49,16 +49,24 @@ const ChallengeCard = ({ challenge }) => {
 
     // Helper: Get proper banner image URL
     const getBannerImageUrl = (img) => {
-        if (!img) return "/images/placeholder-challenge.jpg";
+        if (!img) return "/images/coast-optimized.webp";
         
         // Already full URL
         if (img.startsWith("http://") || img.startsWith("https://")) {
             return img;
         }
         
-        // Static files from /public (e.g., /challangeimg/img1.jpg)
+        // Static files from /public - convert jpg to webp if available
         if (img.startsWith("/challangeimg/")) {
-            return img; // Served directly by Next.js from public folder
+            // If it's already a webp, use as-is
+            if (img.endsWith(".webp")) {
+                return img;
+            }
+            // Convert old jpg paths to optimized webp
+            if (img.endsWith(".jpg")) {
+                return img.replace(".jpg", "-optimized.webp");
+            }
+            return img;
         }
         
         // API routes for GridFS images (e.g., /api/images/123)

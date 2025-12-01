@@ -9,7 +9,7 @@ const sampleChallenges = [
     {
         title: "Toronto Waterfront Cleanup",
         description: "Join us to protect the scenic Toronto shoreline and preserve marine life.",
-        bannerImage: "/challangeimg/img1.jpg",
+        bannerImage: "/challangeimg/img1-optimized.webp",
         startDate: new Date("2025-10-15"),
         endDate: new Date("2025-10-22"),
         status: "active",
@@ -27,7 +27,7 @@ const sampleChallenges = [
     {
         title: "Vancouver Island Cleanup",
         description: "Help protect the stunning west coast of Vancouver Island from ocean debris.",
-        bannerImage: "/challangeimg/img2.jpg",
+        bannerImage: "/challangeimg/img2-optimized.webp",
         startDate: new Date("2025-10-20"),
         endDate: new Date("2025-10-27"),
         status: "active",
@@ -45,7 +45,7 @@ const sampleChallenges = [
     {
         title: "Halifax Harbour Initiative",
         description: "Support cleanup of Halifax's historic harbour and coastal ecosystems.",
-        bannerImage: "/challangeimg/img3.jpg",
+        bannerImage: "/challangeimg/img3-optimized.webp",
         startDate: new Date("2025-10-25"),
         endDate: new Date("2025-10-31"),
         status: "active",
@@ -63,7 +63,7 @@ const sampleChallenges = [
     {
         title: "Prince Edward Island Shores",
         description: "Join hands to protect the red-sand beaches of Prince Edward Island.",
-        bannerImage: "/challangeimg/img4.jpg",
+        bannerImage: "/challangeimg/img4-optimized.webp",
         startDate: new Date("2025-10-18"),
         endDate: new Date("2025-10-24"),
         status: "active",
@@ -81,7 +81,7 @@ const sampleChallenges = [
     {
         title: "Newfoundland Coast",
         description: "Clean the rugged and beautiful coastline of Newfoundland.",
-        bannerImage: "/challangeimg/img5.jpg",
+        bannerImage: "/challangeimg/img5-optimized.webp",
         startDate: new Date("2025-10-22"),
         endDate: new Date("2025-10-29"),
         status: "active",
@@ -99,7 +99,7 @@ const sampleChallenges = [
     {
         title: "Georgian Bay Cleanup",
         description: "Preserve the clear waters and natural beauty of Georgian Bay.",
-        bannerImage: "/challangeimg/img6.jpg",
+        bannerImage: "/challangeimg/img6-optimized.webp",
         startDate: new Date("2025-10-26"),
         endDate: new Date("2025-11-02"),
         status: "active",
@@ -119,7 +119,7 @@ const sampleChallenges = [
     {
         title: "Great Lakes Lakeshore Drive",
         description: "A multi-location cleanup across Ontario's Great Lakes shorelines.",
-        bannerImage: "/challangeimg/img7.jpg",
+        bannerImage: "/challangeimg/img7-optimized.webp",
         startDate: new Date("2025-11-20"),
         endDate: new Date("2025-11-27"),
         status: "upcoming",
@@ -137,7 +137,7 @@ const sampleChallenges = [
     {
         title: "Quebec Riverfront Renewal",
         description: "Join volunteers restoring Quebec's riverside environment.",
-        bannerImage: "/challangeimg/img8.jpg",
+        bannerImage: "/challangeimg/img8-optimized.webp",
         startDate: new Date("2025-11-22"),
         endDate: new Date("2025-11-29"),
         status: "upcoming",
@@ -155,7 +155,7 @@ const sampleChallenges = [
     {
         title: "Montreal St. Lawrence River",
         description: "Help preserve the natural beauty of the St. Lawrence River in Montreal.",
-        bannerImage: "/challangeimg/img9.jpg",
+        bannerImage: "/challangeimg/img9-optimized.webp",
         startDate: new Date("2025-11-25"),
         endDate: new Date("2025-12-02"),
         status: "upcoming",
@@ -175,7 +175,7 @@ const sampleChallenges = [
     {
         title: "Tofino Beach Success",
         description: "Successfully protected the pristine beaches of Tofino on Vancouver Island.",
-        bannerImage: "/challangeimg/img13.jpg",
+        bannerImage: "/challangeimg/img13-optimized.webp",
         startDate: new Date("2025-09-15"),
         endDate: new Date("2025-09-22"),
         status: "completed",
@@ -193,7 +193,7 @@ const sampleChallenges = [
     {
         title: "Lake Winnipeg Initiative",
         description: "Successfully cleaned the vast shores of Lake Winnipeg.",
-        bannerImage: "/challangeimg/img14.jpg",
+        bannerImage: "/challangeimg/img14-optimized.webp",
         startDate: new Date("2025-09-20"),
         endDate: new Date("2025-09-27"),
         status: "completed",
@@ -211,7 +211,7 @@ const sampleChallenges = [
     {
         title: "Lunenburg Heritage Coast",
         description: "Successfully cleaned the historic UNESCO coastline of Lunenburg.",
-        bannerImage: "/challangeimg/img15.jpg",
+        bannerImage: "/challangeimg/img15-optimized.webp",
         startDate: new Date("2025-09-10"),
         endDate: new Date("2025-09-17"),
         status: "completed",
