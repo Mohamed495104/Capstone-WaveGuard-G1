@@ -107,8 +107,6 @@ const ChallengeCard = ({ challenge }) => {
                 });
                 
                 userLocation = await getCurrentLocation();
-                
-                console.log('Location obtained:', userLocation);
             } catch (locationError) {
                 console.error('Location error:', locationError);
                 setSnackbar({ 

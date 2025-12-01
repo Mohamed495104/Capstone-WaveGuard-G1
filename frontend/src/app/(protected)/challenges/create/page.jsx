@@ -396,9 +396,6 @@ function CreateChallengePage() {
       waterVerified, // Flag indicating water proximity was checked
     };
 
-    // Debug: Log the goal value being sent
-    console.log("Creating challenge with goal:", payload.goal, "from form value:", form.goal);
-
     try {
       await apiCall("post", `${process.env.NEXT_PUBLIC_API_URL}/api/challenges`, payload);
 

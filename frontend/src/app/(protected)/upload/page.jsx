@@ -216,7 +216,6 @@ function UploadPage() {
             let userLocation = null;
             try {
                 userLocation = await getCurrentLocation();
-                console.log('Location obtained:', userLocation);
             } catch (locationError) {
                 console.error('Location error:', locationError);
                 setError(formatLocationError(locationError));
@@ -295,7 +294,6 @@ function UploadPage() {
             let userLocation = null;
             try {
                 userLocation = await getCurrentLocation();
-                console.log('Location obtained:', userLocation);
             } catch (locationError) {
                 console.error('Location error:', locationError);
                 setError(formatLocationError(locationError));

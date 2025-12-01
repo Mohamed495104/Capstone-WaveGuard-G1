@@ -547,7 +547,7 @@ const DonationDetailsPage = () => {
             paypalButtons.close();
           }
         } catch (e) {
-          console.log('PayPal cleanup - buttons already closed');
+          // PayPal buttons already closed, ignore
         }
       }
     };
