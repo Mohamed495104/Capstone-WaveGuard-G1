@@ -5,6 +5,7 @@ import { Box, Typography, IconButton, Menu, MenuItem, Divider, Avatar } from "@m
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonOutline from "@mui/icons-material/PersonOutline";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import { useAuthContext } from "@/context/AuthContext";
@@ -57,6 +58,11 @@ export default function MobileHeader() {
 
     const handleProfile = () => {
         router.push("/profile");
+        handleMenuClose();
+    };
+
+    const handleSupport = () => {
+        router.push("/support");
         handleMenuClose();
     };
 
@@ -172,6 +178,22 @@ export default function MobileHeader() {
                     <AccountCircleRoundedIcon sx={{ fontSize: 22, color: "#0891b2" }} />
                     <Typography variant="body2" fontWeight={500}>
                         Profile
+                    </Typography>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleSupport}
+                    sx={{
+                        py: 1.5,
+                        px: 2,
+                        gap: 1.5,
+                        "&:hover": {
+                            bgcolor: "rgba(8, 145, 178, 0.08)",
+                        }
+                    }}
+                >
+                    <SupportAgentIcon sx={{ fontSize: 22, color: "#0891b2" }} />
+                    <Typography variant="body2" fontWeight={500}>
+                        Support
                     </Typography>
                 </MenuItem>
                 <Divider sx={{ my: 0.5 }} />

@@ -319,6 +319,7 @@ export default function Footer() {
         { label: "Achievements", href: "/achievements" },
         { label: "Profile", href: "/profile" },
         { label: "Donate", href: "/donation" },
+        { label: "Support", href: "/support" },
     ];
 
     const navigationGroup = [
