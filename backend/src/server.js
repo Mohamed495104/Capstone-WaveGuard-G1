@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
     "http://localhost:3000",
     "https://capstone-marinecare.vercel.app",
+    "https://marinecare.vercel.app/",
     process.env.FRONTEND_URL,
 ].filter(Boolean);
 
