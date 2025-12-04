@@ -9,7 +9,7 @@ const sampleChallenges = [
     {
         title: "Toronto Waterfront Cleanup",
         description: "Join us to protect the scenic Toronto shoreline and preserve marine life.",
-        bannerImage: "/challangeimg/img1.jpg",
+        bannerImage: "/challangeimg/img1-optimized.webp",
         startDate: new Date("2025-10-15"),
         endDate: new Date("2025-10-22"),
         status: "active",

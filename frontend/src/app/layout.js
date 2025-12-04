@@ -3,6 +3,7 @@ import AppLayoutWrapper from "@/components/AppLayoutWrapper";
 import { AuthProvider } from "@/context/AuthContext";
 import { JoinedChallengesProvider } from "@/context/JoinedChallengesContext";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata = {
     title: "MarineCare - Ocean Conservation Platform",
@@ -64,6 +65,7 @@ export default function RootLayout({ children }) {
             </JoinedChallengesProvider>
         </AuthProvider>
         <Analytics />
+        <SpeedInsights/>
         </body>
         </html>
     );
