@@ -13,7 +13,7 @@ const app = express();
 const allowedOrigins = [
     "http://localhost:3000",
     "https://capstone-marinecare.vercel.app",
-    "https://marinecare.vercel.app/",
+    "https://marinecare.vercel.app",
     process.env.FRONTEND_URL,
 ].filter(Boolean); // Remove undefined/null values
 
