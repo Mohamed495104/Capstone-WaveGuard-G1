@@ -16,7 +16,7 @@ export async function getIdToken(forceRefresh = false) {
 // Helper to wait for a specified duration
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// NEW: Wrapper for API calls using HttpOnly cookies (XSS-safe)
+// Wrapper for API calls using HttpOnly cookies (XSS-safe)
 // No longer sends tokens in headers - relies on secure HttpOnly cookies
 // Includes retry logic for rate limiting (429) errors
 export async function apiCall(method, url, data = {}, forceRefresh = false, retryConfig = {}) {

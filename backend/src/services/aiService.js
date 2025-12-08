@@ -13,7 +13,7 @@ const CANDIDATE_LABELS = [
     "paper or cardboard",
     "cigarette butt",
     "glass bottle",
-    "unknown trash", // Added a fallback
+    "unknown trash",
 ];
 
 const LABEL_MAP = {
@@ -45,11 +45,11 @@ export async function initializeAI() {
                         }
                     }
                 });
-                console.log("✅ AI Model loaded successfully.");
+                console.log("AI Model loaded successfully.");
                 return; // Success, exit function
             } catch (err) {
                 retries--;
-                console.error(`❌ Failed to load AI model. Retries left: ${retries}`);
+                console.error(`Failed to load AI model. Retries left: ${retries}`);
                 console.error(`Error: ${err.message}`);
                 
                 if (retries > 0) {
@@ -61,8 +61,8 @@ export async function initializeAI() {
         
         // Don't exit - allow server to start without AI
         // Manual upload will still work
-        console.warn("⚠️ Server starting without AI model. Only manual cleanup logging will be available.");
-        console.warn("⚠️ AI classification features will be disabled.");
+        console.warn("Server starting without AI model. Only manual cleanup logging will be available.");
+        console.warn("AI classification features will be disabled.");
     }
 }
 
