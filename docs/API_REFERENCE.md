@@ -22,7 +22,8 @@
 9. [Home Endpoints](#home-endpoints)
 10. [Image Endpoints](#image-endpoints)
 11. [Location Endpoints](#location-endpoints)
-12. [Error Responses](#error-responses)
+12. [Support Endpoints](#support-endpoints)
+13. [Error Responses](#error-responses)
 
 ---
 
@@ -978,6 +979,102 @@ POST /api/location/verify
     "isNearWater": true,
     "maxDistanceKm": 5,
     "message": "Location verified successfully"
+}
+```
+
+---
+
+## Support Endpoints
+
+Contact form and support request management.
+
+### Submit Contact Request
+
+Submit a new support/contact request. Stored in MongoDB for tracking.
+
+```
+POST /api/support/contact
+```
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | Yes | Sender's name (max 100 chars) |
+| `email` | string | Yes | Sender's email address |
+| `category` | string | Yes | One of: general, technical, account, challenge, feedback, partnership, other |
+| `subject` | string | Yes | Message subject (max 200 chars) |
+| `message` | string | Yes | Message content (max 5000 chars) |
+
+**Example Request:**
+
+```bash
+curl -X POST http://localhost:5000/api/support/contact \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "category": "technical",
+    "subject": "Issue with photo upload",
+    "message": "I am unable to upload photos to challenges..."
+  }'
+```
+
+**Success Response (201):**
+
+```json
+{
+    "success": true,
+    "message": "Your message has been submitted successfully. We'll get back to you within 24-48 hours.",
+    "data": {
+        "ticketId": "64a1b2c3d4e5f6g7h8i9j0k1",
+        "category": "Technical Support",
+        "submittedAt": "2024-11-30T12:00:00.000Z"
+    }
+}
+```
+
+**Error Response (400):**
+
+```json
+{
+    "success": false,
+    "message": "All fields are required: name, email, category, subject, message"
+}
+```
+
+### Get Support Requests (Admin)
+
+Retrieve all support requests. Reserved for future admin functionality.
+
+```
+GET /api/support/requests
+```
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `status` | string | No | - | Filter by status (pending, in_progress, resolved, closed) |
+| `category` | string | No | - | Filter by category |
+| `page` | number | No | 1 | Page number |
+| `limit` | number | No | 20 | Results per page |
+
+### Update Support Request (Admin)
+
+Update a support request status. Reserved for future admin functionality.
+
+```
+PATCH /api/support/requests/:id
+```
+
+**Request Body:**
+
+```json
+{
+    "status": "in_progress",
+    "adminNotes": "Investigating the issue",
+    "respondedBy": "admin@marinecare.ca"
 }
 ```
 

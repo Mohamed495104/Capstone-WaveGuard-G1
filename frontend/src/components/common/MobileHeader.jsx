@@ -5,8 +5,10 @@ import { Box, Typography, IconButton, Menu, MenuItem, Divider, Avatar } from "@m
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PersonOutline from "@mui/icons-material/PersonOutline";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import { useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
+import { useAuthContext } from "@/context/AuthContext";
 import { apiCall } from "@/utils/api";
 
 export default function MobileHeader() {
@@ -14,22 +16,33 @@ export default function MobileHeader() {
     const [profileImage, setProfileImage] = useState('');
     const router = useRouter();
     const { logout } = useAuth();
+    const { sessionReady, authVersion } = useAuthContext();
 
-    // Fetch user profile to get profile image
+    // Fetch user profile to get profile image - only when session is ready
     useEffect(() => {
         const fetchUserProfile = async () => {
+            // Wait for session to be ready before making API calls
+            if (!sessionReady) {
+                return;
+            }
+            
             try {
-                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`);
+                const res = await apiCall('get', `${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {}, false, { useCache: false });
                 if (res?.data?.profileImage) {
                     // Ensure profile image URL is properly formatted
                     const imageUrl = res.data.profileImage.startsWith('http') 
                         ? res.data.profileImage 
                         : `${process.env.NEXT_PUBLIC_API_URL}${res.data.profileImage}`;
                     setProfileImage(imageUrl);
+                } else {
+                    setProfileImage('');
                 }
             } catch (error) {
                 if (error.isRateLimitError) {
                     console.warn('Rate limit reached when fetching profile:', error.message);
+                } else if (error.response?.status === 401) {
+                    // Session expired or invalid, don't log as error
+                    console.warn('Session expired when fetching profile');
                 } else {
                     console.error('Failed to fetch profile:', error);
                 }
@@ -38,13 +51,18 @@ export default function MobileHeader() {
         };
 
         fetchUserProfile();
-    }, []);
+    }, [sessionReady, authVersion]);
 
     const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
 
     const handleProfile = () => {
         router.push("/profile");
+        handleMenuClose();
+    };
+
+    const handleSupport = () => {
+        router.push("/support");
         handleMenuClose();
     };
 
@@ -160,6 +178,22 @@ export default function MobileHeader() {
                     <AccountCircleRoundedIcon sx={{ fontSize: 22, color: "#0891b2" }} />
                     <Typography variant="body2" fontWeight={500}>
                         Profile
+                    </Typography>
+                </MenuItem>
+                <MenuItem
+                    onClick={handleSupport}
+                    sx={{
+                        py: 1.5,
+                        px: 2,
+                        gap: 1.5,
+                        "&:hover": {
+                            bgcolor: "rgba(8, 145, 178, 0.08)",
+                        }
+                    }}
+                >
+                    <SupportAgentIcon sx={{ fontSize: 22, color: "#0891b2" }} />
+                    <Typography variant="body2" fontWeight={500}>
+                        Support
                     </Typography>
                 </MenuItem>
                 <Divider sx={{ my: 0.5 }} />

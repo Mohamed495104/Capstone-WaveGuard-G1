@@ -3,7 +3,7 @@ export const challenges = [
     {
         title: "Toronto Waterfront Challenge",
         description: "Join us in cleaning up the beautiful Toronto waterfront.",
-        bannerImage: "/images/challenges/toronto-waterfront.jpg", // Use placeholder paths
+        bannerImage: "/challangeimg/img1-optimized.webp",
         startDate: new Date("2025-11-05"),
         endDate: new Date("2025-11-20"),
         status: "active",
@@ -17,7 +17,7 @@ export const challenges = [
     {
         title: "Vancouver Island Cleanup",
         description: "Help preserve the stunning coastline of Vancouver Island.",
-        bannerImage: "/images/challenges/vancouver-island.jpg",
+        bannerImage: "/challangeimg/img2-optimized.webp",
         startDate: new Date("2025-10-20"),
         endDate: new Date("2025-10-27"),
         status: "active",
