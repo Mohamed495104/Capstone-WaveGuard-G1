@@ -17,7 +17,7 @@ const withPWA = nextPWA({
                 cacheName: "challenges-cache",
                 expiration: {
                     maxEntries: 50,
-                    maxAgeSeconds: 60 * 60 * 24, // 24 hours
+                    maxAgeSeconds: 86400,
                 },
             },
         },
@@ -28,7 +28,7 @@ const withPWA = nextPWA({
                 cacheName: "profile-cache",
                 expiration: {
                     maxEntries: 10,
-                    maxAgeSeconds: 60 * 60 * 24, // 24 hours
+                    maxAgeSeconds: 86400,
                 },
             },
         },
@@ -39,7 +39,7 @@ const withPWA = nextPWA({
                 cacheName: "achievements-cache",
                 expiration: {
                     maxEntries: 50,
-                    maxAgeSeconds: 60 * 60 * 24, // 24 hours
+                    maxAgeSeconds: 86400,
                 },
             },
         },
@@ -50,7 +50,7 @@ const withPWA = nextPWA({
                 cacheName: "images-cache",
                 expiration: {
                     maxEntries: 100,
-                    maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+                    maxAgeSeconds: 60 * 60 * 24 * 30,
                 },
             },
         },
@@ -59,10 +59,20 @@ const withPWA = nextPWA({
 
 const nextConfig = {
     reactStrictMode: true,
+
+    // ✅ NEW VALID WAY TO FORCE WEBPACK in Next.js 16
+    turbopack: {
+        enabled: false,
+    },
+
     images: {
         formats: ['image/webp', 'image/avif'],
         deviceSizes: [640, 750, 828, 1080, 1200, 1920],
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    },
+
+    webpack(config) {
+        return config; // required for next-pwa to work
     },
 };
 
