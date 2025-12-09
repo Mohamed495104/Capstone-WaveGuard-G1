@@ -5,10 +5,10 @@ import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 
 const FACTS = [
-  "Every year, 8 million tons of plastic enter our oceans.",
-  "Ocean cleanup volunteers remove up to 500kg of waste daily.",
+  "Over 10,000 tons of plastic enter the Great Lakes every year.",
+  "Microplastic pollution has been found in every major Canadian lake and river tested.",
   "Coastal cleanups improve marine biodiversity by 40%.",
-  "Join 2,800+ volunteers making a real environmental impact.",
+  "Plastic pollution threatens over 200 freshwater and marine species in Canada.",
 ];
 
 export default function HomePage() {
@@ -173,7 +173,7 @@ export default function HomePage() {
             },
           }}
         >
-          Join 2,800+ volunteers making a real environmental impact.
+            Join a growing community improving Canada’s water ecosystems.
         </Typography>
 
         {/* Button with hover animation */}
