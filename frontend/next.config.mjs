@@ -50,7 +50,7 @@ const withPWA = nextPWA({
                 cacheName: "images-cache",
                 expiration: {
                     maxEntries: 100,
-                    maxAgeSeconds: 60 * 60 * 24 * 30,
+                    maxAgeSeconds: 2592000,
                 },
             },
         },
@@ -60,19 +60,17 @@ const withPWA = nextPWA({
 const nextConfig = {
     reactStrictMode: true,
 
-    // ✅ NEW VALID WAY TO FORCE WEBPACK in Next.js 16
-    turbopack: {
-        enabled: false,
-    },
+    // ⭐ Required in Next.js 16.0.8 when using webpack plugins
+    turbopack: {},
 
     images: {
-        formats: ['image/webp', 'image/avif'],
+        formats: ["image/webp", "image/avif"],
         deviceSizes: [640, 750, 828, 1080, 1200, 1920],
         imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     },
 
     webpack(config) {
-        return config; // required for next-pwa to work
+        return config;
     },
 };
 
