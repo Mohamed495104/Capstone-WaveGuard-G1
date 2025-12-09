@@ -2,8 +2,8 @@
 
 > Technical summary of technologies and services used in the Marine Care application
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2025  
+**Version:** 1.1
 
 ---
 
@@ -29,7 +29,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 
 | Layer | Technology | Purpose |
 |-------|------------|---------|
-| Frontend | Next.js 15 / React 19 | User interface, SSR |
+| Frontend | Next.js 16 / React 19 | User interface, SSR |
 | Backend | Node.js / Express 5 | REST API |
 | Database | MongoDB Atlas | Data persistence |
 | Auth | Firebase Authentication | User management |
@@ -44,7 +44,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **Next.js** | 15.x | React framework with App Router, SSR, and SSG |
+| **Next.js** | 16.x | React framework with App Router, SSR, and SSG |
 | **React** | 19.x | UI component library |
 
 **Why Next.js?**
@@ -388,9 +388,9 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 
 ```json
 {
-    "next": "15.5.4",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "next": "16.0.8",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "@mui/material": "^7.3.4",
     "@mui/icons-material": "^7.3.4",
     "@emotion/react": "^11.14.0",
@@ -400,7 +400,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
     "framer-motion": "^12.23.22",
     "recharts": "^3.3.0",
     "next-pwa": "^5.6.0",
-    "@vercel/analytics": "^1.5.0"
+    "@vercel/analytics": "^1.6.1"
 }
 ```
 

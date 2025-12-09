@@ -2,8 +2,8 @@
 
 > Design system documentation for the Marine Care application
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2025  
+**Version:** 1.1
 
 ---
 
@@ -24,7 +24,7 @@
 
 ## Overview
 
-The Marine Care frontend is built with Next.js 15 and React 19, utilizing Material UI (MUI) as the primary component library. The design system follows a mobile-first approach with an ocean/environmental theme reflecting the application's marine conservation mission.
+The Marine Care frontend is built with Next.js 16 and React 19, utilizing Material UI (MUI) as the primary component library. The design system follows a mobile-first approach with an ocean/environmental theme reflecting the application's marine conservation mission.
 
 ### Design Goals
 
@@ -39,7 +39,7 @@ The Marine Care frontend is built with Next.js 15 and React 19, utilizing Materi
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| Next.js | 15.x | React framework with App Router |
+| Next.js | 16.x | React framework with App Router |
 | React | 19.x | UI library |
 | Material UI | 7.x | Component library |
 | Emotion | 11.x | CSS-in-JS styling |

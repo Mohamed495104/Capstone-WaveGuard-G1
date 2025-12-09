@@ -2,8 +2,8 @@
 
 > Comprehensive analysis of PWA services, current capabilities, and improvement recommendations
 
-**Document Version:** 2.0  
-**Last Updated:** November 2024  
+**Document Version:** 2.1  
+**Last Updated:** December 2025  
 **Project:** Marine Care - AI-Powered Shoreline Cleanup Management
 
 ---
@@ -23,7 +23,7 @@
 
 ## Executive Summary
 
-Marine Care is a Progressive Web Application (PWA) built with **Next.js 15** and **next-pwa 5.6.0**. The application has **significantly improved PWA capabilities** with proper icons, runtime caching, offline fallback page, and API response caching. These features provide advantages that traditional web applications cannot offer, making Marine Care particularly suited for beach/shoreline volunteers who often work in areas with limited connectivity.
+Marine Care is a Progressive Web Application (PWA) built with **Next.js 16** and **next-pwa 5.6.0**. The application has **significantly improved PWA capabilities** with proper icons, runtime caching, offline fallback page, API response caching, and an IndexedDB-backed request cache. These features provide advantages that traditional web applications cannot offer, making Marine Care particularly suited for beach/shoreline volunteers who often work in areas with limited connectivity.
 
 ### Key Findings (Updated)
 
@@ -35,6 +35,7 @@ Marine Care is a Progressive Web Application (PWA) built with **Next.js 15** and
 | **API Caching** | ✅ Implemented | StaleWhileRevalidate for challenges, profile, achievements |
 | **Image Caching** | ✅ Implemented | CacheFirst strategy with 30-day expiration |
 | **App Manifest** | ✅ Fixed | Proper PNG icons with maskable support |
+| **Request Cache Persistence** | ✅ Implemented | IndexedDB-backed cache keeps recent API data across sessions |
 | **Background Sync** | ❌ Not Implemented | Planned for future |
 | **Push Notifications** | ❌ Not Implemented | Planned for future |
 
@@ -515,7 +516,7 @@ export const themeColor = "#0077b6";
 
 ---
 
-### 4. In-Memory Request Cache
+### 4. IndexedDB-Backed Request Cache
 
 **Location:** `frontend/src/utils/requestCache.js`
 
@@ -524,13 +525,15 @@ class RequestCache {
     constructor() {
         this.cache = new Map();
         this.defaultTTL = 60000; // 1 minute default TTL
+        this.db = null;
+        this.dbReady = this.initDB(); // IndexedDB persistence
     }
     // ... caching methods
 }
 ```
 
 **What's Working:**
-- Reduces redundant API calls during a single session
+- Reduces redundant API calls during and across sessions (IndexedDB persistence with TTL)
 - Helps avoid rate limiting issues
 - Automatic cache cleanup every 5 minutes
 - Pattern-based cache invalidation
@@ -586,10 +589,9 @@ The application includes mobile-specific components:
 
 ### 🟡 Remaining Moderate Issues
 
-#### 4. No Offline Data Persistence (Partially Addressed)
-**Status:** Service worker caching now provides persistent cache for API data  
-**Remaining:** The in-memory `RequestCache` is still session-based  
-**Recommendation:** Consider migrating to IndexedDB for full persistence control
+#### 4. Short-Lived Dynamic Cache TTL
+**Status:** Request caching now persists to IndexedDB, but the default 60-second TTL limits offline usefulness for data outside the service worker runtime caches.  
+**Recommendation:** Increase TTL or pre-cache additional datasets (e.g., joined challenges) for longer offline windows.
 
 #### 5. No Background Sync for Uploads
 **Problem:** If a user tries to upload a cleanup photo offline, it fails immediately.
@@ -629,9 +631,9 @@ The application includes mobile-specific components:
 | **App Shell** | ✅ Full | Static HTML/CSS/JS cached by service worker |
 | **Static Images** | ✅ Full | Pre-cached during build |
 | **Fonts** | ✅ Full | Cached by browser |
-| **Previously Viewed Challenges** | ✅ Full | StaleWhileRevalidate caching |
-| **Previously Viewed Profile** | ✅ Full | StaleWhileRevalidate caching |
-| **Previously Viewed Achievements** | ✅ Full | StaleWhileRevalidate caching |
+| **Previously Viewed Challenges** | ✅ Full | StaleWhileRevalidate caching persists across sessions |
+| **Previously Viewed Profile** | ✅ Full | StaleWhileRevalidate caching persists across sessions |
+| **Previously Viewed Achievements** | ✅ Full | StaleWhileRevalidate caching persists across sessions |
 | **Previously Viewed Images** | ✅ Full | CacheFirst with 30-day expiration |
 | **Offline Fallback Page** | ✅ Full | Custom branded offline.html |
 
@@ -688,6 +690,7 @@ For remaining improvements, see the [🔮 Next PWA Features to Implement](#-next
 - ✅ Implemented runtime caching for API endpoints
 - ✅ Added custom branded offline fallback page
 - ✅ Implemented image caching with 30-day expiration
+- ✅ Added IndexedDB-backed request cache to persist recent API responses across sessions
 
 ### What Makes Marine Care PWA Unique
 

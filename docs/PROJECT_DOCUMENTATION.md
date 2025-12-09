@@ -40,7 +40,7 @@ Marine Care is an AI-powered Progressive Web App (PWA) designed to empower trave
 
 ### Showcase Video
 
-📹 **Showcase Video:** [Link to your promotional video]
+📹 **Showcase Video:** Coming soon (pending final upload)
 
 ---
 
@@ -67,7 +67,7 @@ The Marine Care application follows a modern three-tier architecture with clear 
 │                   └──────────┬──────────┘                                   │
 │                                                                             │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │               Next.js 15 / React 19 / Material UI 7                  │   │
+│  │               Next.js 16 / React 19 / Material UI 7                  │   │
 │  │               Recharts, Framer Motion, Axios, Firebase SDK           │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 └──────────────────────────────────┬──────────────────────────────────────────┘
