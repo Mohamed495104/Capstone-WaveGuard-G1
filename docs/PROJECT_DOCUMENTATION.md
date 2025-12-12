@@ -4,16 +4,16 @@
 
 ## Group Members
 
-- **Dinesh Babu Ilamaran** - Frontend Lead
-- **Mohamed Ijas** - Backend Lead
-- **Dharanya Selvaraj** - AI Integration Lead
-- **Siri Reddy Borem** - Documentation & Testing
+- **Dinesh Babu Ilamaran**
+- **Mohamed Ijas**
+- **Dharanya Selvaraj**
+- **Siri Reddy Borem**
 
 ---
 
 **Course:** PROG8751 Capstone (Web Development)  
 **Date:** Fall 2025  
-**Instructor:** [Professor's Name]  
+**Instructor:** Dr. A N K Zaman 
 **Institution:** Conestoga College
 
 ---
