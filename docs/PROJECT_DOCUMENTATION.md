@@ -40,7 +40,7 @@ Marine Care is an AI-powered Progressive Web App (PWA) designed to empower trave
 
 ### Showcase Video
 
-📹 **Showcase Video:**(https://youtu.be/MftiUW60sR8?si=2k3tUIkKZ_MnMRr0)
+📹 **Showcase Video:** https://youtu.be/MftiUW60sR8?si=2k3tUIkKZ_MnMRr0
 
 ---
 
