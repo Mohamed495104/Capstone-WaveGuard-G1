@@ -378,7 +378,7 @@ Marine Care is a full-stack Progressive Web Application (PWA) designed for shore
 | Environment | Frontend URL | Backend URL |
 |-------------|--------------|-------------|
 | Development | localhost:3000 | localhost:5000 |
-| Production | your-app.vercel.app | your-app.ondigitalocean.app |
+| Production | https://marinecare.vercel.app/ | https://marinecare-wt4qv.ondigitalocean.app |
 
 ---
 
