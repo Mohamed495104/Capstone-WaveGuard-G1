@@ -353,7 +353,7 @@ User visits Dashboard
 | Service | Purpose |
 |---------|---------|
 | Vercel | Frontend hosting |
-| Railway/Render | Backend hosting |
+| DigitalOcean | Backend hosting |
 | MongoDB Atlas | Database hosting |
 | Firebase | Authentication service |
 
