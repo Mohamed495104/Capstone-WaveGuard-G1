@@ -3,8 +3,8 @@
 > **An AI-Powered Progressive Web Application for Shoreline Cleanup Management**
 
 **Document Version:** 1.0  
-**Last Updated:** December 2024  
-**Project Status:** Production Ready ✅
+**Last Updated:** December 2025 
+**Project Status:** Production Ready
 
 ---
 
@@ -57,7 +57,7 @@ Marine Care is a cutting-edge Progressive Web Application (PWA) that leverages a
 
 ### Academic Setting
 
-**Institution:** Conestoga College, Waterloo, Ontario, Canada  
+**Institution:** Conestoga College, Kitchener, Ontario, Canada  
 **Program:** PROG8751 - Capstone Project (Web Development)  
 **Term:** Fall 2025  
 **Duration:** September 2025 - December 12, 2025 (12 weeks)
@@ -617,7 +617,7 @@ The Marine Care project was conceived to address three critical needs:
 
 | Team Member | Role | Responsibilities |
 |-------------|------|------------------|
-| **Mohamed Ijas** | Backend Lead | API development, database design, authentication, deployment |
+| **Mohamed Ijas** | Backend and Integration Lead | API development, database design, authentication, deployment, Git Incharge |
 | **Dinesh Babu Ilamaran** | Frontend Lead | UI/UX design, React components, state management, PWA |
 | **Dharanya Selvaraj** | AI Integration Lead | Model integration, image processing, classification logic |
 | **Siri Reddy Borem** | Documentation & Testing Lead | API docs, user guides, manual testing, QA |
@@ -637,6 +637,7 @@ The Marine Care project was conceived to address three critical needs:
 ### Project Links
 
 - **GitHub Repository:** [Mohamed495104/Marine-Care](https://github.com/Mohamed495104/Marine-Care)
+- **Live Site:** https://marinecare.vercel.app/
 - **Documentation:** [See docs/](./README.md)
 
 ### Related Documentation
@@ -705,10 +706,10 @@ Achievements:
 
 **Document Status:** Complete  
 **Version:** 1.0  
-**Last Updated:** December 2024  
+**Last Updated:** December 2025  
 **Maintained By:** Marine Care Development Team
 
 ---
 
-*© 2024 Marine Care Team - Conestoga College Capstone Project*  
+*© 2025 Marine Care Team *  
 *Licensed under MIT License - See LICENSE file for details*
