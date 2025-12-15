@@ -12,7 +12,7 @@
 ---
 
 **Course:** PROG8751 Capstone (Web Development)  
-**Date:** Fall 2024  
+**Date:** Fall 2025  
 **Instructor:** [Professor's Name]  
 **Institution:** Conestoga College
 

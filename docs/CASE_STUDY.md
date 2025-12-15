@@ -24,7 +24,7 @@ Marine Care is a cutting-edge Progressive Web Application (PWA) that leverages a
 
 | Metric | Value |
 |--------|-------|
-| **Development Duration** | 12 weeks (Fall 2024) |
+| **Development Duration** | 12 weeks (Fall 2025) |
 | **Team Size** | 4 developers (Full-stack) |
 | **Technology Stack** | Modern MERN + Next.js + AI |
 | **Deployment Cost** | $0 (Free tier services) |
@@ -59,8 +59,8 @@ Marine Care is a cutting-edge Progressive Web Application (PWA) that leverages a
 
 **Institution:** Conestoga College, Waterloo, Ontario, Canada  
 **Program:** PROG8751 - Capstone Project (Web Development)  
-**Term:** Fall 2024  
-**Duration:** September 2024 - December 2024 (12 weeks)
+**Term:** Fall 2025  
+**Duration:** September 2025 - December 12, 2025 (12 weeks)
 
 ### Environmental Context
 
@@ -613,7 +613,7 @@ The Marine Care project was conceived to address three critical needs:
 
 ### Development Team
 
-**Conestoga College - Fall 2024 Capstone Team**
+**Conestoga College - Fall 2025 Capstone Team**
 
 | Team Member | Role | Responsibilities |
 |-------------|------|------------------|
