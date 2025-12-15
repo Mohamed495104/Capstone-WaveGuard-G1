@@ -91,7 +91,7 @@ All documentation is organized in the `docs/` folder:
 
 | Document | Description |
 |----------|-------------|
-| [📋 Case Study](./docs/CASE_STUDY.md) | **Comprehensive project case study** |
+| [Case Study](./docs/CASE_STUDY.md) | **Comprehensive project case study** |
 | [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete project overview and summary |
 | [System Architecture](./docs/SYSTEM_ARCHITECTURE.md) | Overall system architecture and diagrams |
 | [Frontend Design System](./docs/FRONTEND_DESIGN_SYSTEM.md) | UI/UX design system documentation |
@@ -157,10 +157,10 @@ See [API Reference](./docs/API_REFERENCE.md) for complete documentation.
 
 ## Team
 
-- **Dinesh Babu Ilamaran** - Frontend Lead
-- **Mohamed Ijas** - Backend Lead
-- **Dharanya Selvaraj** - AI Integration Lead
-- **Siri Reddy Borem** - Documentation & Testing
+- **Dinesh Babu Ilamaran** - Frontend Incharge
+- **Mohamed Ijas** - Lead, Backend and Integration Incharge
+- **Dharanya Selvaraj** - AI Integration Incharge
+- **Siri Reddy Borem** - Documentation & Testing Incharge
 
 **Course:** PROG8751 Capstone (Web Development)  
 **Institution:** Conestoga College
