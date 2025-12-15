@@ -2,8 +2,8 @@
 
 > Complete API documentation for all endpoints
 
-**Last Updated:** November 2024  
-**Version:** 1.0  
+**Last Updated:** December 2024  
+**Version:** 1.1  
 **Base URL (Development):** `http://localhost:5000/api`  
 **Base URL (Production):** `https://your-backend-url.ondigitalocean.app/api`
 

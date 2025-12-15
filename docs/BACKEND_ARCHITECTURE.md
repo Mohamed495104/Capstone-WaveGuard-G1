@@ -2,8 +2,8 @@
 
 > Backend architecture and workflow documentation
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2024  
+**Version:** 1.1
 
 ---
 

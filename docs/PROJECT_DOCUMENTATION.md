@@ -12,7 +12,7 @@
 ---
 
 **Course:** PROG8751 Capstone (Web Development)  
-**Date:** Fall 2025  
+**Date:** Fall 2024  
 **Instructor:** [Professor's Name]  
 **Institution:** Conestoga College
 
@@ -285,8 +285,8 @@ User clicks login ──▶ Firebase Auth (Google OAuth/Email) ──▶ Get ID 
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| **Next.js** | 15.x | React framework with App Router, SSR, SSG |
-| **React** | 19.x | UI component library |
+| **Next.js** | 16.0.8 | React framework with App Router, SSR, SSG |
+| **React** | 19.2.1 | UI component library |
 | **Material UI (MUI)** | 7.x | Pre-built React components |
 | **Emotion** | 11.x | CSS-in-JS styling engine |
 | **Recharts** | 3.x | Data visualization (charts and graphs) |

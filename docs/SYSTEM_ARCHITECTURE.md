@@ -2,8 +2,8 @@
 
 > Complete system architecture documentation for the Marine Care application
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2024  
+**Version:** 1.1
 
 ---
 
@@ -33,7 +33,7 @@ Marine Care is an AI-powered Progressive Web App designed to help volunteers par
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Frontend Framework | Next.js 15 (React 19) | SSR, SEO, PWA support |
+| Frontend Framework | Next.js 16 (React 19) | SSR, SEO, PWA support |
 | Backend Framework | Express.js | Simple REST API, Node.js ecosystem |
 | Database | MongoDB Atlas | Document flexibility, geospatial queries |
 | Authentication | Firebase Auth | Secure, managed auth service |

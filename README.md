@@ -24,7 +24,7 @@ Marine Care is a mobile-first Progressive Web App designed to help volunteers pa
 
 | Layer | Technologies |
 |-------|-------------|
-| **Frontend** | Next.js 15, React 19, Material UI 7, Recharts, Framer Motion |
+| **Frontend** | Next.js 16, React 19, Material UI 7, Recharts, Framer Motion |
 | **Backend** | Node.js 20, Express 5, Mongoose |
 | **Database** | MongoDB Atlas, GridFS (image storage) |
 | **Authentication** | Firebase Authentication (Email/Password, Google OAuth) |
@@ -91,6 +91,8 @@ All documentation is organized in the `docs/` folder:
 
 | Document | Description |
 |----------|-------------|
+| [📋 Case Study](./docs/CASE_STUDY.md) | **Comprehensive project case study** |
+| [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete project overview and summary |
 | [System Architecture](./docs/SYSTEM_ARCHITECTURE.md) | Overall system architecture and diagrams |
 | [Frontend Design System](./docs/FRONTEND_DESIGN_SYSTEM.md) | UI/UX design system documentation |
 | [Backend Architecture](./docs/BACKEND_ARCHITECTURE.md) | Backend architecture and workflow |
@@ -99,6 +101,7 @@ All documentation is organized in the `docs/` folder:
 | [API Reference](./docs/API_REFERENCE.md) | Complete API endpoint documentation |
 | [Technical Stack](./docs/TECHNICAL_STACK.md) | Technologies and services summary |
 | [Deployment](./docs/DEPLOYMENT.md) | Deployment and hosting guide |
+| [PWA Summary](./docs/PWA_SUMMARY.md) | Progressive Web App capabilities |
 
 ---
 
