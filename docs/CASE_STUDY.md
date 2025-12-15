@@ -622,14 +622,6 @@ The Marine Care project was conceived to address three critical needs:
 | **Dharanya Selvaraj** | AI Integration Lead | Model integration, image processing, classification logic |
 | **Siri Reddy Borem** | Documentation & Testing Lead | API docs, user guides, manual testing, QA |
 
-### Special Thanks
-
-- **Conestoga College Faculty** - For guidance and support
-- **Open Source Community** - For amazing libraries and tools
-- **Firebase Team** - For excellent authentication services
-- **Hugging Face** - For democratizing AI with transformers.js
-- **MongoDB, Vercel & DigitalOcean** - For free hosting services
-
 ---
 
 ## Contact & Resources
