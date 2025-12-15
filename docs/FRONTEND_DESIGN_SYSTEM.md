@@ -2,8 +2,8 @@
 
 > Design system documentation for the Marine Care application
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2024  
+**Version:** 1.1
 
 ---
 

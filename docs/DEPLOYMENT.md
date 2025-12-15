@@ -2,8 +2,8 @@
 
 > Deployment instructions for hosting Marine Care in production
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2024  
+**Version:** 1.1
 
 ---
 

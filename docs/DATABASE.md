@@ -2,8 +2,8 @@
 
 > Database architecture documentation including models, relationships, and indexing
 
-**Last Updated:** November 2024  
-**Version:** 1.0
+**Last Updated:** December 2024  
+**Version:** 1.1
 
 ---
 
