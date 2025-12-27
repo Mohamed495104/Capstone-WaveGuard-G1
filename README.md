@@ -93,6 +93,7 @@ All documentation is organized in the `docs/` folder:
 |----------|-------------|
 | [Case Study](./docs/CASE_STUDY.md) | **Comprehensive project case study** |
 | [React Features Analysis](./docs/REACT_FEATURES_ANALYSIS.md) | **React 19 features & architecture deep dive** |
+| [Interview Quick Reference](./docs/INTERVIEW_QUICK_REFERENCE.md) | **Fast reference guide for interviews** |
 | [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete project overview and summary |
 | [System Architecture](./docs/SYSTEM_ARCHITECTURE.md) | Overall system architecture and diagrams |
 | [Frontend Design System](./docs/FRONTEND_DESIGN_SYSTEM.md) | UI/UX design system documentation |
