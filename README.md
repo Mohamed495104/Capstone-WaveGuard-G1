@@ -89,9 +89,21 @@ PORT=5000
 
 All documentation is organized in the `docs/` folder:
 
+### 🎯 System Design Documentation (FAANG Interview Prep)
+
 | Document | Description |
 |----------|-------------|
-| [Case Study](./docs/CASE_STUDY.md) | **Comprehensive project case study** |
+| [**System Design Overview**](./docs/SYSTEM_DESIGN_OVERVIEW.md) | **📚 START HERE - Master navigation guide for all system design docs** |
+| [System Design Patterns](./docs/SYSTEM_DESIGN_PATTERNS.md) | **Industry-level design patterns analysis (Layered, MVC, Repository, SOLID)** |
+| [Scalability Strategies](./docs/SCALABILITY_STRATEGIES.md) | **Scaling from MVP to enterprise level (caching, sharding, load balancing)** |
+| [System Design Interview Guide](./docs/SYSTEM_DESIGN_INTERVIEW_GUIDE.md) | **FAANG interview preparation with framework and practice questions** |
+| [Architecture Decisions](./docs/ARCHITECTURE_DECISIONS.md) | **ADRs documenting technology choices and trade-offs** |
+
+### 📖 Core Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Case Study](./docs/CASE_STUDY.md) | Comprehensive project case study |
 | [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete project overview and summary |
 | [System Architecture](./docs/SYSTEM_ARCHITECTURE.md) | Overall system architecture and diagrams |
 | [Frontend Design System](./docs/FRONTEND_DESIGN_SYSTEM.md) | UI/UX design system documentation |
