@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "@/hooks/useAuth";
+import { useAuthContext } from "@/context/AuthContext";
 import { validateEmail, validatePassword } from "@/utils/validation";
 import {
     Box,
@@ -40,6 +41,7 @@ import {
 
 export default function LoginPage() {
     const router = useRouter();
+    const { isAuthenticated } = useAuthContext();
     const [form, setForm] = useState({ email: "", password: "" });
     const [touched, setTouched] = useState({ email: false, password: false });
     const [formErrors, setFormErrors] = useState({});
@@ -54,6 +56,13 @@ export default function LoginPage() {
     });
     const { login, googleLogin } = useAuth();
     const debounceRef = useRef(null);
+
+    // Redirect to home if already authenticated (handles mobile Google redirect flow)
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push("/home");
+        }
+    }, [isAuthenticated, router]);
 
     // State for analytics data
     const [analyticsData, setAnalyticsData] = useState([
