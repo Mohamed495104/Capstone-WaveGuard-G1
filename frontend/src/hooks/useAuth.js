@@ -16,8 +16,16 @@ import { useAuthContext } from "@/context/AuthContext";
 // Detect mobile device
 function isMobileDevice() {
     if (typeof window === 'undefined') return false;
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-        || window.innerWidth < 768;
+
+    // Check if running as PWA in standalone mode - prefer popup for better compatibility
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isStandalone) return false;
+
+    // Check for mobile user agent and touch capability
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    return mobileUA && hasTouchScreen;
 }
 
 // Sync user with backend (used for popup login)

@@ -64,6 +64,15 @@ export default function SignupPage() {
     // This useEffect is for the initial fade-in animation.
     useEffect(() => {
         setIsLoaded(true);
+
+        // Check for redirect errors from AuthContext
+        if (typeof window !== 'undefined') {
+            const redirectError = sessionStorage.getItem('authRedirectError');
+            if (redirectError) {
+                setFormErrors({ global: redirectError });
+                sessionStorage.removeItem('authRedirectError');
+            }
+        }
     }, []);
 
     // All complex redirect-handling useEffect logic has been removed from this file.
@@ -166,13 +175,20 @@ export default function SignupPage() {
     };
 
     const handleGoogleSignup = async () => {
-        setGoogleLoading(true);
         try {
+            setGoogleLoading(true);
+            // Clear any previous redirect errors
+            if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('authRedirectError');
+            }
             // This just starts the redirect. The AuthProvider handles the result.
             await googleLogin();
         } catch (err) {
-            setGoogleLoading(false);
             setFormErrors({ global: err.message || "Could not start Google sign-in." });
+        } finally {
+            // Note: On successful redirect, page will navigate away before this executes
+            // On error, this ensures loading state is reset
+            setGoogleLoading(false);
         }
     };
 

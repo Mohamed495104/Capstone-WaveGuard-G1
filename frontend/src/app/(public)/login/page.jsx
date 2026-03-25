@@ -66,6 +66,15 @@ export default function LoginPage() {
 
     // Fetch login stats
     useEffect(() => {
+        // Check for redirect errors from AuthContext
+        if (typeof window !== 'undefined') {
+            const redirectError = sessionStorage.getItem('authRedirectError');
+            if (redirectError) {
+                setFormErrors({ global: redirectError });
+                sessionStorage.removeItem('authRedirectError');
+            }
+        }
+
         const fetchLoginStats = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/home/login-stats`);
@@ -240,12 +249,18 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         try {
             setGoogleLoading(true);
+            // Clear any previous redirect errors
+            if (typeof window !== 'undefined') {
+                sessionStorage.removeItem('authRedirectError');
+            }
             await googleLogin();
             setLoginMessage("Signed in successfully with Google!");
             setTimeout(() => router.push("/home"), 1500);
         } catch (err) {
             setFormErrors({ global: err.message || "Google login failed. Please try again later." });
         } finally {
+            // Note: On successful redirect, page will navigate away before this executes
+            // On error, this ensures loading state is reset
             setGoogleLoading(false);
         }
     };
