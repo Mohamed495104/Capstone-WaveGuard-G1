@@ -65,12 +65,17 @@ export default function SignupPage() {
     useEffect(() => {
         setIsLoaded(true);
 
-        // Check for redirect errors from AuthContext
+        // Check for redirect errors from AuthContext (if storage is available)
         if (typeof window !== 'undefined') {
-            const redirectError = sessionStorage.getItem('authRedirectError');
-            if (redirectError) {
-                setFormErrors({ global: redirectError });
-                sessionStorage.removeItem('authRedirectError');
+            try {
+                const redirectError = sessionStorage.getItem('authRedirectError');
+                if (redirectError) {
+                    setFormErrors({ global: redirectError });
+                    sessionStorage.removeItem('authRedirectError');
+                }
+            } catch (e) {
+                // Ignore storage errors during error retrieval
+                console.warn('Could not access sessionStorage:', e);
             }
         }
     }, []);
@@ -177,9 +182,13 @@ export default function SignupPage() {
     const handleGoogleSignup = async () => {
         try {
             setGoogleLoading(true);
-            // Clear any previous redirect errors
+            // Clear any previous redirect errors (if storage is available)
             if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('authRedirectError');
+                try {
+                    sessionStorage.removeItem('authRedirectError');
+                } catch (e) {
+                    // Ignore - storage might not be accessible
+                }
             }
             // This just starts the redirect. The AuthProvider handles the result.
             await googleLogin();

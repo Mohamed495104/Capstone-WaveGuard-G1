@@ -28,6 +28,20 @@ function isMobileDevice() {
     return mobileUA && hasTouchScreen;
 }
 
+// Check if storage is accessible
+function isStorageAccessible() {
+    if (typeof window === 'undefined') return false;
+    try {
+        const testKey = '__storage_test__';
+        sessionStorage.setItem(testKey, 'test');
+        sessionStorage.removeItem(testKey);
+        return true;
+    } catch (e) {
+        console.warn('sessionStorage is not accessible:', e);
+        return false;
+    }
+}
+
 // Sync user with backend (used for popup login)
 async function syncUser(idToken, retries = 2) {
     try {
@@ -97,17 +111,41 @@ export default function useAuth() {
     };
 
     const googleLogin = async () => {
-        await ensureSessionPersistence();
         const provider = new GoogleAuthProvider();
 
-        if (isMobileDevice()) {
-            await signInWithRedirect(auth, provider);
-        } else {
-            const result = await signInWithPopup(auth, provider);
-            if (result.user) {
-                const idToken = await result.user.getIdToken(true);
-                await createSession(idToken);
-                await syncUser(idToken);
+        // Check storage accessibility first
+        const storageAvailable = isStorageAccessible();
+
+        // Decide authentication method
+        // Priority: Always use popup if storage is unavailable (redirect requires storage)
+        // Otherwise: Use redirect only on actual mobile devices
+        const useRedirect = storageAvailable && isMobileDevice();
+
+        try {
+            if (useRedirect) {
+                // Mobile with storage: Use redirect
+                await ensureSessionPersistence();
+                await signInWithRedirect(auth, provider);
+            } else {
+                // Desktop OR storage unavailable: Use popup
+                // Note: No persistence call needed for popup - it completes in same context
+                const result = await signInWithPopup(auth, provider);
+                if (result.user) {
+                    const idToken = await result.user.getIdToken(true);
+                    await createSession(idToken);
+                    await syncUser(idToken);
+                }
+            }
+        } catch (error) {
+            // Provide user-friendly error messages
+            if (error.code === 'auth/popup-blocked') {
+                throw new Error('Popup was blocked by your browser. Please allow popups for this site and try again.');
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                throw new Error('Sign-in was cancelled. Please try again.');
+            } else if (error.code === 'auth/web-storage-unsupported') {
+                throw new Error('Your browser settings prevent sign-in. Please enable cookies and storage, or try a different browser.');
+            } else {
+                throw error;
             }
         }
     };

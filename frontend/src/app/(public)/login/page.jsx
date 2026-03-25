@@ -66,12 +66,17 @@ export default function LoginPage() {
 
     // Fetch login stats
     useEffect(() => {
-        // Check for redirect errors from AuthContext
+        // Check for redirect errors from AuthContext (if storage is available)
         if (typeof window !== 'undefined') {
-            const redirectError = sessionStorage.getItem('authRedirectError');
-            if (redirectError) {
-                setFormErrors({ global: redirectError });
-                sessionStorage.removeItem('authRedirectError');
+            try {
+                const redirectError = sessionStorage.getItem('authRedirectError');
+                if (redirectError) {
+                    setFormErrors({ global: redirectError });
+                    sessionStorage.removeItem('authRedirectError');
+                }
+            } catch (e) {
+                // Ignore storage errors during error retrieval
+                console.warn('Could not access sessionStorage:', e);
             }
         }
 
@@ -249,9 +254,13 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         try {
             setGoogleLoading(true);
-            // Clear any previous redirect errors
+            // Clear any previous redirect errors (if storage is available)
             if (typeof window !== 'undefined') {
-                sessionStorage.removeItem('authRedirectError');
+                try {
+                    sessionStorage.removeItem('authRedirectError');
+                } catch (e) {
+                    // Ignore - storage might not be accessible
+                }
             }
             await googleLogin();
             setLoginMessage("Signed in successfully with Google!");

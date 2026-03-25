@@ -77,9 +77,13 @@ export function AuthProvider({ children }) {
                 }
             } catch (error) {
                 console.error("Error handling redirect result:", error);
-                // Store error to display to user
+                // Store error to display to user (if storage is available)
                 if (typeof window !== 'undefined') {
-                    sessionStorage.setItem('authRedirectError', error.message || 'Failed to complete Google sign-in');
+                    try {
+                        sessionStorage.setItem('authRedirectError', error.message || 'Failed to complete Google sign-in');
+                    } catch (storageError) {
+                        console.warn('Could not store error in sessionStorage:', storageError);
+                    }
                 }
             }
         };
